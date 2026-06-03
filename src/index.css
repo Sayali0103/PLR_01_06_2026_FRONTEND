@@ -1,0 +1,57 @@
+@import "@fontsource/space-grotesk/400.css";
+@import "@fontsource/space-grotesk/500.css";
+@import "@fontsource/space-grotesk/600.css";
+@import "@fontsource/space-grotesk/700.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: "Space Grotesk", sans-serif;
+  --color-orange: #ff9501;
+  --color-amber: #e07d00;
+  --color-cream: #faf7f2;
+  --color-cream2: #f3ede3;
+  --color-grey: #ece7e1;
+  --color-surface: #f5f1eb;
+  --color-text: #1a1208;
+  --color-dark: #1a1208;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: auto;
+  scroll-behavior: smooth;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-orange) #f3ede3;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #f3ede3;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #ffb347 0%, #ff9501 52%, #e07d00 100%);
+  border: 2px solid #f3ede3;
+  border-radius: 100px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: #ff9501;
+}

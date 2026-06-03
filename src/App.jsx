@@ -1,0 +1,58 @@
+import { useEffect } from 'react'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
+import Navbar from './components/Navbar'
+import Footer from './components/Footer'
+import Home from './pages/Home'
+import Careers from './pages/Careers'
+import About from './pages/About'
+import Blogs from './pages/Blogs'
+import News from './pages/News'
+import Applications from './pages/Applications'
+import ApplicationDetail from './pages/ApplicationDetail'
+import Technology from './pages/Technology'
+import Admin from './pages/Admin'
+import Contact from './pages/Contact'
+import BookDemo from './pages/BookDemo'
+
+function ScrollToHash() {
+  const { hash, pathname, key } = useLocation()
+
+  useEffect(() => {
+    if (!hash) {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      return
+    }
+
+    const id = hash.slice(1)
+    window.requestAnimationFrame(() => {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+  }, [hash, pathname, key])
+
+  return null
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <ScrollToHash />
+      <Navbar />
+      <Routes>
+        <Route path="/"                          element={<Home />} />
+        <Route path="/products"                  element={<div className="pt-20 min-h-screen flex items-center justify-center">Products — Coming Soon</div>} />
+        <Route path="/technology"                element={<Technology />} />
+        <Route path="/applications"              element={<Applications />} />
+        <Route path="/applications/:slug"        element={<ApplicationDetail />} />
+        <Route path="/company"                   element={<div className="pt-20 min-h-screen flex items-center justify-center">Company — Coming Soon</div>} />
+        <Route path="/about"                     element={<About />} />
+        <Route path="/blogs"                     element={<Blogs />} />
+        <Route path="/news"                      element={<News />} />
+        <Route path="/careers"                   element={<Careers />} />
+        <Route path="/contact"                   element={<Contact />} />
+        <Route path="/book-demo"                 element={<BookDemo />} />
+        <Route path="/admin"                     element={<Admin />} />
+      </Routes>
+      <Footer />
+    </BrowserRouter>
+  )
+}

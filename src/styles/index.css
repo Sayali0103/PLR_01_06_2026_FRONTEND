@@ -1,0 +1,41 @@
+@import "@fontsource/barlow/400.css";
+@import "@fontsource/barlow/600.css";
+@import "@fontsource/barlow/700.css";
+@import "@fontsource/barlow/800.css";
+@import "@fontsource/barlow/900.css";
+@import "@fontsource/barlow-condensed/700.css";
+@import "@fontsource/barlow-condensed/800.css";
+@import "@fontsource/barlow-condensed/900.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --orange:  #ff9501;
+  --amber:   #E68A00;
+  --tan:     #d4ba99;
+  --silver:  #c1bfbf;
+  --dark:    #111111;
+  --gray:    #666666;
+  --light:   #f5f4f2;
+  --white:   #ffffff;
+  --font:    "Barlow", sans-serif;
+  --font-cd: "Barlow Condensed", sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font);
+  background: var(--white);
+  color: var(--dark);
+  overflow-x: hidden;
+}
+
+a { text-decoration: none; color: inherit; }
+button { cursor: pointer; font-family: var(--font); border: none; }
+img, video { display: block; max-width: 100%; }
+section { width: 100%; }

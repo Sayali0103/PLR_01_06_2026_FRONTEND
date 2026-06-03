@@ -1,0 +1,461 @@
+import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import {
+  adminFetchJobs, adminCreateJob, adminUpdateJob, adminDeleteJob,
+  adminFetchApplications, adminUpdateAppStatus, adminDeleteApplication,
+} from '../hooks/useJobs'
+
+const EMPTY_JOB = {
+  title: '', dept: '', location: 'Pune, India', positionType: 'Full time',
+  overview: '', responsibilities: '', requiredSkills: '', additionalSkills: '',
+  whyJoin: '', tags: '', applyInternUrl: '', applyJobUrl: '',
+  isPaid: true, isActive: true,
+}
+
+const statusColors = {
+  new: { bg: 'rgba(30,100,220,0.07)', text: '#1e64dc', border: 'rgba(30,100,220,0.18)' },
+  reviewing: { bg: 'rgba(255,149,1,0.08)', text: '#FF9501', border: 'rgba(255,149,1,0.2)' },
+  shortlisted: { bg: 'rgba(20,160,80,0.07)', text: '#14a050', border: 'rgba(20,160,80,0.18)' },
+  rejected: { bg: 'rgba(220,0,0,0.06)', text: '#dc3030', border: 'rgba(220,0,0,0.15)' },
+}
+
+export default function Admin() {
+  const [password, setPassword] = useState('')
+  const [authed, setAuthed] = useState(false)
+  const [authError, setAuthError] = useState('')
+  const [tab, setTab] = useState('jobs') // 'jobs' | 'applications'
+
+  const [jobs, setJobs] = useState([])
+  const [applications, setApplications] = useState([])
+  const [loadingJobs, setLoadingJobs] = useState(false)
+  const [loadingApps, setLoadingApps] = useState(false)
+
+  const [showForm, setShowForm] = useState(false)
+  const [editingJob, setEditingJob] = useState(null)
+  const [formData, setFormData] = useState(EMPTY_JOB)
+  const [saving, setSaving] = useState(false)
+  const [formError, setFormError] = useState('')
+
+  // Login
+  const login = async e => {
+    e.preventDefault()
+    setAuthError('')
+    try {
+      await adminFetchJobs(password)
+      setAuthed(true)
+      loadJobs()
+    } catch {
+      setAuthError('Incorrect password.')
+    }
+  }
+
+  const loadJobs = async () => {
+    setLoadingJobs(true)
+    try { setJobs(await adminFetchJobs(password)) }
+    catch { /* handled */ }
+    finally { setLoadingJobs(false) }
+  }
+
+  const loadApps = async () => {
+    setLoadingApps(true)
+    try { setApplications(await adminFetchApplications(password)) }
+    catch { /* handled */ }
+    finally { setLoadingApps(false) }
+  }
+
+  useEffect(() => { if (authed && tab === 'applications') loadApps() }, [tab, authed])
+
+  // Helpers — convert textarea lines to/from arrays
+  const toArr = str => str.split('\n').map(s => s.trim()).filter(Boolean)
+  const toStr = arr => (arr || []).join('\n')
+
+  const openCreate = () => {
+    setEditingJob(null)
+    setFormData(EMPTY_JOB)
+    setFormError('')
+    setShowForm(true)
+  }
+
+  const openEdit = job => {
+    setEditingJob(job)
+    setFormData({
+      ...job,
+      responsibilities: toStr(job.responsibilities),
+      requiredSkills: toStr(job.requiredSkills),
+      additionalSkills: toStr(job.additionalSkills),
+      whyJoin: toStr(job.whyJoin),
+      tags: (job.tags || []).join(', '),
+    })
+    setFormError('')
+    setShowForm(true)
+  }
+
+  const saveJob = async e => {
+    e.preventDefault()
+    setSaving(true)
+    setFormError('')
+    const payload = {
+      ...formData,
+      responsibilities: toArr(formData.responsibilities),
+      requiredSkills: toArr(formData.requiredSkills),
+      additionalSkills: toArr(formData.additionalSkills),
+      whyJoin: toArr(formData.whyJoin),
+      tags: formData.tags.split(',').map(s => s.trim()).filter(Boolean),
+    }
+    try {
+      if (editingJob) {
+        await adminUpdateJob(editingJob._id, payload, password)
+      } else {
+        await adminCreateJob(payload, password)
+      }
+      setShowForm(false)
+      loadJobs()
+    } catch (err) {
+      setFormError(err.message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const deleteJob = async id => {
+    if (!confirm('Delete this job posting?')) return
+    await adminDeleteJob(id, password)
+    loadJobs()
+  }
+
+  const toggleActive = async job => {
+    await adminUpdateJob(job._id, { isActive: !job.isActive }, password)
+    loadJobs()
+  }
+
+  const updateStatus = async (id, status) => {
+    await adminUpdateAppStatus(id, status, password)
+    loadApps()
+  }
+
+  const deleteApp = async id => {
+    if (!confirm('Delete this application?')) return
+    await adminDeleteApplication(id, password)
+    loadApps()
+  }
+
+  // ── LOGIN SCREEN ──
+  if (!authed) {
+    return (
+      <div className="min-h-screen bg-cream flex items-center justify-center px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="w-full max-w-[380px] bg-white rounded-[28px] p-10"
+          style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 8px 50px rgba(0,0,0,0.08)' }}
+        >
+          <img src="/logo/logofinal.png" alt="PLR" className="h-9 mb-8 object-contain" />
+          <h1 className="font-bold text-[22px] text-[#111] mb-1 tracking-tight">Admin Dashboard</h1>
+          <p className="text-[13.5px] text-[#aaa] mb-8">Enter your admin password to continue.</p>
+          <form onSubmit={login} className="space-y-4">
+            {authError && (
+              <div className="text-[13px] text-red-500 bg-red-50 px-4 py-3 rounded-xl" style={{ border: '1px solid rgba(220,0,0,0.12)' }}>
+                {authError}
+              </div>
+            )}
+            <input
+              type="password" value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="Admin password"
+              className="w-full px-4 py-[11px] text-[14px] bg-[#f9f6f1] rounded-xl outline-none focus:ring-2 focus:ring-orange/20"
+              style={{ border: '1px solid rgba(0,0,0,0.09)' }}
+            />
+            <motion.button
+              whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
+              className="w-full bg-orange text-white font-bold text-[14px] py-[12px] rounded-xl cursor-pointer"
+              style={{ boxShadow: '0 4px 18px rgba(255,149,1,0.28)' }}
+            >
+              Sign In →
+            </motion.button>
+          </form>
+        </motion.div>
+      </div>
+    )
+  }
+
+  // ── MAIN DASHBOARD ──
+  return (
+    <div className="min-h-screen bg-cream pt-[90px]">
+      <div className="max-w-[1200px] mx-auto px-10 py-10">
+
+        {/* Top bar */}
+        <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
+          <div>
+            <h1 className="font-bold text-[26px] text-[#111] tracking-tight">Admin Dashboard</h1>
+            <p className="text-[13px] text-[#aaa] mt-1">Manage job listings and applications</p>
+          </div>
+          <button
+            onClick={() => { setAuthed(false); setPassword('') }}
+            className="text-[13px] text-[#aaa] hover:text-red-400 transition-colors duration-200 cursor-pointer"
+          >
+            Sign out
+          </button>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex items-center gap-2 mb-8">
+          {['jobs', 'applications'].map(t => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`px-6 py-[9px] rounded-full text-[13px] font-semibold cursor-pointer capitalize transition-all duration-200 ${
+                tab === t ? 'bg-orange text-white' : 'bg-white text-[#555] hover:text-orange'
+              }`}
+              style={{
+                border: tab === t ? '1px solid #FF9501' : '1px solid rgba(0,0,0,0.09)',
+                boxShadow: tab === t ? '0 2px 12px rgba(255,149,1,0.28)' : '0 1px 4px rgba(0,0,0,0.04)',
+              }}
+            >
+              {t} {t === 'jobs' ? `(${jobs.length})` : `(${applications.length})`}
+            </button>
+          ))}
+        </div>
+
+        {/* ── JOBS TAB ── */}
+        {tab === 'jobs' && (
+          <div>
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="font-bold text-[18px] text-[#111] tracking-tight">Job Postings</h2>
+              <motion.button
+                whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                onClick={openCreate}
+                className="inline-flex items-center gap-2 bg-orange text-white text-[13px] font-bold px-6 py-[10px] rounded-xl cursor-pointer"
+                style={{ boxShadow: '0 4px 18px rgba(255,149,1,0.28)' }}
+              >
+                + Add Job
+              </motion.button>
+            </div>
+
+            {loadingJobs ? (
+              <div className="space-y-3">{[1,2,3].map(i => <div key={i} className="bg-white h-20 rounded-2xl animate-pulse" style={{ border: '1px solid rgba(0,0,0,0.07)' }} />)}</div>
+            ) : (
+              <div className="space-y-3">
+                {jobs.map(job => (
+                  <motion.div
+                    key={job._id}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-white rounded-2xl px-7 py-5 flex items-center justify-between gap-6 flex-wrap"
+                    style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}
+                  >
+                    <div className="flex items-center gap-4 flex-1 min-w-0">
+                      <div
+                        className={`w-2 h-2 rounded-full flex-shrink-0 ${job.isActive ? 'bg-green-400' : 'bg-[#ddd]'}`}
+                        style={{ boxShadow: job.isActive ? '0 0 6px rgba(74,222,128,0.7)' : 'none' }}
+                      />
+                      <div className="min-w-0">
+                        <p className="font-semibold text-[15px] text-[#111] truncate">{job.title}</p>
+                        <p className="text-[12.5px] text-[#aaa]">{job.dept} · {job.location}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <button
+                        onClick={() => toggleActive(job)}
+                        className={`text-[11.5px] font-semibold px-3 py-[4px] rounded-full cursor-pointer transition-all duration-200 ${
+                          job.isActive ? 'text-green-600 bg-green-50 hover:bg-red-50 hover:text-red-500' : 'text-[#aaa] bg-[#f5f3ef] hover:bg-green-50 hover:text-green-600'
+                        }`}
+                        style={{ border: '1px solid rgba(0,0,0,0.08)' }}
+                      >
+                        {job.isActive ? 'Active' : 'Inactive'}
+                      </button>
+                      <button
+                        onClick={() => openEdit(job)}
+                        className="text-[12px] font-semibold text-[#555] hover:text-orange px-3 py-[4px] rounded-full transition-colors duration-200 cursor-pointer"
+                        style={{ border: '1px solid rgba(0,0,0,0.08)' }}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => deleteJob(job._id)}
+                        className="text-[12px] font-semibold text-[#aaa] hover:text-red-500 px-3 py-[4px] rounded-full transition-colors duration-200 cursor-pointer"
+                        style={{ border: '1px solid rgba(0,0,0,0.08)' }}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </motion.div>
+                ))}
+                {jobs.length === 0 && <p className="text-center text-[#ccc] py-16 text-[14px]">No job postings yet. Add one above.</p>}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── APPLICATIONS TAB ── */}
+        {tab === 'applications' && (
+          <div>
+            <h2 className="font-bold text-[18px] text-[#111] tracking-tight mb-5">Applications Received</h2>
+            {loadingApps ? (
+              <div className="space-y-3">{[1,2,3].map(i => <div key={i} className="bg-white h-20 rounded-2xl animate-pulse" style={{ border: '1px solid rgba(0,0,0,0.07)' }} />)}</div>
+            ) : (
+              <div className="space-y-3">
+                {applications.map(app => {
+                  const sc = statusColors[app.status] || statusColors.new
+                  return (
+                    <motion.div
+                      key={app._id}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-white rounded-2xl px-7 py-5 flex items-start justify-between gap-6 flex-wrap"
+                      style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <p className="font-semibold text-[15px] text-[#111]">{app.name}</p>
+                          <span
+                            className="text-[10.5px] font-semibold tracking-[1px] uppercase px-2.5 py-[3px] rounded-full"
+                            style={{ background: app.applicantType === 'intern' ? 'rgba(255,149,1,0.08)' : 'rgba(30,100,220,0.07)', color: app.applicantType === 'intern' ? '#FF9501' : '#1e64dc', border: `1px solid ${app.applicantType === 'intern' ? 'rgba(255,149,1,0.2)' : 'rgba(30,100,220,0.18)'}` }}
+                          >
+                            {app.applicantType}
+                          </span>
+                        </div>
+                        <p className="text-[12.5px] text-[#aaa] mb-1">{app.jobTitle} · {app.email} {app.phone ? `· ${app.phone}` : ''}</p>
+                        {app.resumeUrl && (
+                          <a href={app.resumeUrl} target="_blank" rel="noopener noreferrer" className="text-[12px] text-orange hover:underline">
+                            View Resume / Portfolio ↗
+                          </a>
+                        )}
+                        {app.message && <p className="text-[12.5px] text-[#777] mt-2 max-w-[500px] leading-[1.6]">"{app.message}"</p>}
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
+                        <select
+                          value={app.status}
+                          onChange={e => updateStatus(app._id, e.target.value)}
+                          className="text-[12px] font-semibold px-3 py-[5px] rounded-full cursor-pointer outline-none"
+                          style={{ background: sc.bg, color: sc.text, border: `1px solid ${sc.border}` }}
+                        >
+                          <option value="new">New</option>
+                          <option value="reviewing">Reviewing</option>
+                          <option value="shortlisted">Shortlisted</option>
+                          <option value="rejected">Rejected</option>
+                        </select>
+                        <button
+                          onClick={() => deleteApp(app._id)}
+                          className="text-[12px] text-[#ccc] hover:text-red-500 transition-colors duration-200 cursor-pointer px-3 py-[5px] rounded-full"
+                          style={{ border: '1px solid rgba(0,0,0,0.08)' }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </motion.div>
+                  )
+                })}
+                {applications.length === 0 && <p className="text-center text-[#ccc] py-16 text-[14px]">No applications received yet.</p>}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* ── JOB FORM MODAL ── */}
+      <AnimatePresence>
+        {showForm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] flex items-center justify-center px-4"
+            style={{ background: 'rgba(10,6,2,0.72)', backdropFilter: 'blur(6px)' }}
+            onClick={() => setShowForm(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 32, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.97 }}
+              transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
+              className="w-full max-w-[680px] max-h-[88vh] overflow-y-auto rounded-[28px] bg-white"
+              style={{ boxShadow: '0 32px 100px rgba(0,0,0,0.22)' }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="sticky top-0 z-10 flex items-center justify-between px-8 py-6 bg-white rounded-t-[28px]" style={{ borderBottom: '1px solid rgba(0,0,0,0.07)' }}>
+                <h2 className="font-bold text-[18px] text-[#111] tracking-tight">{editingJob ? 'Edit Job' : 'New Job Posting'}</h2>
+                <button onClick={() => setShowForm(false)} className="w-8 h-8 rounded-full flex items-center justify-center text-[#bbb] hover:text-[#333] hover:bg-[#f5f3ef] transition-all cursor-pointer">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 4L4 12M4 4l8 8"/></svg>
+                </button>
+              </div>
+
+              <form onSubmit={saveJob} className="px-8 py-7 space-y-5">
+                {formError && <div className="text-[13px] text-red-500 bg-red-50 px-4 py-3 rounded-xl" style={{ border: '1px solid rgba(220,0,0,0.12)' }}>{formError}</div>}
+
+                <div className="grid grid-cols-2 gap-4">
+                  {[['title','Job Title *'],['dept','Department *'],['location','Location'],['positionType','Position Type']].map(([key, label]) => (
+                    <div key={key}>
+                      <label className="block text-[11.5px] font-semibold text-[#666] mb-1.5">{label}</label>
+                      <input value={formData[key]} onChange={e => setFormData(f => ({...f, [key]: e.target.value}))}
+                        className="w-full px-4 py-[9px] text-[13.5px] bg-[#f9f6f1] rounded-xl outline-none focus:ring-2 focus:ring-orange/20"
+                        style={{ border: '1px solid rgba(0,0,0,0.09)' }} />
+                    </div>
+                  ))}
+                </div>
+
+                <div>
+                  <label className="block text-[11.5px] font-semibold text-[#666] mb-1.5">Role Overview *</label>
+                  <textarea value={formData.overview} onChange={e => setFormData(f => ({...f, overview: e.target.value}))}
+                    rows={3} className="w-full px-4 py-[9px] text-[13.5px] bg-[#f9f6f1] rounded-xl outline-none focus:ring-2 focus:ring-orange/20 resize-none"
+                    style={{ border: '1px solid rgba(0,0,0,0.09)' }} />
+                </div>
+
+                {[['responsibilities','Responsibilities (one per line)'],['requiredSkills','Required Skills (one per line)'],['additionalSkills','Additional Skills (one per line)'],['whyJoin','Why Join Us (one per line)']].map(([key, label]) => (
+                  <div key={key}>
+                    <label className="block text-[11.5px] font-semibold text-[#666] mb-1.5">{label}</label>
+                    <textarea value={formData[key]} onChange={e => setFormData(f => ({...f, [key]: e.target.value}))}
+                      rows={4} className="w-full px-4 py-[9px] text-[13.5px] bg-[#f9f6f1] rounded-xl outline-none focus:ring-2 focus:ring-orange/20 resize-none"
+                      style={{ border: '1px solid rgba(0,0,0,0.09)' }} />
+                  </div>
+                ))}
+
+                <div>
+                  <label className="block text-[11.5px] font-semibold text-[#666] mb-1.5">Tags (comma separated)</label>
+                  <input value={formData.tags} onChange={e => setFormData(f => ({...f, tags: e.target.value}))}
+                    placeholder="React, Python, ROS 2"
+                    className="w-full px-4 py-[9px] text-[13.5px] bg-[#f9f6f1] rounded-xl outline-none focus:ring-2 focus:ring-orange/20"
+                    style={{ border: '1px solid rgba(0,0,0,0.09)' }} />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  {[['applyInternUrl','Intern Application URL'],['applyJobUrl','Employee Application URL']].map(([key, label]) => (
+                    <div key={key}>
+                      <label className="block text-[11.5px] font-semibold text-[#666] mb-1.5">{label}</label>
+                      <input value={formData[key]} onChange={e => setFormData(f => ({...f, [key]: e.target.value}))}
+                        className="w-full px-4 py-[9px] text-[13.5px] bg-[#f9f6f1] rounded-xl outline-none focus:ring-2 focus:ring-orange/20"
+                        style={{ border: '1px solid rgba(0,0,0,0.09)' }} />
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex items-center gap-6 pt-1">
+                  {[['isPaid','Paid opportunity'],['isActive','Active (visible on site)']].map(([key, label]) => (
+                    <label key={key} className="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" checked={formData[key]} onChange={e => setFormData(f => ({...f, [key]: e.target.checked}))}
+                        className="w-4 h-4 accent-orange" />
+                      <span className="text-[13px] text-[#555]">{label}</span>
+                    </label>
+                  ))}
+                </div>
+
+                <div className="flex items-center gap-3 pt-3 sticky bottom-0 bg-white pb-2">
+                  <motion.button type="submit" disabled={saving} whileHover={{ scale: saving ? 1 : 1.02 }} whileTap={{ scale: saving ? 1 : 0.97 }}
+                    className="flex-1 bg-orange text-white font-bold text-[13.5px] py-[12px] rounded-xl cursor-pointer disabled:opacity-60"
+                    style={{ boxShadow: '0 4px 18px rgba(255,149,1,0.28)' }}>
+                    {saving ? 'Saving...' : editingJob ? 'Save Changes' : 'Create Job'}
+                  </motion.button>
+                  <button type="button" onClick={() => setShowForm(false)}
+                    className="px-6 py-[12px] text-[13px] text-[#888] hover:text-[#333] rounded-xl cursor-pointer transition-colors"
+                    style={{ border: '1px solid rgba(0,0,0,0.09)' }}>
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
