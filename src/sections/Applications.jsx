@@ -50,7 +50,7 @@ function VideoCard({ app, variants }) {
       whileHover={{ y: -6 }}
       transition={{ duration: 0.25 }}
       className="group relative rounded-2xl overflow-hidden cursor-pointer"
-      style={{ height: 420 }}
+      style={{ height: 'clamp(300px, 70vw, 420px)' }}
     >
       <video
         ref={videoRef}
@@ -67,12 +67,12 @@ function VideoCard({ app, variants }) {
           background: 'linear-gradient(to top, rgba(26,18,8,0.72) 8%, rgba(26,18,8,0.34) 40%, rgba(255,149,1,0.05) 75%, transparent 100%)',
         }}
       />
-      <div className="absolute bottom-0 left-0 right-0 p-6">
+      <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6">
         <h3 className="font-bold text-[20px] text-orange mb-2 tracking-tight drop-shadow-[0_4px_16px_rgba(0,0,0,0.2)]">
           {app.title}
         </h3>
         <p
-          className="text-[13px] leading-[1.6] transition-all duration-300 max-h-0 overflow-hidden group-hover:max-h-[80px]"
+          className="text-[13px] leading-[1.6] transition-all duration-300 max-h-[90px] overflow-hidden sm:max-h-0 sm:group-hover:max-h-[80px]"
           style={{ color: 'rgba(255,236,200,0.95)' }}
         >
           {app.desc}
@@ -92,7 +92,7 @@ export default function Applications() {
   const inView = useInView(ref, { once: true, margin: '-80px' })
 
   return (
-    <section ref={ref} style={{ backgroundColor: 'var(--color-grey)' }} className="py-28 px-6 relative overflow-hidden">
+    <section ref={ref} style={{ backgroundColor: 'var(--color-grey)' }} className="py-16 px-5 relative overflow-hidden sm:py-20 sm:px-6 lg:py-28">
 
       {/* Glow */}
       <div
@@ -111,7 +111,7 @@ export default function Applications() {
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7 }}
-          className="flex items-end justify-between mb-16 flex-wrap gap-6"
+          className="flex flex-col items-start justify-between mb-10 gap-6 sm:mb-12 lg:mb-16 lg:flex-row lg:items-end"
         >
           <div>
             <div className="flex items-center gap-3 mb-4">
@@ -122,7 +122,7 @@ export default function Applications() {
             </div>
             <h2
               className="font-bold text-[#1a1208] leading-[1.04]"
-              style={{ fontSize: 'clamp(32px, 4vw, 52px)', letterSpacing: '-1.5px' }}
+              style={{ fontSize: 'clamp(32px, 10vw, 52px)', letterSpacing: '-1.5px' }}
             >
               One Cobot.<br />
               <span className="text-orange">Endless Possibilities.</span>
@@ -133,7 +133,7 @@ export default function Applications() {
             to="/applications"
             whileHover={{ y: -2 }}
             whileTap={{ scale: 0.97 }}
-            className="inline-flex items-center gap-2 text-[13px] font-semibold px-6 py-[12px] rounded-[10px] cursor-pointer transition-all duration-200"
+            className="inline-flex w-full items-center justify-center gap-2 text-[13px] font-semibold px-6 py-[12px] rounded-[10px] cursor-pointer transition-all duration-200 sm:w-auto"
             style={{
               color: '#ff9501',
               border: '1px solid rgba(255,149,1,0.25)',

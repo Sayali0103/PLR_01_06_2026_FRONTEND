@@ -32,6 +32,12 @@ html, body {
   scroll-behavior: smooth;
 }
 
+#root {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--color-orange) #f3ede3;

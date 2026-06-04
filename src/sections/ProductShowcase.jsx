@@ -44,7 +44,7 @@ export default function ProductShowcase() {
   }
 
   return (
-    <section id="product-showcase" ref={ref} className="bg-[#faf7f2] py-28 px-6 scroll-mt-28">
+    <section id="product-showcase" ref={ref} className="bg-[#faf7f2] py-16 px-5 scroll-mt-24 sm:py-20 sm:px-6 lg:py-28 lg:scroll-mt-28">
       <div className="max-w-[1320px] mx-auto">
 
         {/* Header */}
@@ -52,7 +52,7 @@ export default function ProductShowcase() {
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7 }}
-          className="flex items-end justify-between mb-16 flex-wrap gap-6"
+          className="flex items-end justify-between mb-10 flex-wrap gap-6 sm:mb-12 lg:mb-16"
         >
           <div>
             <div className="flex items-center gap-3 mb-4">
@@ -63,7 +63,7 @@ export default function ProductShowcase() {
             </div>
             <h2
               className="font-bold text-[#111] leading-[1.04]"
-              style={{ fontSize: 'clamp(32px, 4vw, 52px)', letterSpacing: '-1.5px' }}
+              style={{ fontSize: 'clamp(32px, 10vw, 52px)', letterSpacing: '-1.5px' }}
             >
               Meet Our Cobot
             </h2>
@@ -71,7 +71,7 @@ export default function ProductShowcase() {
         </motion.div>
 
         {/* Main content */}
-        <div className="grid lg:grid-cols-2 gap-16 items-start">
+        <div className="grid lg:grid-cols-2 gap-10 sm:gap-12 lg:gap-16 items-start">
 
           {/* Left — image */}
           <motion.div
@@ -81,8 +81,8 @@ export default function ProductShowcase() {
           >
             {/* Main image */}
             <div
-              className="relative rounded-3xl overflow-hidden bg-[#e8e4de] mb-4"
-              style={{ height: 480 }}
+              className="relative rounded-2xl overflow-hidden bg-[#e8e4de] mb-4 sm:rounded-3xl"
+              style={{ height: 'clamp(280px, 58vw, 480px)' }}
             >
               <motion.img
                 key={activePhoto}
@@ -96,14 +96,14 @@ export default function ProductShowcase() {
             </div>
 
             {/* Thumbnails */}
-            <div className="flex gap-3">
+            <div className="flex gap-2 sm:gap-3">
               {photos.map((photo, i) => (
                 <button
                   key={i}
                   onClick={() => setActivePhoto(i)}
                   className="relative rounded-xl overflow-hidden flex-1 cursor-pointer transition-all duration-200 bg-[#e8e4de]"
                   style={{
-                    height: 80,
+                    height: 72,
                     border: activePhoto === i
                       ? '2px solid #ff9501'
                       : '2px solid transparent',
@@ -124,7 +124,7 @@ export default function ProductShowcase() {
           >
             <motion.p
               variants={fadeUp}
-              className="text-[15px] leading-[1.85] mb-10 max-w-[460px]"
+              className="text-[14.5px] leading-[1.75] mb-8 max-w-[460px] sm:text-[15px] sm:leading-[1.85] sm:mb-10"
               style={{ color: 'rgba(0,0,0,0.55)' }}
             >
               The PL Robotics Cobot is a 6-axis collaborative robot engineered for
@@ -135,7 +135,7 @@ export default function ProductShowcase() {
             {/* Specs grid */}
             <motion.div
               variants={stagger}
-              className="grid grid-cols-2 gap-3 mb-10"
+              className="grid grid-cols-1 gap-3 mb-8 sm:grid-cols-2 sm:mb-10"
             >
               {specs.map(s => (
                 <motion.div
@@ -147,7 +147,7 @@ export default function ProductShowcase() {
                     borderColor: 'rgba(255,149,1,0.28)',
                   }}
                   transition={{ duration: 0.2 }}
-                  className="bg-white rounded-2xl p-5 flex flex-col gap-2 cursor-default"
+                  className="bg-white rounded-2xl p-4 flex flex-col gap-2 cursor-default sm:p-5"
                   style={{
                     background: '#ffffff',
                     border: '1px solid rgba(0,0,0,0.07)',
@@ -157,7 +157,7 @@ export default function ProductShowcase() {
                   <div className="text-[10.5px] font-semibold tracking-[1.8px] uppercase text-[#aaa]">
                     {s.label}
                   </div>
-                  <div className="font-bold text-[20px] text-[#1a1208] tracking-tight leading-none">
+                  <div className="font-bold text-[18px] text-[#1a1208] tracking-tight leading-none sm:text-[20px]">
                     {s.value}
                   </div>
                 </motion.div>
@@ -165,12 +165,12 @@ export default function ProductShowcase() {
             </motion.div>
 
             {/* CTA */}
-            <motion.div variants={fadeUp} className="flex items-center gap-3">
+            <motion.div variants={fadeUp} className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
               <MotionLink
                 to="/book-demo"
                 whileHover={{ y: -2, boxShadow: '0 10px 36px rgba(255,149,1,0.5)' }}
                 whileTap={{ scale: 0.97 }}
-                className="inline-flex items-center gap-2 bg-orange text-white text-[13px] font-bold px-7 py-[13px] rounded-[10px] cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 bg-orange text-white text-[13px] font-bold px-7 py-[13px] rounded-[10px] cursor-pointer"
                 style={{ boxShadow: '0 4px 24px rgba(255,149,1,0.35)' }}
               >
                 Request Demo
@@ -183,7 +183,7 @@ export default function ProductShowcase() {
                 onClick={handleDownload}
                 whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.97 }}
-                className="inline-flex items-center gap-2 text-[#111] text-[13px] font-semibold px-7 py-[13px] rounded-[10px] cursor-pointer transition-all duration-200"
+                className="inline-flex items-center justify-center gap-2 text-[#111] text-[13px] font-semibold px-7 py-[13px] rounded-[10px] cursor-pointer transition-all duration-200"
                 style={{
                   border: '1px solid rgba(0,0,0,0.12)',
                   background: 'rgba(0,0,0,0.03)',

@@ -53,7 +53,7 @@ export default function AboutStrip() {
   const inView = useInView(ref, { once: true, margin: '-80px' })
 
   return (
-    <section ref={ref} className="bg-[#fff3ea] py-28 px-6 relative overflow-hidden">
+    <section ref={ref} className="bg-[#fff3ea] py-16 px-5 relative overflow-hidden sm:py-20 sm:px-6 lg:py-28">
 
       {/* Orange glow */}
       <div
@@ -66,7 +66,7 @@ export default function AboutStrip() {
       />
 
       <div className="max-w-[1320px] mx-auto">
-        <div className="grid lg:grid-cols-2 gap-20 items-start">
+        <div className="grid lg:grid-cols-2 gap-10 sm:gap-14 lg:gap-20 items-start">
 
           {/* Left */}
           <motion.div
@@ -77,8 +77,8 @@ export default function AboutStrip() {
 
             <motion.h2
               variants={fadeUp}
-              className="font-bold text-[#1a1208] mb-6 leading-[1.04]"
-              style={{ fontSize: 'clamp(34px, 4vw, 56px)', letterSpacing: '-1.5px' }}
+              className="font-bold text-[#1a1208] mb-5 leading-[1.04] sm:mb-6"
+              style={{ fontSize: 'clamp(32px, 10vw, 56px)', letterSpacing: '-1.5px' }}
             >
               Built to Work.<br />
               <span className="text-orange">Designed to Last.</span>
@@ -86,7 +86,7 @@ export default function AboutStrip() {
 
             <motion.p
               variants={fadeUp}
-              className="text-[15.5px] leading-[1.85] mb-10 max-w-[460px]"
+              className="text-[14.5px] leading-[1.75] mb-8 max-w-[460px] sm:text-[15.5px] sm:leading-[1.85] sm:mb-10"
               style={{ color: 'rgba(26,18,8,0.68)' }}
             >
               PL Robotics is a Pune based industrial robotics company
@@ -99,7 +99,7 @@ export default function AboutStrip() {
                 to="/about"
                 whileHover={{ y: -2, boxShadow: '0 10px 36px rgba(255,149,1,0.5)' }}
                 whileTap={{ scale: 0.97 }}
-                className="inline-flex items-center gap-2 bg-orange text-white text-[13px] font-bold px-7 py-[13px] rounded-[10px] cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 bg-orange text-white text-[13px] font-bold px-7 py-[13px] rounded-[10px] cursor-pointer"
                 style={{ boxShadow: '0 4px 20px rgba(255,149,1,0.35)' }}
               >
                 Our Story
@@ -127,7 +127,7 @@ export default function AboutStrip() {
                   background: 'rgba(255,149,1,0.08)',
                 }}
                 transition={{ duration: 0.22 }}
-                className="flex gap-5 p-6 rounded-2xl cursor-default transition-colors duration-200"
+                className="flex flex-col gap-4 p-5 rounded-2xl cursor-default transition-colors duration-200 sm:flex-row sm:gap-5 sm:p-6"
                 style={{
                   border: '1px solid rgba(255,149,1,0.18)',
                   background: 'rgba(255,255,255,0.95)',

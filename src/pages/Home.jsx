@@ -7,7 +7,7 @@ import CTA from '../sections/CTA.jsx'
 
 export default function Home() {
   return (
-    <main className="overflow-y-auto">
+    <main className="overflow-x-clip overflow-y-auto">
       <Hero />
       <Stats />
       <AboutStrip />

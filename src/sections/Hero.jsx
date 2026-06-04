@@ -38,7 +38,7 @@ export default function Hero() {
   }, [])
 
   return (
-    <section className="relative w-full h-screen min-h-[700px] bg-[#f5f0e8]">
+    <section className="relative w-full min-h-[640px] h-[100svh] overflow-hidden bg-[#f5f0e8] sm:min-h-[680px] lg:min-h-[700px]">
 
       {/* Video */}
       <video
@@ -94,7 +94,7 @@ export default function Hero() {
       />
 
       {/* Content */}
-      <div className="relative z-[4] w-full max-w-[1440px] mx-auto h-full flex items-center px-20 pt-[140px]">
+      <div className="relative z-[4] w-full max-w-[1440px] mx-auto h-full flex items-center px-5 pt-24 sm:px-8 sm:pt-28 lg:px-20 lg:pt-[140px]">
         <motion.div
           variants={stagger}
           initial="hidden"
@@ -104,8 +104,8 @@ export default function Hero() {
           {/* Heading */}
           <motion.h1
             variants={fadeUp}
-            className="font-bold text-dark mb-6 leading-[1.02]"
-            style={{ fontSize: 'clamp(46px, 5.6vw, 80px)', letterSpacing: '-2px' }}
+            className="font-bold text-dark mb-5 leading-[1.02] sm:mb-6"
+            style={{ fontSize: 'clamp(42px, 14vw, 80px)', letterSpacing: '-2px' }}
           >
             Automate<br />
             Anything.<br />
@@ -120,7 +120,7 @@ export default function Hero() {
           {/* Description */}
           <motion.p
             variants={fadeUp}
-            className="text-[15px] leading-[1.85] mb-10 max-w-[440px]"
+            className="text-[14.5px] leading-[1.75] mb-8 max-w-[330px] sm:text-[15px] sm:leading-[1.85] sm:mb-10 sm:max-w-[440px]"
             style={{ color: 'rgba(30,18,4,0.58)' }}
           >
             Cobots that adapt, assist, and evolve with your workforce.
@@ -136,7 +136,7 @@ export default function Hero() {
                 boxShadow: '0 10px 36px rgba(255,149,1,0.5)',
               }}
               whileTap={{ scale: 0.97 }}
-              className="inline-flex items-center gap-2 bg-orange text-white text-[13px] font-bold tracking-[0.3px] px-8 py-[14px] rounded-[10px] cursor-pointer"
+              className="inline-flex items-center justify-center gap-2 bg-orange text-white text-[13px] font-bold tracking-[0.3px] px-7 py-[13px] rounded-[10px] cursor-pointer sm:px-8 sm:py-[14px]"
               style={{
                 boxShadow: '0 4px 24px rgba(255,149,1,0.38)',
               }}

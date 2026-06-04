@@ -76,6 +76,9 @@ const companyItems = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [openDropdown, setOpen] = useState(null)
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const [mobileProductsOpen, setMobileProductsOpen] = useState(true)
+  const [mobileCompanyOpen, setMobileCompanyOpen] = useState(true)
   const closeTimer = useRef(null)
   const { pathname } = useLocation()
   const contactActive = pathname === '/contact'
@@ -93,17 +96,25 @@ export default function Navbar() {
 
   useEffect(() => {
     setOpen(null)
+    setMobileOpen(false)
   }, [pathname])
 
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? 'hidden' : ''
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [mobileOpen])
+
   return (
-    <div className="fixed top-4 left-0 right-0 z-[100] flex justify-center px-6 pointer-events-none">
+    <div className="fixed top-3 left-0 right-0 z-[100] flex justify-center px-4 pointer-events-none sm:top-4 sm:px-6">
       <motion.nav
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-        className="pointer-events-auto w-full max-w-[1360px] flex items-center justify-between px-6 rounded-[20px] transition-all duration-500"
+        className="pointer-events-auto w-full max-w-[1360px] flex items-center justify-between px-4 rounded-[18px] transition-all duration-500 sm:px-6 sm:rounded-[20px]"
         style={{
-          height: 76,
+          height: 68,
           background: scrolled
             ? 'rgba(252,249,244,0.25)'
             : 'rgba(252,249,244,0.15)',
@@ -123,12 +134,12 @@ export default function Navbar() {
             alt="PLR Robotics"
             whileHover={{ scale: 1.05 }}
             transition={{ type: 'spring', stiffness: 400, damping: 22 }}
-            className="h-12 w-auto object-contain"
+            className="h-10 w-auto object-contain sm:h-12"
           />
         </Link>
 
         {/* ── Nav links ── */}
-        <div className="flex-1 flex items-center justify-center gap-0">
+        <div className="hidden flex-1 items-center justify-center gap-0 lg:flex">
           {navLinks.map(({ label, path, dropdown }) => {
             const routeActive = path && (pathname === path || pathname.startsWith(path + '/'))
             const childActive = dropdown === 'company' && companyItems.some(item => pathname === item.path)
@@ -458,7 +469,7 @@ export default function Navbar() {
         </div>
 
         {/* ── Actions ── */}
-        <div className="flex-shrink-0 flex items-center gap-2">
+        <div className="hidden flex-shrink-0 items-center gap-2 lg:flex">
           <Link
             to="/contact"
             className="relative text-[14px] font-[550] px-5 py-[9px] rounded-[12px] overflow-hidden transition-colors duration-200 group"
@@ -495,7 +506,244 @@ export default function Navbar() {
           </motion.div>
         </div>
 
+        <button
+          type="button"
+          aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
+          aria-expanded={mobileOpen}
+          onClick={() => setMobileOpen(open => !open)}
+          className="relative z-[220] flex h-11 w-11 items-center justify-center rounded-2xl text-[#1a1208] lg:hidden"
+          style={{
+            background: mobileOpen ? 'rgba(255,149,1,0.16)' : 'rgba(255,255,255,0.55)',
+            border: '1px solid rgba(255,255,255,0.65)',
+            boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.7), 0 10px 28px rgba(0,0,0,0.08)',
+          }}
+        >
+          <span className="sr-only">{mobileOpen ? 'Close menu' : 'Open menu'}</span>
+          <span className="relative block h-5 w-5">
+            <span
+              className="absolute left-0 top-[4px] h-[2px] w-5 rounded-full bg-current transition-transform duration-200"
+              style={{ transform: mobileOpen ? 'translateY(6px) rotate(45deg)' : 'none' }}
+            />
+            <span
+              className="absolute left-0 top-[10px] h-[2px] w-5 rounded-full bg-current transition-opacity duration-200"
+              style={{ opacity: mobileOpen ? 0 : 1 }}
+            />
+            <span
+              className="absolute left-0 top-[16px] h-[2px] w-5 rounded-full bg-current transition-transform duration-200"
+              style={{ transform: mobileOpen ? 'translateY(-6px) rotate(-45deg)' : 'none' }}
+            />
+          </span>
+        </button>
+
       </motion.nav>
+
+      <AnimatePresence>
+        {mobileOpen && (
+          <>
+            <motion.button
+              type="button"
+              aria-label="Close navigation menu"
+              className="fixed inset-0 z-[180] bg-[#1a1208]/30 backdrop-blur-sm pointer-events-auto lg:hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.18 }}
+              onClick={() => setMobileOpen(false)}
+            />
+
+            <motion.aside
+              className="fixed right-3 top-3 bottom-3 z-[210] ml-auto w-[calc(100%-24px)] max-w-[360px] overflow-y-auto rounded-[28px] bg-[#fffaf4] p-5 pointer-events-auto lg:hidden"
+              initial={{ opacity: 0, x: 34, scale: 0.98 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: 34, scale: 0.98 }}
+              transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+              style={{
+                border: '1px solid rgba(255,149,1,0.18)',
+                boxShadow: '0 32px 90px rgba(26,18,8,0.24)',
+              }}
+            >
+              <div className="mb-7 flex items-center justify-between pr-14">
+                <Link to="/" className="flex items-center">
+                  <img src="/logo/logofinal.png" alt="PLR Robotics" className="h-11 w-auto object-contain" />
+                </Link>
+              </div>
+
+              <div className="mb-5">
+                <div className="mb-3 flex items-center gap-2">
+                  <div className="h-[2px] w-6 rounded-full bg-orange" />
+                  <span className="text-[10.5px] font-bold uppercase tracking-[2px] text-orange">
+                    Menu
+                  </span>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <div className="rounded-3xl bg-white/75 p-2" style={{ border: '1px solid rgba(26,18,8,0.07)' }}>
+                    <button
+                      type="button"
+                      onClick={() => setMobileProductsOpen(open => !open)}
+                      className="flex w-full items-center justify-between rounded-2xl px-3 py-3 text-left text-[16px] font-semibold text-[#1a1208] transition-colors hover:bg-orange/10 hover:text-orange"
+                    >
+                      Products
+                      <motion.svg
+                        animate={{ rotate: mobileProductsOpen ? 180 : 0 }}
+                        transition={{ duration: 0.2 }}
+                        width="14"
+                        height="14"
+                        viewBox="0 0 12 12"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="opacity-60"
+                      >
+                        <path d="M2 4l4 4 4-4" />
+                      </motion.svg>
+                    </button>
+
+                    <AnimatePresence initial={false}>
+                      {mobileProductsOpen && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                          className="overflow-hidden"
+                        >
+                          <div className="grid gap-2 px-1 pb-1 pt-1">
+                            {productItems.map(item => (
+                              item.comingSoon ? (
+                                <div
+                                  key={item.label}
+                                  className="rounded-2xl bg-[#fff8f0] px-3 py-3"
+                                  style={{ border: '1px solid rgba(255,149,1,0.12)' }}
+                                >
+                                  <div className="flex items-center justify-between gap-3">
+                                    <div>
+                                      <div className="text-[14px] font-semibold text-[#1a1208]">{item.label}</div>
+                                      <div className="mt-1 text-[12px] leading-[1.45] text-[#7b7166]">{item.desc}</div>
+                                    </div>
+                                    <span className="shrink-0 rounded-full bg-orange/10 px-2 py-1 text-[9px] font-bold uppercase tracking-[1.4px] text-orange">
+                                      Soon
+                                    </span>
+                                  </div>
+                                </div>
+                              ) : (
+                                <Link
+                                  key={item.label}
+                                  to={item.path}
+                                  className="block rounded-2xl bg-[#fff8f0] px-3 py-3 transition-colors hover:bg-orange/10"
+                                  style={{ border: '1px solid rgba(255,149,1,0.12)' }}
+                                >
+                                  <div className="text-[14px] font-semibold text-[#1a1208]">{item.label}</div>
+                                  <div className="mt-1 text-[12px] leading-[1.45] text-[#7b7166]">{item.desc}</div>
+                                </Link>
+                              )
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  <Link
+                    to="/technology"
+                    className="rounded-2xl px-4 py-3 text-[16px] font-semibold text-[#1a1208] transition-colors hover:bg-orange/10 hover:text-orange"
+                  >
+                    Technology
+                  </Link>
+                  <Link
+                    to="/applications"
+                    className="rounded-2xl px-4 py-3 text-[16px] font-semibold text-[#1a1208] transition-colors hover:bg-orange/10 hover:text-orange"
+                  >
+                    Applications
+                  </Link>
+
+                  <div className="rounded-3xl bg-white/75 p-2" style={{ border: '1px solid rgba(26,18,8,0.07)' }}>
+                    <button
+                      type="button"
+                      onClick={() => setMobileCompanyOpen(open => !open)}
+                      className="flex w-full items-center justify-between rounded-2xl px-3 py-3 text-left text-[16px] font-semibold text-[#1a1208] transition-colors hover:bg-orange/10 hover:text-orange"
+                    >
+                      Company
+                      <motion.svg
+                        animate={{ rotate: mobileCompanyOpen ? 180 : 0 }}
+                        transition={{ duration: 0.2 }}
+                        width="14"
+                        height="14"
+                        viewBox="0 0 12 12"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="opacity-60"
+                      >
+                        <path d="M2 4l4 4 4-4" />
+                      </motion.svg>
+                    </button>
+
+                    <AnimatePresence initial={false}>
+                      {mobileCompanyOpen && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                          className="overflow-hidden"
+                        >
+                          <div className="grid gap-1 px-1 pb-1 pt-1">
+                            {companyItems.map(item => (
+                              <Link
+                                key={item.label}
+                                to={item.path}
+                                className="block rounded-2xl px-3 py-3 transition-colors hover:bg-orange/10"
+                              >
+                                <div className="text-[14px] font-semibold text-[#1a1208]">{item.label}</div>
+                                <div className="mt-1 text-[12px] leading-[1.45] text-[#7b7166]">{item.desc}</div>
+                              </Link>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  <Link
+                    to="/careers"
+                    className="rounded-2xl px-4 py-3 text-[16px] font-semibold text-[#1a1208] transition-colors hover:bg-orange/10 hover:text-orange"
+                  >
+                    Careers
+                  </Link>
+                </div>
+              </div>
+
+              <div className="grid gap-3">
+                <Link
+                  to="/book-demo"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-orange px-5 py-[14px] text-[14px] font-bold text-white"
+                  style={{ boxShadow: '0 10px 28px rgba(255,149,1,0.32)' }}
+                >
+                  Book Demo
+                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 8h10M9 4l4 4-4 4" />
+                  </svg>
+                </Link>
+                <Link
+                  to="/contact"
+                  className="inline-flex items-center justify-center rounded-2xl px-5 py-[13px] text-[14px] font-bold text-[#1a1208]"
+                  style={{
+                    background: 'rgba(26,18,8,0.04)',
+                    border: '1px solid rgba(26,18,8,0.09)',
+                  }}
+                >
+                  Contact
+                </Link>
+              </div>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

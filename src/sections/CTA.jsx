@@ -9,13 +9,13 @@ export default function CTA() {
   const inView = useInView(ref, { once: true, margin: '-80px' })
 
   return (
-    <section ref={ref} className="bg-[#faf7f2] py-28 px-6">
+    <section ref={ref} className="bg-[#faf7f2] py-16 px-5 sm:py-20 sm:px-6 lg:py-28">
       <div className="max-w-[1320px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="relative rounded-[32px] overflow-hidden"
+          className="relative rounded-3xl overflow-hidden sm:rounded-[32px]"
           style={{
             background: 'linear-gradient(135deg, #fff8f0 0%, #fef3e4 50%, #fff8f0 100%)',
             border: '1px solid rgba(255,149,1,0.18)',
@@ -57,20 +57,20 @@ export default function CTA() {
           />
 
           {/* Content */}
-          <div className="relative z-[1] px-16 py-16 flex flex-col lg:flex-row items-center justify-between gap-12">
+          <div className="relative z-[1] px-6 py-10 flex flex-col lg:flex-row items-start justify-between gap-8 sm:px-10 sm:py-12 lg:items-center lg:gap-12 lg:px-16 lg:py-16">
 
             {/* Left */}
             <div className="max-w-[520px]">
               <h2
                 className="font-bold text-[#1a1208] leading-[1.04] mb-5"
-                style={{ fontSize: 'clamp(28px, 3.8vw, 50px)', letterSpacing: '-1.5px' }}
+                style={{ fontSize: 'clamp(28px, 9vw, 50px)', letterSpacing: '-1.5px' }}
               >
                 Ready to Automate<br />
                 <span className="text-[#ff9501]">Your Factory Floor?</span>
               </h2>
 
               <p
-                className="text-[15px] leading-[1.85] mb-5"
+                className="text-[14.5px] leading-[1.75] mb-5 sm:text-[15px] sm:leading-[1.85]"
                 style={{ color: 'rgba(26,18,8,0.55)' }}
               >
                 Book a free demo with our team and see exactly how PL Robotics

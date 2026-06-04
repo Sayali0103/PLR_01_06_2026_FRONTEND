@@ -23,7 +23,7 @@ export default function Stats() {
   const inView = useInView(ref, { once: true, margin: '-80px' })
 
   return (
-    <section ref={ref} className="bg-[#faf7f2] py-24 px-6">
+    <section ref={ref} className="bg-[#faf7f2] py-16 px-5 sm:py-20 sm:px-6 lg:py-24">
       <div className="max-w-[1320px] mx-auto">
 
         {/* Top label */}
@@ -31,7 +31,7 @@ export default function Stats() {
           initial={{ opacity: 0, y: 16 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          className="flex items-center gap-3 mb-16"
+          className="flex items-center gap-3 mb-10 sm:mb-12 lg:mb-16"
         >
           <div className="w-8 h-[2px] bg-orange rounded-full" />
           <span className="text-[11px] font-semibold tracking-[2.5px] uppercase text-orange">
@@ -44,7 +44,7 @@ export default function Stats() {
           variants={stagger}
           initial="hidden"
           animate={inView ? 'show' : 'hidden'}
-          className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-[#e8e2d8]"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-[#e8e2d8]"
         >
           {stats.map((s) => (
             <motion.div
@@ -52,7 +52,7 @@ export default function Stats() {
               variants={fadeUp}
               whileHover={{ backgroundColor: '#fff8f0' }}
               transition={{ duration: 0.2 }}
-              className="bg-[#faf7f2] p-10 flex flex-col gap-3 cursor-default"
+              className="bg-[#faf7f2] p-6 sm:p-8 lg:p-10 flex flex-col gap-3 cursor-default"
             >
               <div
                 className="font-bold text-[#111] leading-none tracking-tight"
