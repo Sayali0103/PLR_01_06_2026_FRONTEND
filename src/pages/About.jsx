@@ -86,7 +86,7 @@ export default function About() {
     <main className="bg-cream min-h-screen pt-[90px] text-[#111] overflow-x-hidden">
 
       {/* ── HERO ── */}
-      <section ref={heroRef} className="max-w-[1320px] mx-auto px-16 pt-14 pb-20 relative">
+      <section ref={heroRef} className="max-w-[1320px] mx-auto px-5 pt-10 pb-16 relative sm:px-6 sm:pt-14 sm:pb-20 lg:px-16">
         <div className="absolute pointer-events-none"
           style={{
             top: -80, right: -60,
@@ -102,7 +102,7 @@ export default function About() {
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
           style={{ y: heroY }}
         >
-          <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-16 items-start">
+          <div className="grid gap-10 items-start lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
 
             {/* Left */}
             <div>
@@ -120,7 +120,7 @@ export default function About() {
             </div>
 
             {/* Right — impact cards */}
-            <div className="space-y-4 pt-2">
+            <div className="space-y-4 pt-0 lg:pt-2">
               {[
                 { tag: 'What we deliver', body: 'Affordable automation solutions tailored for Indian manufacturing that improve throughput and worker safety.' },
                 { tag: 'Why it matters', body: 'Robotics can help factories compete globally while preserving local jobs through smarter, safer production systems.' },
@@ -132,7 +132,7 @@ export default function About() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.2 + i * 0.12, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
                   whileHover={{ x: 4, borderColor: 'rgba(255,149,1,0.3)' }}
-                  className="bg-white rounded-2xl p-6 transition-all duration-200"
+                  className="bg-white rounded-2xl p-5 transition-all duration-200 sm:p-6"
                   style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 2px 16px rgba(0,0,0,0.04)' }}
                 >
                   <p className="text-[10.5px] font-semibold tracking-[2px] uppercase text-orange mb-2">{item.tag}</p>
@@ -146,14 +146,14 @@ export default function About() {
       </section>
 
       {/* ── VISION / MISSION / VALUES ── */}
-      <section className="max-w-[1320px] mx-auto px-16 pb-24">
+      <section className="max-w-[1320px] mx-auto px-5 pb-20 sm:px-6 lg:px-16 lg:pb-24">
 
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="flex items-center gap-4 mb-12"
+          className="flex items-center gap-4 mb-8 sm:mb-12"
         >
           <div className="h-px flex-1 max-w-[40px]" style={{ background: 'rgba(255,149,1,0.3)' }} />
           <span className="text-[11px] font-semibold tracking-[2.5px] uppercase text-orange">What drives us</span>
@@ -174,7 +174,7 @@ export default function About() {
                 variants={fadeUp}
                 whileHover={{ y: -6, boxShadow: '0 24px 60px rgba(255,149,1,0.1)', borderColor: 'rgba(255,149,1,0.25)' }}
                 transition={{ duration: 0.22 }}
-                className="bg-white rounded-[28px] p-10 relative overflow-hidden cursor-default flex flex-col"
+                className="bg-white rounded-[24px] p-6 relative overflow-hidden cursor-default flex flex-col sm:rounded-[28px] sm:p-8 lg:p-10"
                 style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}
               >
                 {/* Large number watermark */}
@@ -187,14 +187,14 @@ export default function About() {
 
                 <div className="relative z-[1] mb-7">
                   <div
-                    className="w-[82px] h-[82px] rounded-2xl flex items-center justify-center mb-5"
+                    className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5 sm:w-[82px] sm:h-[82px]"
                     style={{
                       background: '#fff7e6',
                       border: '1px solid rgba(60,60,63,0.12)',
                       boxShadow: '0 12px 30px rgba(255,149,1,0.1)',
                     }}
                   >
-                    <Icon className="text-[42px] text-[#ff9501]" />
+                    <Icon className="text-[34px] text-[#ff9501] sm:text-[42px]" />
                   </div>
                   <p className="text-[12px] font-bold tracking-[2.5px] uppercase text-orange mb-3">{card.number}</p>
                   <h3 className="font-bold text-[#1a1208] leading-[1.08]" style={{ fontSize: 'clamp(26px, 2.5vw, 34px)', letterSpacing: '-0.8px' }}>
@@ -230,12 +230,12 @@ export default function About() {
       </section>
 
       {/* ── DIVIDER ── */}
-      <div className="max-w-[1320px] mx-auto px-16 mb-20">
+      <div className="max-w-[1320px] mx-auto px-5 mb-14 sm:px-6 sm:mb-20 lg:px-16">
         <div className="h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,149,1,0.2), transparent)' }} />
       </div>
 
       {/* ── ENGINEERING SECTION ── */}
-      <section className="max-w-[1320px] mx-auto px-16 pb-20">
+      <section className="max-w-[1320px] mx-auto px-5 pb-16 sm:px-6 sm:pb-20 lg:px-16">
         <motion.div
           initial={{ opacity: 0, x: -24 }}
           whileInView={{ opacity: 1, x: 0 }}
@@ -286,13 +286,13 @@ export default function About() {
       </section>
 
       {/* ── BOTTOM CTA ── */}
-      <section className="max-w-[1320px] mx-auto px-16 pb-24">
+      <section className="max-w-[1320px] mx-auto px-5 pb-20 sm:px-6 lg:px-16 lg:pb-24">
         <motion.div
           initial={{ opacity: 0, y: 32 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.75 }}
-          className="relative rounded-[32px] overflow-hidden"
+          className="relative rounded-[24px] overflow-hidden sm:rounded-[32px]"
           style={{
             background: 'linear-gradient(135deg, #fff8f0 0%, #fef3e4 50%, #fff8f0 100%)',
             border: '1px solid rgba(255,149,1,0.18)',
@@ -326,7 +326,7 @@ export default function About() {
             style={{ background: 'linear-gradient(90deg, transparent, #ff9501, transparent)' }} />
 
           {/* Content */}
-          <div className="relative z-[1] px-16 py-16 flex flex-col lg:flex-row items-center justify-between gap-12">
+          <div className="relative z-[1] px-6 py-10 flex flex-col items-start justify-between gap-8 sm:px-10 sm:py-12 lg:px-16 lg:py-16 lg:flex-row lg:items-center lg:gap-12">
 
             {/* Left */}
             <div className="max-w-[520px]">

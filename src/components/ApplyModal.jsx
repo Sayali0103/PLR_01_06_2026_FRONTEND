@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { submitApplication } from '../hooks/useJobs'
 
@@ -10,9 +10,9 @@ function ChoiceStep({ job, onSelect, onClose }) {
       exit={{ opacity: 0, y: -8 }}
       transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
     >
-      <div className="px-8 pt-8 pb-6" style={{ borderBottom: '1px solid rgba(0,0,0,0.07)' }}>
-        <div className="flex items-start justify-between mb-1">
-          <h3 className="font-bold text-[20px] text-[#111] tracking-tight">How would you like to apply?</h3>
+      <div className="px-5 pt-6 pb-5 sm:px-8 sm:pt-8 sm:pb-6" style={{ borderBottom: '1px solid rgba(0,0,0,0.07)' }}>
+        <div className="flex items-start justify-between gap-3 mb-1">
+          <h3 className="min-w-0 font-bold text-[19px] leading-tight text-[#111] tracking-tight sm:text-[20px]">How would you like to apply?</h3>
           <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center text-[#bbb] hover:text-[#333] hover:bg-[#f5f3ef] transition-all cursor-pointer flex-shrink-0">
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 4L4 12M4 4l8 8"/></svg>
           </button>
@@ -20,12 +20,12 @@ function ChoiceStep({ job, onSelect, onClose }) {
         <p className="text-[13px] text-[#aaa] mt-1">{job.title} · {job.dept}</p>
       </div>
 
-      <div className="px-8 py-7 grid grid-cols-2 gap-4">
+      <div className="px-5 py-6 grid gap-4 sm:px-8 sm:py-7 sm:grid-cols-2">
         <motion.button
           whileHover={{ y: -4, boxShadow: '0 16px 48px rgba(255,149,1,0.14)', borderColor: 'rgba(255,149,1,0.4)' }}
           whileTap={{ scale: 0.98 }}
           onClick={() => onSelect('intern')}
-          className="flex flex-col items-start text-left p-6 rounded-[20px] bg-white cursor-pointer transition-all duration-200"
+          className="flex flex-col items-start text-left p-5 rounded-[20px] bg-white cursor-pointer transition-all duration-200 sm:p-6"
           style={{ border: '1px solid rgba(255,149,1,0.2)', boxShadow: '0 4px 20px rgba(255,149,1,0.07)' }}
         >
           <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-4 text-orange" style={{ background: 'rgba(255,149,1,0.09)' }}>
@@ -47,7 +47,7 @@ function ChoiceStep({ job, onSelect, onClose }) {
           whileHover={{ y: -4, boxShadow: '0 16px 48px rgba(30,100,220,0.1)', borderColor: 'rgba(30,100,220,0.3)' }}
           whileTap={{ scale: 0.98 }}
           onClick={() => onSelect('fulltime')}
-          className="flex flex-col items-start text-left p-6 rounded-[20px] bg-white cursor-pointer transition-all duration-200"
+          className="flex flex-col items-start text-left p-5 rounded-[20px] bg-white cursor-pointer transition-all duration-200 sm:p-6"
           style={{ border: '1px solid rgba(30,100,220,0.15)', boxShadow: '0 4px 20px rgba(30,100,220,0.05)' }}
         >
           <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-4" style={{ background: 'rgba(30,100,220,0.08)', color: '#1e64dc' }}>
@@ -86,7 +86,7 @@ function FileUploader({ label, hint, required, file, onChange, onClear, accept, 
   return (
     <Field label={label} hint={hint} required={required}>
       <label
-        className="flex items-center gap-3 w-full px-4 py-[10px] bg-[#f9f6f1] rounded-xl cursor-pointer hover:bg-[#f3ede5] transition-colors duration-200"
+        className="flex items-center gap-3 w-full px-3 py-[10px] bg-[#f9f6f1] rounded-xl cursor-pointer hover:bg-[#f3ede5] transition-colors duration-200 sm:px-4"
         style={{ border: `1px solid ${file ? 'rgba(255,149,1,0.4)' : 'rgba(0,0,0,0.09)'}` }}
       >
         <div
@@ -192,9 +192,9 @@ function FormStep({ job, applicantType, onClose, onBack, onSuccess }) {
       transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
     >
       {/* Header */}
-      <div className="sticky top-0 z-10 px-8 pt-7 pb-5 bg-white rounded-t-[28px]" style={{ borderBottom: '1px solid rgba(0,0,0,0.07)' }}>
-        <div className="flex items-start justify-between">
-          <div>
+      <div className="sticky top-0 z-10 px-5 pt-5 pb-4 bg-white rounded-t-[24px] sm:px-8 sm:pt-7 sm:pb-5 sm:rounded-t-[28px]" style={{ borderBottom: '1px solid rgba(0,0,0,0.07)' }}>
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
             <div className="flex items-center gap-2 mb-1 flex-wrap">
               <button onClick={onBack} className="text-[#ccc] hover:text-orange transition-colors cursor-pointer">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M10 12L6 8l4-4"/></svg>
@@ -210,7 +210,7 @@ function FormStep({ job, applicantType, onClose, onBack, onSuccess }) {
                 {isIntern ? 'Internship' : 'Full-time'} Application
               </span>
             </div>
-            <h3 className="font-bold text-[19px] text-[#111] tracking-tight">{job.title}</h3>
+            <h3 className="break-words font-bold text-[18px] leading-tight text-[#111] tracking-tight sm:text-[19px]">{job.title}</h3>
           </div>
           <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center text-[#bbb] hover:text-[#333] hover:bg-[#f5f3ef] transition-all cursor-pointer flex-shrink-0 mt-1">
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 4L4 12M4 4l8 8"/></svg>
@@ -218,7 +218,7 @@ function FormStep({ job, applicantType, onClose, onBack, onSuccess }) {
         </div>
       </div>
 
-      <form onSubmit={submit} className="px-8 py-6 space-y-4">
+      <form onSubmit={submit} className="px-5 py-5 space-y-4 sm:px-8 sm:py-6">
         {error && (
           <div className="text-[13px] text-red-500 bg-red-50 px-4 py-3 rounded-xl" style={{ border: '1px solid rgba(220,0,0,0.12)' }}>
             {error}
@@ -231,7 +231,7 @@ function FormStep({ job, applicantType, onClose, onBack, onSuccess }) {
             Full Name <span className="text-orange">*</span>
             <span className="text-[#bbb] font-normal ml-1">(First Name · Middle Name · Last Name)</span>
           </p>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid gap-2 sm:grid-cols-3">
             {[['firstName','First Name'],['middleName','Middle Name'],['lastName','Last Name']].map(([key, ph]) => (
               <input
                 key={key} name={key} value={form[key]} onChange={set}
@@ -324,7 +324,7 @@ function FormStep({ job, applicantType, onClose, onBack, onSuccess }) {
         />
 
         {/* Actions */}
-        <div className="flex items-center gap-3 pt-2 pb-1">
+        <div className="flex flex-col gap-3 pt-2 pb-1 sm:flex-row sm:items-center">
           <motion.button
             type="submit" disabled={loading}
             whileHover={{ scale: loading ? 1 : 1.02, boxShadow: '0 8px 28px rgba(255,149,1,0.4)' }}
@@ -334,7 +334,7 @@ function FormStep({ job, applicantType, onClose, onBack, onSuccess }) {
           >
             {loading ? 'Submitting...' : 'Submit Application'}
           </motion.button>
-          <button type="button" onClick={onBack} className="px-5 py-[13px] text-[13px] font-semibold text-[#888] hover:text-[#333] rounded-xl transition-colors cursor-pointer" style={{ border: '1px solid rgba(0,0,0,0.09)' }}>
+          <button type="button" onClick={onBack} className="w-full px-5 py-[13px] text-[13px] font-semibold text-[#888] hover:text-[#333] rounded-xl transition-colors cursor-pointer sm:w-auto" style={{ border: '1px solid rgba(0,0,0,0.09)' }}>
             Back
           </button>
         </div>
@@ -349,7 +349,7 @@ function SuccessStep({ name, onClose }) {
       initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-      className="px-8 py-16 text-center"
+      className="px-5 py-14 text-center sm:px-8 sm:py-16"
     >
       <div className="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-5" style={{ border: '1px solid rgba(0,160,0,0.18)' }}>
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#14a050" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -380,13 +380,19 @@ export default function ApplyModal({ job, onClose }) {
   const selectType = type => { setApplicantType(type); setStep('form') }
   const handleSuccess = name => { setApplicantName(name); setStep('success') }
 
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = previousOverflow }
+  }, [])
+
   return (
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[300] flex items-center justify-center px-4"
+        className="fixed inset-0 z-[300] flex items-end justify-center px-0 sm:items-center sm:px-4"
         style={{ background: 'rgba(10,6,2,0.78)', backdropFilter: 'blur(8px)' }}
         onClick={onClose}
       >
@@ -395,7 +401,7 @@ export default function ApplyModal({ job, onClose }) {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 20, scale: 0.97 }}
           transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
-          className="relative w-full max-w-[560px] max-h-[90vh] overflow-y-auto rounded-[28px] bg-white"
+          className="relative w-full max-w-[560px] max-h-[94svh] overflow-x-hidden overflow-y-auto overscroll-contain rounded-t-[24px] bg-white pb-[env(safe-area-inset-bottom)] sm:max-h-[90vh] sm:rounded-[28px] sm:pb-0"
           style={{
             boxShadow: '0 32px 100px rgba(0,0,0,0.25)',
             scrollbarWidth: 'thin',

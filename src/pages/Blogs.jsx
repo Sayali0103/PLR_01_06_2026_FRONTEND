@@ -142,7 +142,7 @@ export default function Blogs() {
     <main className="bg-cream min-h-screen pt-[90px] text-[#111] overflow-x-hidden">
 
       {/* ── HERO ── */}
-      <section className="max-w-[1320px] mx-auto px-16 pt-14 pb-16 relative">
+      <section className="max-w-[1320px] mx-auto px-5 pt-10 pb-12 relative sm:px-6 sm:pt-14 sm:pb-16 lg:px-16">
         <div className="absolute inset-0 pointer-events-none" style={{ background: 'rgba(255,255,255,0.18)' }} />
         <div className="absolute pointer-events-none" style={{ top: -100, left: -80, width: 500, height: 500, background: 'radial-gradient(circle, rgba(255,149,1,0.06) 0%, transparent 65%)', borderRadius: '50%' }} />
 
@@ -151,7 +151,7 @@ export default function Blogs() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-16 items-end">
+          <div className="grid gap-10 items-end lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
             <div>
               <h1
                 className="font-bold text-[#111] leading-[1.02] mb-6"
@@ -168,7 +168,7 @@ export default function Blogs() {
 
             {/* Highlights */}
             <div
-              className="rounded-[24px] p-8"
+              className="rounded-[24px] p-5 sm:p-8"
               style={{ background: 'linear-gradient(145deg, #fff7eb, #fff3e0)', border: '1px solid rgba(255,149,1,0.18)' }}
             >
               <p className="text-[11px] font-semibold tracking-[2px] uppercase text-orange mb-5">Featured Takeaways</p>
@@ -192,13 +192,13 @@ export default function Blogs() {
       </section>
 
       {/* ── TAG FILTERS ── */}
-      <div className="max-w-[1320px] mx-auto px-16 pb-8">
+      <div className="max-w-[1320px] mx-auto px-5 pb-8 sm:px-6 lg:px-16">
         <div className="flex items-center gap-2 flex-wrap">
           {allTags.map(tag => (
             <button
               key={tag}
               onClick={() => setActiveTag(tag)}
-              className={`px-5 py-[8px] rounded-full text-[13px] font-medium cursor-pointer transition-all duration-200 ${
+              className={`px-4 py-[8px] rounded-full text-[13px] font-medium cursor-pointer transition-all duration-200 sm:px-5 ${
                 activeTag === tag
                   ? 'bg-orange text-white'
                   : 'bg-white text-[#555] hover:text-orange'
@@ -215,7 +215,7 @@ export default function Blogs() {
       </div>
 
       {/* ── POSTS ── */}
-      <section className="max-w-[1320px] mx-auto px-16 pb-20">
+      <section className="max-w-[1320px] mx-auto px-5 pb-20 sm:px-6 lg:px-16">
         <AnimatePresence mode="wait">
           <motion.div key={activeTag} initial="hidden" animate="show" variants={stagger}>
             <div className="grid gap-8 lg:grid-cols-[1.45fr_0.55fr]">
@@ -229,7 +229,7 @@ export default function Blogs() {
                     variants={fadeUp}
                     whileHover={{ y: -4, boxShadow: '0 24px 64px rgba(255,149,1,0.11)', borderColor: 'rgba(255,149,1,0.28)' }}
                     transition={{ duration: 0.22 }}
-                    className="bg-white rounded-[28px] p-10 cursor-pointer relative overflow-hidden"
+                    className="bg-white rounded-[24px] p-5 cursor-pointer relative overflow-hidden sm:rounded-[28px] sm:p-8 lg:p-10"
                     style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 4px 24px rgba(0,0,0,0.05)' }}
                   >
                     <div
@@ -287,7 +287,7 @@ export default function Blogs() {
                     variants={fadeUp}
                     whileHover={{ y: -3, boxShadow: '0 16px 50px rgba(255,149,1,0.09)', borderColor: 'rgba(255,149,1,0.22)' }}
                     transition={{ duration: 0.22 }}
-                    className="bg-white rounded-[24px] overflow-hidden cursor-pointer grid grid-cols-1 lg:grid-cols-[260px_1fr] items-stretch p-6 gap-6"
+                    className="bg-white rounded-[24px] overflow-hidden cursor-pointer grid grid-cols-1 lg:grid-cols-[260px_1fr] items-stretch p-5 gap-5 sm:p-6 sm:gap-6"
                     style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}
                   >
                     {post.image && (
@@ -303,7 +303,7 @@ export default function Blogs() {
                         />
                       </div>
                     )}
-                    <div className="flex flex-col justify-between py-1 relative pr-12">
+                    <div className="flex flex-col justify-between py-1 relative lg:pr-12">
                       <div>
                         <div className="flex items-center gap-3 mb-3 flex-wrap">
                           <TagBadge tag={post.tag} />
@@ -335,7 +335,7 @@ export default function Blogs() {
                 {/* Trend */}
                 <motion.div
                   variants={fadeUp}
-                  className="bg-white rounded-[24px] p-8"
+                  className="bg-white rounded-[24px] p-5 sm:p-8"
                   style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 4px 24px rgba(0,0,0,0.05)' }}
                 >
                   <p className="text-[10.5px] font-semibold tracking-[2px] uppercase text-[#aaa] mb-4">Trend Focus</p>
@@ -346,7 +346,7 @@ export default function Blogs() {
                 {/* Latest Articles Sidebar */}
                 <motion.div
                   variants={fadeUp}
-                  className="bg-white rounded-[24px] p-8"
+                  className="bg-white rounded-[24px] p-5 sm:p-8"
                   style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 4px 24px rgba(0,0,0,0.05)' }}
                 >
                   <p className="text-[10.5px] font-semibold tracking-[2px] uppercase text-[#aaa] mb-4">Latest Articles</p>

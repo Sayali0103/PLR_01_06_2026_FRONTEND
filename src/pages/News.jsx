@@ -84,7 +84,7 @@ export default function News() {
     <main className="bg-cream min-h-screen pt-[90px] text-[#111] overflow-x-hidden">
 
       {/* ── HERO ── */}
-      <section className="max-w-[1320px] mx-auto px-16 pt-14 pb-16 relative">
+      <section className="max-w-[1320px] mx-auto px-5 pt-10 pb-12 relative sm:px-6 sm:pt-14 sm:pb-16 lg:px-16">
         <div className="absolute inset-0 pointer-events-none" style={{ background: 'rgba(255,255,255,0.18)' }} />
         <div className="absolute pointer-events-none"
           style={{ top: -80, right: -60, width: 520, height: 520, background: 'radial-gradient(circle, rgba(255,149,1,0.06) 0%, transparent 65%)', borderRadius: '50%' }} />
@@ -94,7 +94,7 @@ export default function News() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-16 items-end">
+          <div className="grid gap-10 items-end lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
             <div>
               <h1
                 className="font-bold text-[#111] leading-[1.02] mb-6"
@@ -110,7 +110,7 @@ export default function News() {
 
             {/* Top highlights */}
             <div
-              className="rounded-[24px] p-8"
+              className="rounded-[24px] p-5 sm:p-8"
               style={{ background: 'linear-gradient(145deg, #fff7eb, #fff3e0)', border: '1px solid rgba(255,149,1,0.18)' }}
             >
               <p className="text-[11px] font-semibold tracking-[2px] uppercase text-orange mb-5">Top Highlights</p>
@@ -134,7 +134,7 @@ export default function News() {
       </section>
 
       {/* ── CONTENT ── */}
-      <section className="max-w-[1320px] mx-auto px-16 pb-24">
+      <section className="max-w-[1320px] mx-auto px-5 pb-20 sm:px-6 lg:px-16 lg:pb-24">
         <motion.div
           variants={stagger}
           initial="hidden"
@@ -153,7 +153,7 @@ export default function News() {
               variants={fadeUp}
               whileHover={{ y: -4, boxShadow: '0 24px 64px rgba(255,149,1,0.11)', borderColor: 'rgba(255,149,1,0.28)' }}
               transition={{ duration: 0.22 }}
-              className="block bg-white rounded-[28px] p-10 cursor-pointer relative overflow-hidden"
+              className="block bg-white rounded-[24px] p-6 cursor-pointer relative overflow-hidden sm:rounded-[28px] sm:p-8 lg:p-10"
               style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 4px 24px rgba(0,0,0,0.05)' }}
             >
               <div
@@ -205,7 +205,7 @@ export default function News() {
                 variants={fadeUp}
                 whileHover={{ y: -3, boxShadow: '0 16px 50px rgba(255,149,1,0.08)', borderColor: 'rgba(255,149,1,0.2)' }}
                 transition={{ duration: 0.22 }}
-                className="block bg-white rounded-[24px] p-8 cursor-pointer"
+                className="block bg-white rounded-[24px] p-5 cursor-pointer sm:p-8"
                 style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}
               >
                 <div className="flex items-center gap-3 mb-3 flex-wrap">
@@ -234,7 +234,7 @@ export default function News() {
           <aside className="space-y-5">
             <motion.div
               variants={fadeUp}
-              className="bg-white rounded-[24px] p-8"
+              className="bg-white rounded-[24px] p-5 sm:p-8"
               style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 4px 24px rgba(0,0,0,0.05)' }}
             >
               <p className="text-[10.5px] font-semibold tracking-[2px] uppercase text-[#aaa] mb-5">India Market Signals</p>
@@ -252,7 +252,7 @@ export default function News() {
 
             <motion.div
               variants={fadeUp}
-              className="rounded-[24px] p-8"
+              className="rounded-[24px] p-5 sm:p-8"
               style={{ background: 'linear-gradient(145deg, #fff7eb, #fff3e0)', border: '1px solid rgba(255,149,1,0.18)' }}
             >
               <p className="text-[10.5px] font-semibold tracking-[2px] uppercase text-orange mb-4">Why It Matters</p>

@@ -16,7 +16,7 @@ export default function JobDetailModal({ job, onClose, onApply }) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[200] flex items-center justify-center px-4"
+        className="fixed inset-0 z-[200] flex items-end justify-center px-0 sm:items-center sm:px-4"
         style={{ background: 'rgba(10,6,2,0.72)', backdropFilter: 'blur(6px)' }}
         onClick={onClose}
       >
@@ -25,16 +25,16 @@ export default function JobDetailModal({ job, onClose, onApply }) {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 24, scale: 0.97 }}
           transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-          className="relative w-full max-w-[780px] max-h-[88vh] overflow-y-auto rounded-[28px] bg-white"
+          className="relative w-full max-w-[780px] max-h-[92svh] overflow-x-hidden overflow-y-auto overscroll-contain rounded-t-[24px] bg-white sm:max-h-[88vh] sm:rounded-[28px]"
           style={{ boxShadow: '0 32px 100px rgba(0,0,0,0.22)' }}
           onClick={e => e.stopPropagation()}
         >
           {/* Header */}
           <div
-            className="sticky top-0 z-[10] flex items-start justify-between gap-4 px-10 py-7 rounded-t-[28px]"
+            className="sticky top-0 z-[10] flex items-start justify-between gap-3 px-5 py-5 rounded-t-[24px] sm:gap-4 sm:px-10 sm:py-7 sm:rounded-t-[28px]"
             style={{ background: 'rgba(255,255,255,0.96)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(0,0,0,0.07)' }}
           >
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center gap-2 mb-2 flex-wrap">
                 <span
                   className="text-[11px] font-semibold tracking-[1.5px] uppercase text-orange px-3 py-[3px] rounded-full"
@@ -54,7 +54,7 @@ export default function JobDetailModal({ job, onClose, onApply }) {
                   </span>
                 )}
               </div>
-              <h2 className="font-bold text-[#111] leading-tight" style={{ fontSize: 26, letterSpacing: '-0.5px' }}>
+              <h2 className="break-words font-bold text-[22px] text-[#111] leading-tight sm:text-[26px]" style={{ letterSpacing: '-0.5px' }}>
                 {job.title}
               </h2>
             </div>
@@ -69,7 +69,7 @@ export default function JobDetailModal({ job, onClose, onApply }) {
           </div>
 
           {/* Body */}
-          <div className="px-10 py-8 space-y-8">
+          <div className="px-5 py-6 space-y-7 sm:px-10 sm:py-8 sm:space-y-8">
 
             {/* Role Overview */}
             <div>
@@ -124,7 +124,7 @@ export default function JobDetailModal({ job, onClose, onApply }) {
 
             {/* Why Join */}
             {job.whyJoin?.length > 0 && (
-              <div className="rounded-2xl p-6" style={{ background: 'linear-gradient(145deg,#fff7eb,#ffefd4)', border: '1px solid rgba(255,149,1,0.18)' }}>
+              <div className="rounded-2xl p-5 sm:p-6" style={{ background: 'linear-gradient(145deg,#fff7eb,#ffefd4)', border: '1px solid rgba(255,149,1,0.18)' }}>
                 <h3 className="text-[11px] font-bold tracking-[2px] uppercase text-orange mb-4">Why Join PLR?</h3>
                 <ul className="space-y-3">
                   {job.whyJoin.map((w, i) => (
@@ -158,14 +158,14 @@ export default function JobDetailModal({ job, onClose, onApply }) {
 
           {/* Sticky footer — apply buttons */}
           <div
-            className="sticky bottom-0 px-10 py-5 rounded-b-[28px] flex items-center gap-3 flex-wrap"
+            className="sticky bottom-0 px-5 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] flex items-center gap-3 flex-wrap sm:px-10 sm:py-5 sm:rounded-b-[28px]"
             style={{ background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(12px)', borderTop: '1px solid rgba(0,0,0,0.07)' }}
           >
             <motion.button
               whileHover={{ scale: 1.03, boxShadow: '0 8px 28px rgba(255,149,1,0.4)' }}
               whileTap={{ scale: 0.97 }}
               onClick={() => onApply(job, 'intern')}
-              className="inline-flex items-center gap-2 bg-orange text-white text-[13px] font-bold px-7 py-[12px] rounded-xl cursor-pointer"
+              className="inline-flex flex-1 items-center justify-center gap-2 bg-orange text-white text-[13px] font-bold px-7 py-[12px] rounded-xl cursor-pointer sm:flex-none"
               style={{ boxShadow: '0 4px 18px rgba(255,149,1,0.3)' }}
             >
               Apply Now

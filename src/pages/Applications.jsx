@@ -204,14 +204,14 @@ export default function Applications() {
       </section>
 
       {/* ── BOTTOM CTA ── */}
-      <section className="px-6 pb-28">
+      <section className="px-5 pb-20 sm:px-6 sm:pb-28">
         <div className="max-w-[1320px] mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="relative rounded-[28px] overflow-hidden"
+            className="relative rounded-[24px] overflow-hidden sm:rounded-[28px]"
             style={{
               background: 'linear-gradient(135deg, #fff8f0 0%, #fef3e4 50%, #fff8f0 100%)',
               border: '1px solid rgba(255,149,1,0.18)',
@@ -244,12 +244,12 @@ export default function Applications() {
             <div className="absolute top-0 left-1/4 right-1/4 h-[2px] rounded-full"
               style={{ background: 'linear-gradient(90deg, transparent, #ff9501, transparent)' }} />
 
-            <div className="relative z-[1] px-16 py-16 flex flex-col lg:flex-row items-center justify-between gap-12">
+            <div className="relative z-[1] px-6 py-10 flex flex-col items-start justify-between gap-8 sm:px-10 sm:py-12 lg:px-16 lg:py-16 lg:flex-row lg:items-center lg:gap-12">
               {/* Left */}
               <div className="max-w-[520px]">
                 <h2 className="font-bold text-[#0f0a04] leading-[1.05] mb-4"
                   style={{ fontSize: 'clamp(26px,3.5vw,46px)', letterSpacing: '-1.5px' }}>
-                  Not Sure Which Robot<br />
+                  Not Sure Which Robot<span className="hidden sm:inline"><br /></span>{' '}
                   <span className="text-[#ff9501]">Fits Your Process?</span>
                 </h2>
                 <p className="text-[15px] leading-[1.8] mb-5" style={{ color: 'rgba(26,18,8,0.52)' }}>
@@ -262,12 +262,12 @@ export default function Applications() {
               </div>
 
               {/* Right */}
-              <div className="flex flex-col gap-3 flex-shrink-0 min-w-[230px] w-full lg:w-auto">
+              <div className="flex flex-col gap-3 flex-shrink-0 w-full lg:min-w-[230px] lg:w-auto">
                 <MotionLink
                   to="/book-demo"
                   whileHover={{ y: -2, boxShadow: '0 12px 36px rgba(255,149,1,0.42)' }}
                   whileTap={{ scale: 0.97 }}
-                  className="inline-flex items-center justify-center gap-2 text-white text-[13.5px] font-bold px-8 py-[14px] rounded-[12px] cursor-pointer"
+                  className="inline-flex w-full items-center justify-center gap-2 text-center text-white text-[13.5px] font-bold px-5 py-[14px] rounded-[12px] cursor-pointer sm:px-8"
                   style={{
                     background: 'linear-gradient(135deg, #ff9501 0%, #e07800 100%)',
                     boxShadow: '0 4px 20px rgba(255,149,1,0.32)',

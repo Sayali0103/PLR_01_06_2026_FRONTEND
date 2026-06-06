@@ -38,13 +38,13 @@ export default function Careers() {
     <main className="bg-cream min-h-screen pt-[90px]">
 
       {/* ── HERO ── */}
-      <section className="max-w-[1320px] mx-auto px-16 pt-14 pb-0">
+      <section className="max-w-[1320px] mx-auto px-5 pt-10 pb-0 sm:px-6 sm:pt-14 lg:px-16">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div className="grid grid-cols-2 gap-16 items-end">
+          <div className="grid gap-10 items-end lg:grid-cols-2 lg:gap-16">
             <div>
               <h1
                 className="font-bold text-[#111] mb-6 leading-[1.04]"
@@ -62,7 +62,7 @@ export default function Careers() {
             </div>
 
             {/* Candidate cards */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid gap-4 sm:grid-cols-3">
               {[
                 {
                   title: 'Build Real Robots',
@@ -83,7 +83,7 @@ export default function Careers() {
                 <motion.div key={s.title}
                   whileHover={{ y: -4, boxShadow: '0 12px 40px rgba(255,149,1,0.1)', borderColor: 'rgba(255,149,1,0.25)' }}
                   transition={{ duration: 0.22 }}
-                  className="bg-white rounded-2xl p-6 cursor-default"
+                  className="bg-white rounded-2xl p-5 cursor-default sm:p-6"
                   style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}
                 >
                   <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-4 text-orange" style={{ background: 'rgba(255,149,1,0.08)' }}>
@@ -99,27 +99,27 @@ export default function Careers() {
       </section>
 
       {/* Divider */}
-      <div className="max-w-[1320px] mx-auto px-16 mt-14">
+      <div className="max-w-[1320px] mx-auto px-5 mt-10 sm:px-6 sm:mt-14 lg:px-16">
         <div className="h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,149,1,0.2), transparent)' }} />
       </div>
 
       {/* ── JOB LISTINGS ── */}
-      <section className="max-w-[1320px] mx-auto px-16 pt-14 pb-24">
+      <section className="max-w-[1320px] mx-auto px-5 pt-10 pb-20 sm:px-6 sm:pt-14 lg:px-16 lg:pb-24">
 
         {/* Header + filters */}
-        <div className="flex items-center justify-between flex-wrap gap-5 mb-9">
+        <div className="flex items-start justify-between flex-wrap gap-5 mb-9">
           <div>
             <h2 className="font-bold text-[28px] text-[#111] tracking-tight">Open Positions</h2>
             <p className="text-[13.5px] text-[#999] mt-1">
               {loading ? 'Loading...' : `${filtered.length} role${filtered.length !== 1 ? 's' : ''} available${activeDept !== 'All' ? ` in ${activeDept}` : ''}`}
             </p>
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex w-full items-center gap-2 overflow-x-auto pb-1 lg:w-auto lg:flex-wrap lg:overflow-visible">
             {departments.map(dept => (
               <button
                 key={dept}
                 onClick={() => setActiveDept(dept)}
-                className={`px-5 py-2 rounded-full text-[13px] font-medium cursor-pointer transition-all duration-200 ${activeDept === dept ? 'bg-orange text-white' : 'bg-white text-[#555] hover:text-orange'
+                className={`flex-shrink-0 px-5 py-2 rounded-full text-[13px] font-medium cursor-pointer transition-all duration-200 ${activeDept === dept ? 'bg-orange text-white' : 'bg-white text-[#555] hover:text-orange'
                   }`}
                 style={{
                   border: activeDept === dept ? '1px solid #ff9501' : '1px solid rgba(0,0,0,0.1)',
@@ -136,7 +136,7 @@ export default function Careers() {
         {loading && (
           <div className="flex flex-col gap-3">
             {[1, 2, 3].map(i => (
-              <div key={i} className="bg-white rounded-[18px] p-8 h-[160px] animate-pulse" style={{ border: '1px solid rgba(0,0,0,0.07)' }} />
+              <div key={i} className="bg-white rounded-[18px] p-5 h-[160px] animate-pulse sm:p-8" style={{ border: '1px solid rgba(0,0,0,0.07)' }} />
             ))}
           </div>
         )}
@@ -159,7 +159,7 @@ export default function Careers() {
                   variants={fadeUp}
                   whileHover={{ y: -3, boxShadow: '0 16px 52px rgba(255,149,1,0.09)', borderColor: 'rgba(255,149,1,0.3)' }}
                   transition={{ duration: 0.22 }}
-                  className="bg-white rounded-[18px] p-8 grid grid-cols-[1fr_auto] gap-8 items-center"
+                  className="bg-white rounded-[18px] p-5 grid gap-6 items-center sm:p-8 lg:grid-cols-[1fr_auto] lg:gap-8"
                   style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}
                 >
                   {/* Left — job info */}
@@ -183,7 +183,7 @@ export default function Careers() {
 
                     <h3 className="font-bold text-[18px] text-[#111] mb-2 tracking-tight">{job.title}</h3>
 
-                    <div className="flex items-center gap-5 mb-3">
+                    <div className="flex items-center gap-5 mb-3 flex-wrap">
                       <span className="flex items-center gap-[5px] text-[13px] text-[#888]">
                         <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
                           <path d="M8 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" /><path d="M8 2C5.2 2 3 4.2 3 7c0 4 5 7 5 7s5-3 5-7c0-2.8-2.2-5-5-5Z" />
@@ -204,12 +204,12 @@ export default function Careers() {
                   </div>
 
                   {/* Right — 2 buttons */}
-                  <div className="flex flex-col gap-2 flex-shrink-0" onClick={e => e.stopPropagation()}>
+                  <div className="grid grid-cols-1 gap-2 flex-shrink-0 sm:grid-cols-2 lg:flex lg:flex-col" onClick={e => e.stopPropagation()}>
                     <motion.button
                       whileHover={{ scale: 1.04, boxShadow: '0 6px 24px rgba(255,149,1,0.38)' }}
                       whileTap={{ scale: 0.96 }}
                       onClick={() => setApplyJob(job)}
-                      className="inline-flex items-center justify-center gap-2 bg-orange text-white text-[13px] font-bold px-6 py-[11px] rounded-xl whitespace-nowrap cursor-pointer"
+                      className="inline-flex w-full items-center justify-center gap-2 bg-orange text-white text-[13px] font-bold px-6 py-[11px] rounded-xl whitespace-nowrap cursor-pointer"
                       style={{ boxShadow: '0 4px 18px rgba(255,149,1,0.28)' }}
                     >
                       Apply Now
@@ -221,7 +221,7 @@ export default function Careers() {
                       whileHover={{ scale: 1.04, borderColor: 'rgba(255,149,1,0.35)', color: '#FF9501' }}
                       whileTap={{ scale: 0.96 }}
                       onClick={() => setSelectedJob(job)}
-                      className="inline-flex items-center justify-center gap-2 text-[#555] text-[13px] font-semibold px-6 py-[11px] rounded-xl whitespace-nowrap cursor-pointer transition-all duration-200 bg-white"
+                      className="inline-flex w-full items-center justify-center gap-2 text-[#555] text-[13px] font-semibold px-6 py-[11px] rounded-xl whitespace-nowrap cursor-pointer transition-all duration-200 bg-white"
                       style={{ border: '1px solid rgba(0,0,0,0.1)' }}
                     >
                       View Details
