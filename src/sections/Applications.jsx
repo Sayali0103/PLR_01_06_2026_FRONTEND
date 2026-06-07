@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { Link } from 'react-router-dom'
 
@@ -36,38 +36,87 @@ const stagger = {
 }
 
 function VideoCard({ app, variants }) {
+  const cardRef = useRef(null)
   const videoRef = useRef(null)
+  const hoverTimerRef = useRef(null)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [isVideoReady, setIsVideoReady] = useState(false)
 
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.playbackRate = app.speed
+      if (isPlaying) {
+        videoRef.current.play().catch(() => {})
+      } else {
+        videoRef.current.pause()
+      }
     }
-  }, [app.speed])
+  }, [app.speed, isPlaying])
+
+  useEffect(() => () => clearTimeout(hoverTimerRef.current), [])
+
+  useEffect(() => {
+    const card = cardRef.current
+    const isTouchDevice = window.matchMedia('(hover: none), (pointer: coarse)').matches
+
+    if (!card || !isTouchDevice) return undefined
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsPlaying(entry.isIntersecting && entry.intersectionRatio >= 0.65)
+      },
+      { threshold: [0, 0.65] }
+    )
+
+    observer.observe(card)
+    return () => observer.disconnect()
+  }, [])
+
+  const handlePointerEnter = (event) => {
+    if (event.pointerType !== 'mouse') return
+    clearTimeout(hoverTimerRef.current)
+    hoverTimerRef.current = setTimeout(() => setIsPlaying(true), 180)
+  }
+
+  const handlePointerLeave = (event) => {
+    if (event.pointerType !== 'mouse') return
+    clearTimeout(hoverTimerRef.current)
+    setIsPlaying(false)
+  }
 
   return (
     <motion.div
+      ref={cardRef}
       variants={variants}
       whileHover={{ y: -6 }}
       transition={{ duration: 0.25 }}
+      onPointerEnter={handlePointerEnter}
+      onPointerLeave={handlePointerLeave}
       className="group relative rounded-2xl overflow-hidden cursor-pointer"
       style={{ height: 'clamp(300px, 70vw, 420px)' }}
     >
       <video
         ref={videoRef}
         src={app.video}
-        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-        autoPlay
         loop
         muted
         playsInline
+        preload="metadata"
+        onLoadedMetadata={(event) => {
+          event.currentTarget.currentTime = Math.min(0.1, event.currentTarget.duration)
+        }}
+        onLoadedData={() => setIsVideoReady(true)}
+        className={`h-full w-full object-cover transition-all duration-700 group-hover:scale-105 ${
+          isVideoReady ? 'opacity-100' : 'opacity-0'
+        }`}
       />
       <div
-        className="absolute inset-0 transition-opacity duration-300"
+        className="pointer-events-none absolute inset-0 transition-opacity duration-300"
         style={{
           background: 'linear-gradient(to top, rgba(26,18,8,0.72) 8%, rgba(26,18,8,0.34) 40%, rgba(255,149,1,0.05) 75%, transparent 100%)',
         }}
       />
-      <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6">
+      <div className="pointer-events-none absolute bottom-0 left-0 right-0 p-5 sm:p-6">
         <h3 className="font-bold text-[20px] text-orange mb-2 tracking-tight drop-shadow-[0_4px_16px_rgba(0,0,0,0.2)]">
           {app.title}
         </h3>

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { gsap } from 'gsap'
 
@@ -25,42 +25,96 @@ const stagger = {
 }
 
 export default function Hero() {
+  const sectionRef = useRef(null)
   const videoRef = useRef(null)
+  const hoverTimerRef = useRef(null)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [isVideoReady, setIsVideoReady] = useState(false)
 
   useEffect(() => {
     if (videoRef.current) {
+      videoRef.current.play().catch(() => {})
       gsap.fromTo(
         videoRef.current,
         { scale: 1.08 },
         { scale: 1, duration: 10, ease: 'power1.out' }
       )
     }
+  }, [isPlaying])
+
+  useEffect(() => () => clearTimeout(hoverTimerRef.current), [])
+
+  useEffect(() => {
+    const section = sectionRef.current
+    const isTouchDevice = window.matchMedia('(hover: none), (pointer: coarse)').matches
+
+    if (!section || !isTouchDevice) return undefined
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsPlaying(entry.isIntersecting && entry.intersectionRatio >= 0.55)
+        if (!entry.isIntersecting || entry.intersectionRatio < 0.55) {
+          setIsVideoReady(false)
+        }
+      },
+      { threshold: [0, 0.55] }
+    )
+
+    observer.observe(section)
+    return () => observer.disconnect()
   }, [])
 
-  return (
-    <section className="relative w-full min-h-[640px] h-[100svh] overflow-hidden bg-[#f5f0e8] sm:min-h-[680px] lg:min-h-[700px]">
+  const handlePointerEnter = (event) => {
+    if (event.pointerType !== 'mouse') return
+    clearTimeout(hoverTimerRef.current)
+    hoverTimerRef.current = setTimeout(() => setIsPlaying(true), 180)
+  }
 
-      {/* Video */}
-      <video
-        ref={videoRef}
-        autoPlay
-        muted
-        loop
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover z-0"
+  const handlePointerLeave = (event) => {
+    if (event.pointerType !== 'mouse') return
+    clearTimeout(hoverTimerRef.current)
+    setIsPlaying(false)
+    setIsVideoReady(false)
+  }
+
+  return (
+    <section
+      ref={sectionRef}
+      onPointerEnter={handlePointerEnter}
+      onPointerLeave={handlePointerLeave}
+      className="relative w-full min-h-[640px] h-[100svh] overflow-hidden bg-[#f5f0e8] sm:min-h-[680px] lg:min-h-[700px]"
+    >
+
+      {/* Hover-to-load background video */}
+      <img
+        src="/photos/photo5.jpeg"
+        alt="P.L. Robotics"
+        className="absolute inset-0 z-0 h-full w-full object-cover"
         style={{
           objectPosition: 'center 38%',
-          transformOrigin: 'center center',
           filter: 'brightness(1.1) contrast(1.02)',
         }}
-      >
-        <source src="/videos/herosection.mp4" type="video/mp4" />
-        <img
-          src="/photos/photo5.jpeg"
-          alt="P.L. Robotics"
-          className="w-full h-full object-cover"
+      />
+      {isPlaying && (
+        <video
+          ref={videoRef}
+          src="/videos/herosection.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="none"
+          onCanPlay={() => setIsVideoReady(true)}
+          className={`absolute inset-0 z-0 h-full w-full object-cover transition-opacity duration-700 ${
+            isVideoReady ? 'opacity-100' : 'opacity-0'
+          }`}
+          style={{
+            objectPosition: 'center 38%',
+            transformOrigin: 'center center',
+            filter: 'brightness(1.1) contrast(1.02)',
+          }}
         />
-      </video>
+      )}
 
       {/* Bottom fade */}
       <div
