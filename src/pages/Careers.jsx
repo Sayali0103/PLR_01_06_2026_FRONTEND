@@ -12,9 +12,10 @@ const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } }
 
 function getJobSortRank(title = '') {
   const normalizedTitle = title.toLowerCase()
+  if (normalizedTitle.includes('robotics engineer')) return 0
   if (normalizedTitle.includes('ros developer')) return 0
   if (normalizedTitle.includes('mechanical engineer')) return 1
-  if (normalizedTitle.includes('electronics engineer')) return 2
+  if (normalizedTitle.includes('electronics engineer') || normalizedTitle.includes('electronic engineer')) return 2
   if (normalizedTitle.includes('ui developer')) return 3
   return 4
 }
