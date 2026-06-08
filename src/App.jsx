@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import Home from './pages/Home'
@@ -39,7 +39,7 @@ export default function App() {
       <Navbar />
       <Routes>
         <Route path="/"                          element={<Home />} />
-        <Route path="/products"                  element={<div className="pt-20 min-h-screen flex items-center justify-center">Products — Coming Soon</div>} />
+        <Route path="/products"                  element={<Navigate to="/#product-showcase" replace />} />
         <Route path="/technology"                element={<Technology />} />
         <Route path="/applications"              element={<Applications />} />
         <Route path="/applications/:slug"        element={<ApplicationDetail />} />
