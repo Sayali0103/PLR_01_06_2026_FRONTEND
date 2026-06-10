@@ -4,6 +4,7 @@ const fields = [
   { name: 'firstName', label: 'First Name' },
   { name: 'lastName', label: 'Last Name' },
   { name: 'companyName', label: 'Company Name' },
+  { name: 'companyEmail', label: 'Company Email', type: 'email' },
   { name: 'companyContact', label: 'Company Contact', type: 'tel', maxLength: 30 },
   { name: 'companyAddress', label: 'Company Address', type: 'textarea', fullWidth: true, maxLength: 500 },
   { name: 'interestedIn', label: 'Interested Robot / Service' },
