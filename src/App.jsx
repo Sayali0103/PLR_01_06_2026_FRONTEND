@@ -32,11 +32,16 @@ function ScrollToHash() {
   return null
 }
 
+function SiteNavbar() {
+  const { pathname } = useLocation()
+  return pathname === '/admin' ? null : <Navbar />
+}
+
 export default function App() {
   return (
     <BrowserRouter>
       <ScrollToHash />
-      <Navbar />
+      <SiteNavbar />
       <Routes>
         <Route path="/"                          element={<Home />} />
         <Route path="/products"                  element={<Navigate to="/#product-showcase" replace />} />

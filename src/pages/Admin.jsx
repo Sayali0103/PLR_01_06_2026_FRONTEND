@@ -181,8 +181,8 @@ export default function Admin() {
 
   // ── MAIN DASHBOARD ──
   return (
-    <div className="min-h-screen bg-cream pt-[90px]">
-      <div className="max-w-[1200px] mx-auto px-10 py-10">
+    <div className="min-h-screen bg-cream">
+      <div className="max-w-[1200px] mx-auto px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
 
         {/* Top bar */}
         <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
@@ -192,8 +192,12 @@ export default function Admin() {
           </div>
           <button
             onClick={() => { setAuthed(false); setPassword('') }}
-            className="text-[13px] text-[#aaa] hover:text-red-400 transition-colors duration-200 cursor-pointer"
+            className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-[10px] text-[13px] font-semibold text-[#555] transition-all duration-200 hover:border-red-200 hover:bg-red-50 hover:text-red-500 cursor-pointer"
+            style={{ border: '1px solid rgba(0,0,0,0.1)', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}
           >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M10 17l5-5-5-5M15 12H3M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+            </svg>
             Sign out
           </button>
         </div>
@@ -290,24 +294,31 @@ export default function Admin() {
         {/* ── APPLICATIONS TAB ── */}
         {tab === 'applications' && (
           <div>
-            <h2 className="font-bold text-[18px] text-[#111] tracking-tight mb-5">Applications Received</h2>
+            <div className="mb-5">
+              <h2 className="font-bold text-[18px] text-[#111] tracking-tight">Applications Received</h2>
+              <p className="mt-1 text-[12.5px] text-[#999]">Review candidate details, attachments, and application status.</p>
+            </div>
             {loadingApps ? (
-              <div className="space-y-3">{[1,2,3].map(i => <div key={i} className="bg-white h-20 rounded-2xl animate-pulse" style={{ border: '1px solid rgba(0,0,0,0.07)' }} />)}</div>
+              <div className="space-y-4">{[1,2,3].map(i => <div key={i} className="bg-white h-52 rounded-2xl animate-pulse" style={{ border: '1px solid rgba(0,0,0,0.07)' }} />)}</div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {applications.map(app => {
                   const sc = statusColors[app.status] || statusColors.new
+                  const applicantName = [app.firstName, app.middleName, app.lastName].filter(Boolean).join(' ') || 'Unnamed applicant'
+                  const submittedAt = app.createdAt
+                    ? new Date(app.createdAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
+                    : 'Date unavailable'
                   return (
                     <motion.div
                       key={app._id}
                       initial={{ opacity: 0, y: 12 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="bg-white rounded-2xl px-7 py-5 flex items-start justify-between gap-6 flex-wrap"
-                      style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}
+                      className="bg-white rounded-[20px] px-5 py-5 flex items-start justify-between gap-6 flex-wrap sm:px-7 sm:py-6"
+                      style={{ border: '1px solid rgba(0,0,0,0.09)', boxShadow: '0 3px 18px rgba(0,0,0,0.05)' }}
                     >
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1 flex-wrap">
-                          <p className="font-semibold text-[15px] text-[#111]">{app.name}</p>
+                          <p className="font-bold text-[17px] text-[#111] tracking-tight">{applicantName}</p>
                           <span
                             className="text-[10.5px] font-semibold tracking-[1px] uppercase px-2.5 py-[3px] rounded-full"
                             style={{ background: app.applicantType === 'intern' ? 'rgba(255,149,1,0.08)' : 'rgba(30,100,220,0.07)', color: app.applicantType === 'intern' ? '#FF9501' : '#1e64dc', border: `1px solid ${app.applicantType === 'intern' ? 'rgba(255,149,1,0.2)' : 'rgba(30,100,220,0.18)'}` }}
@@ -315,10 +326,23 @@ export default function Admin() {
                             {app.applicantType}
                           </span>
                         </div>
-                        <p className="text-[12.5px] text-[#aaa] mb-1">{app.jobTitle} · {app.email} {app.phone ? `· ${app.phone}` : ''}</p>
-                        {app.resumeUrl && (
-                          <a href={app.resumeUrl} target="_blank" rel="noopener noreferrer" className="text-[12px] text-orange hover:underline">
-                            View Resume / Portfolio ↗
+                        <p className="text-[13.5px] font-semibold text-[#444] mb-2">{app.jobTitle}</p>
+                        <div className="grid gap-x-6 gap-y-1.5 text-[12.5px] text-[#666] sm:grid-cols-2">
+                          <a href={`mailto:${app.email}`} className="break-all hover:text-orange">{app.email}</a>
+                          <a href={`tel:${app.phone}`} className="hover:text-orange">{app.phone}</a>
+                          <span>{app.currentLocation || 'Location not provided'}</span>
+                          <span>{app.currentlyEmployed ? 'Currently employed' : 'Not currently employed'}</span>
+                        </div>
+                        {app.employerDetails && <p className="mt-2 text-[12.5px] leading-[1.6] text-[#777]">{app.employerDetails}</p>}
+                        <p className="mt-3 text-[11.5px] text-[#aaa]">Submitted {submittedAt}</p>
+                        {app.attachmentDriveLink && (
+                          <a href={app.attachmentDriveLink} target="_blank" rel="noopener noreferrer" className="text-[12px] font-semibold text-orange hover:underline">
+                            View Resume
+                          </a>
+                        )}
+                        {app.projectDriveLink && (
+                          <a href={app.projectDriveLink} target="_blank" rel="noopener noreferrer" className="ml-4 text-[12px] font-semibold text-[#666] hover:text-orange hover:underline">
+                            View Project / Portfolio
                           </a>
                         )}
                         {app.message && <p className="text-[12.5px] text-[#777] mt-2 max-w-[500px] leading-[1.6]">"{app.message}"</p>}
@@ -327,7 +351,7 @@ export default function Admin() {
                         <select
                           value={app.status}
                           onChange={e => updateStatus(app._id, e.target.value)}
-                          className="text-[12px] font-semibold px-3 py-[5px] rounded-full cursor-pointer outline-none"
+                          className="text-[12px] font-semibold px-3 py-[8px] rounded-lg cursor-pointer outline-none"
                           style={{ background: sc.bg, color: sc.text, border: `1px solid ${sc.border}` }}
                         >
                           <option value="new">New</option>
@@ -337,8 +361,8 @@ export default function Admin() {
                         </select>
                         <button
                           onClick={() => deleteApp(app._id)}
-                          className="text-[12px] text-[#ccc] hover:text-red-500 transition-colors duration-200 cursor-pointer px-3 py-[5px] rounded-full"
-                          style={{ border: '1px solid rgba(0,0,0,0.08)' }}
+                          className="text-[12px] font-semibold text-[#999] hover:text-red-500 hover:bg-red-50 transition-colors duration-200 cursor-pointer px-3 py-[8px] rounded-lg"
+                          style={{ border: '1px solid rgba(0,0,0,0.1)' }}
                         >
                           Delete
                         </button>
