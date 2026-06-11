@@ -308,6 +308,7 @@ export default function Admin() {
                   const submittedAt = app.createdAt
                     ? new Date(app.createdAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
                     : 'Date unavailable'
+                  const hasAtsScore = Number.isFinite(app.atsScore)
                   return (
                     <motion.div
                       key={app._id}
@@ -324,6 +325,16 @@ export default function Admin() {
                             style={{ background: app.applicantType === 'intern' ? 'rgba(255,149,1,0.08)' : 'rgba(30,100,220,0.07)', color: app.applicantType === 'intern' ? '#FF9501' : '#1e64dc', border: `1px solid ${app.applicantType === 'intern' ? 'rgba(255,149,1,0.2)' : 'rgba(30,100,220,0.18)'}` }}
                           >
                             {app.applicantType}
+                          </span>
+                          <span
+                            className="text-[10.5px] font-bold tracking-[0.5px] uppercase px-2.5 py-[3px] rounded-full"
+                            style={{
+                              background: hasAtsScore ? 'rgba(20,160,80,0.07)' : 'rgba(0,0,0,0.04)',
+                              color: hasAtsScore ? '#148f49' : '#999',
+                              border: `1px solid ${hasAtsScore ? 'rgba(20,160,80,0.18)' : 'rgba(0,0,0,0.08)'}`,
+                            }}
+                          >
+                            ATS {hasAtsScore ? `${app.atsScore.toFixed(1)}/10` : 'Not scored'}
                           </span>
                         </div>
                         <p className="text-[13.5px] font-semibold text-[#444] mb-2">{app.jobTitle}</p>
