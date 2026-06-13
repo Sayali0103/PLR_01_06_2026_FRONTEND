@@ -419,7 +419,7 @@ export default function Navbar() {
                       className="absolute top-[calc(100%+12px)] left-1/2 -translate-x-1/2 z-[200] p-3 rounded-[20px]"
                       style={{
                         width: 320,
-                        background: 'rgba(252,249,244,0.2)',
+                        background: 'rgba(252,249,244,0.8)',
                         backdropFilter: 'blur(80px) brightness(1.08)',
                         WebkitBackdropFilter: 'blur(80px) brightness(1.08)',
                         border: '1.5px solid rgba(255,255,255,0.65)',
