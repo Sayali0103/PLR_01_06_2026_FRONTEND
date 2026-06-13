@@ -159,33 +159,20 @@ export default function Footer() {
           >
             <div className="text-[12px] font-bold uppercase tracking-[3px] text-orange mb-7">Find Us</div>
 
-            <div className="flex items-start gap-3">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#FF9501" strokeWidth="1.6" strokeLinecap="round" className="mt-[3px] flex-shrink-0">
-                <path d="M8 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" />
-                <path d="M8 2C5.2 2 3 4.2 3 7c0 4 5 7 5 7s5-3 5-7c0-2.8-2.2-5-5-5Z" />
-              </svg>
-              <div>
-                <p className="text-[13.5px] font-semibold text-[#3a2e24] mb-2">Address</p>
-                <p className="text-[13.5px] leading-[1.85] text-[#6d5f51]">
-                  Office No. 401, Pooja Complex,<br />
-                  Telco Road, Near Quality Circle,<br />
-                  MIDC Bhosari, PCMC,<br />
-                  Maharashtra – 411026
-                </p>
-
-                <a
-                  href="https://maps.google.com/?q=Pooja+Complex,+Telco+Road,+MIDC+Bhosari,+PCMC,+Maharashtra+411026"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 mt-4 text-[12.5px] font-semibold text-orange hover:underline">
-                  Get Directions
-                  <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 8h10M9 4l4 4-4 4" />
-                </svg>
-              </a>
+            <div className="overflow-hidden rounded-2xl border border-[#d7cfc6]">
+                  <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d236.2882965586393!2d73.82856689614431!3d18.636480064914444!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2eb41ca20736f%3A0x5f9833a00fdc50f0!2sP.L.%20Robotics%20Private%20Limited!5e0!3m2!1sen!2sin!4v1781342212838!5m2!1sen!2sin"
+                    title="P. L. Robotics location"
+                    width="600"
+                    height="450"
+                    className="block h-[220px] w-full"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  />
             </div>
-        </div>
-      </motion.div>
+          </motion.div>
 
     </div>
 
