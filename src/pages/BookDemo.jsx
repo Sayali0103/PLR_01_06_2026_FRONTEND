@@ -13,5 +13,5 @@ const fields = [
 ]
 
 export default function BookDemo() {
-  return <InquiryFormPage eyebrow="Book a Demo" title="See PL Robotics" accentTitle="In Action." description="Share your requirements and our team will get in touch to understand your application and arrange the right demonstration." endpoint="/demo-requests" fields={fields} successMessage="Your demo request has been received. The PL Robotics team will contact you to discuss the next steps." />
+  return <InquiryFormPage eyebrow="Book a Demo" title="See P. L. Robotics" accentTitle="In Action." description="Share your requirements and our team will get in touch to understand your application and arrange the right demonstration." endpoint="/demo-requests" fields={fields} successMessage="Your demo request has been received. The P. L. Robotics team will contact you to discuss the next steps." />
 }

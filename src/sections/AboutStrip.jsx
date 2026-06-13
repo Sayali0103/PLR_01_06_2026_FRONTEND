@@ -16,7 +16,7 @@ const pillars = [
   {
     num: '01',
     title: 'Safety First',
-    desc: 'Every PL Robotics cobot is engineered to work safely alongside humans. No cages, no barriers, no compromises.',
+    desc: 'Every P. L. Robotics cobot is engineered to work safely alongside humans. No cages, no barriers, no compromises.',
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
@@ -89,7 +89,7 @@ export default function AboutStrip() {
               className="text-[14.5px] leading-[1.75] mb-8 max-w-[460px] sm:text-[15.5px] sm:leading-[1.85] sm:mb-10"
               style={{ color: 'rgba(26,18,8,0.68)' }}
             >
-              PL Robotics is a Pune based industrial robotics company
+              P. L. Robotics is a Pune based industrial robotics company
               building the next generation of cobots for Indian manufacturing.
               We believe automation should empower workers, not replace them.
             </motion.p>

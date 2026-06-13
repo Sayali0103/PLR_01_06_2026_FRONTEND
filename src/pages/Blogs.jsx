@@ -83,7 +83,7 @@ const posts = [
 ]
 
 const highlights = [
-  'How P.L. Robotics makes cobots user-friendly for production teams.',
+  'How P. L. Robotics makes cobots user-friendly for production teams.',
   'Real-world automation wins for electronics and automotive.',
   'Best practices for integrating robots into existing workflows.',
 ]

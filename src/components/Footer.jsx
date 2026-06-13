@@ -36,7 +36,7 @@ export default function Footer() {
             <Link to="/" className="inline-block group">
               <img
                 src="/logo/logo.png"
-                alt="P.L. Robotics"
+                alt="P. L. Robotics"
                 className="h-10 w-auto object-contain transition-opacity duration-300 group-hover:opacity-80"
               />
             </Link>
@@ -199,7 +199,7 @@ export default function Footer() {
     transition={{ duration: 0.6, delay: 0.4 }}
     className="py-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
   >
-    <span className="text-[13px] text-[#7e7061]">© 2026 P.L. Robotics. All rights reserved.</span>
+    <span className="text-[13px] text-[#7e7061]">© 2026 P. L. Robotics. All rights reserved.</span>
     <div className="flex flex-wrap gap-6 items-center text-[13px]">
       <a href="#" className="text-[#7e7061] hover:text-orange transition-colors duration-300">Privacy Policy</a>
       <a href="#" className="text-[#7e7061] hover:text-orange transition-colors duration-300">Terms of Service</a>

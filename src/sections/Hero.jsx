@@ -88,7 +88,7 @@ export default function Hero() {
       {/* Hover-to-load background video */}
       <img
         src="/photos/photo5.jpeg"
-        alt="P.L. Robotics"
+        alt="P. L. Robotics"
         className="absolute inset-0 z-0 h-full w-full object-cover"
         style={{
           objectPosition: 'center 38%',

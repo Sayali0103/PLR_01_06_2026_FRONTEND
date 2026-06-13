@@ -115,7 +115,7 @@ export default function Applications() {
             </h1>
 
             <p className="text-[16px] leading-[1.8] max-w-[500px]" style={{ color: '#6b7280' }}>
-              From CNC tending to high-speed packaging PL Robotics cobots are deployed
+              From CNC tending to high-speed packaging P. L. Robotics cobots are deployed
               across Indian manufacturing floors delivering real, measurable results.
             </p>
           </motion.div>

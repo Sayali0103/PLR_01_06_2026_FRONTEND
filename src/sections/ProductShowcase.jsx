@@ -87,7 +87,7 @@ export default function ProductShowcase() {
               <motion.img
                 key={activePhoto}
                 src={photos[activePhoto]}
-                alt="PL Robotics Cobot"
+                alt="P. L. Robotics Cobot"
                 initial={{ opacity: 0, scale: 1.04 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5 }}
@@ -127,7 +127,7 @@ export default function ProductShowcase() {
               className="text-[14.5px] leading-[1.75] mb-8 max-w-[460px] sm:text-[15px] sm:leading-[1.85] sm:mb-10"
               style={{ color: 'rgba(0,0,0,0.55)' }}
             >
-              The PL Robotics Cobot is a 6-axis collaborative robot engineered for
+              The P. L. Robotics Cobot is a 6-axis collaborative robot engineered for
               precision, flexibility, and safe human collaboration on any
               factory floor.
             </motion.p>

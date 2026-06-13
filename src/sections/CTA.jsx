@@ -73,7 +73,7 @@ export default function CTA() {
                 className="text-[14.5px] leading-[1.75] mb-5 sm:text-[15px] sm:leading-[1.85]"
                 style={{ color: 'rgba(26,18,8,0.55)' }}
               >
-                Book a free demo with our team and see exactly how PL Robotics
+                Book a free demo with our team and see exactly how P. L. Robotics
                 cobots fit into your workflow.
               </p>
 

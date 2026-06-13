@@ -100,7 +100,7 @@ export default function News() {
                 className="font-bold text-[#111] leading-[1.02] mb-6"
                 style={{ fontSize: 'clamp(44px,5.5vw,76px)', letterSpacing: '-2.5px' }}
               >
-                News from the<br />P.L. Robotics<br />
+                News from the<br />P. L. Robotics<br />
                 <span style={{ color: '#FF9501' }}>radar.</span>
               </h1>
               <p className="text-[16px] leading-[1.85] text-[#666] max-w-[500px]">

@@ -115,7 +115,7 @@ export default function About() {
                 <span style={{ color: '#FF9501' }}>smarter India.</span>
               </h1>
               <p className="text-[16px] leading-[1.85] text-[#666] max-w-[520px]">
-                P.L. Robotics started with the idea of increasing industrial productivity through advanced manufacturing and software capabilities. We build next-generation robots designed for Indian manufacturing, from cobots to SCARA, precision automation, and modular end effectors.
+                P. L. Robotics started with the idea of increasing industrial productivity through advanced manufacturing and software capabilities. We build next-generation robots designed for Indian manufacturing, from cobots to SCARA, precision automation, and modular end effectors.
               </p>
             </div>
 
@@ -337,7 +337,7 @@ export default function About() {
               </h2>
               <p className="text-[15px] leading-[1.85] mb-5"
                 style={{ color: 'rgba(26,18,8,0.55)' }}>
-                Whether you're scaling a factory floor or starting automation for the first time, we'd love to show you what P.L. Robotics can do.
+                Whether you're scaling a factory floor or starting automation for the first time, we'd love to show you what P. L. Robotics can do.
               </p>
               <p className="text-[11px] font-semibold tracking-[2px] uppercase text-[#ff9501]/70">
                 Built to Work. Designed to Last.
