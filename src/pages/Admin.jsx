@@ -150,7 +150,7 @@ export default function Admin() {
           className="w-full max-w-[380px] bg-white rounded-[28px] p-10"
           style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 8px 50px rgba(0,0,0,0.08)' }}
         >
-          <img src="/logo/logofinal.png" alt="PLR" className="h-9 mb-8 object-contain" />
+          <img src="/logo/logo.png" alt="PLR" className="h-9 mb-8 object-contain" />
           <h1 className="font-bold text-[22px] text-[#111] mb-1 tracking-tight">Admin Dashboard</h1>
           <p className="text-[13.5px] text-[#aaa] mb-8">Enter your admin password to continue.</p>
           <form onSubmit={login} className="space-y-4">

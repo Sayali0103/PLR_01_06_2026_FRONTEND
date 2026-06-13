@@ -130,7 +130,7 @@ export default function Navbar() {
         {/* ── Logo ── */}
         <Link to="/" className="flex-shrink-0 flex items-center">
           <motion.img
-            src="/logo/logofinal.png"
+            src="/logo/logo.png"
             alt="PLR Robotics"
             whileHover={{ scale: 1.05 }}
             transition={{ type: 'spring', stiffness: 400, damping: 22 }}
@@ -564,7 +564,7 @@ export default function Navbar() {
             >
               <div className="mb-7 flex items-center justify-between pr-14">
                 <Link to="/" className="flex items-center">
-                  <img src="/logo/logofinal.png" alt="PLR Robotics" className="h-11 w-auto object-contain" />
+                  <img src="/logo/logo.png" alt="PLR Robotics" className="h-11 w-auto object-contain" />
                 </Link>
               </div>
 
