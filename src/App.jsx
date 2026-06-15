@@ -13,6 +13,7 @@ import Technology from './pages/Technology'
 import Admin from './pages/Admin'
 import Contact from './pages/Contact'
 import BookDemo from './pages/BookDemo'
+import Seo from './components/Seo'
 
 function ScrollToHash() {
   const { hash, pathname, key } = useLocation()
@@ -37,9 +38,21 @@ function SiteNavbar() {
   return pathname === '/admin' ? null : <Navbar />
 }
 
+function NotFound() {
+  return (
+    <main className="min-h-screen flex items-center justify-center px-6 pt-24">
+      <div className="text-center">
+        <h1 className="text-4xl font-bold text-[#1a1208]">Page not found</h1>
+        <p className="mt-4 text-[#6d5f51]">The page you requested does not exist.</p>
+      </div>
+    </main>
+  )
+}
+
 export default function App() {
   return (
     <BrowserRouter>
+      <Seo />
       <ScrollToHash />
       <SiteNavbar />
       <Routes>
@@ -56,6 +69,7 @@ export default function App() {
         <Route path="/contact"                   element={<Contact />} />
         <Route path="/book-demo"                 element={<BookDemo />} />
         <Route path="/admin"                     element={<Admin />} />
+        <Route path="*"                          element={<NotFound />} />
       </Routes>
       <Footer />
     </BrowserRouter>
