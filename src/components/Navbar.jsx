@@ -10,6 +10,12 @@ const productItems = [
     path: '/#product-showcase',
   },
   {
+    label: 'Cartesian Robot',
+    desc: 'Customizable automation for adhesive, spray painting & welding',
+    image: '/photos/c1.jpeg',
+    path: '/#cartesian-robot',
+  },
+  {
     label: 'SCARA',
     desc: 'High-speed selective compliance arm for assembly',
     image: '/photos/photo5.jpeg',
@@ -226,8 +232,8 @@ export default function Navbar() {
                       transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
                       className="absolute top-[calc(100%+12px)] left-1/2 -translate-x-1/2 z-[200] p-3 rounded-[24px]"
                       style={{
-                        width: 580,
-                        background: 'rgba(252,249,244,0.2)',
+                        width: 760,
+                        background: 'rgba(252,249,244,0.98)',
                         backdropFilter: 'blur(80px) brightness(1.08)',
                         WebkitBackdropFilter: 'blur(80px) brightness(1.08)',
                         border: '1.5px solid rgba(255,255,255,0.65)',
@@ -250,7 +256,7 @@ export default function Navbar() {
                       </div>
 
                       {/* Product cards */}
-                      <div className="grid grid-cols-3 gap-3">
+                      <div className="grid grid-cols-4 gap-3">
                         {productItems.map(item => {
                           const CardTag = item.comingSoon ? 'div' : Link
                           const cardProps = item.comingSoon
@@ -419,7 +425,7 @@ export default function Navbar() {
                       className="absolute top-[calc(100%+12px)] left-1/2 -translate-x-1/2 z-[200] p-3 rounded-[20px]"
                       style={{
                         width: 320,
-                        background: 'rgba(252,249,244,0.8)',
+                        background: 'rgba(252,249,244,0.98)',
                         backdropFilter: 'blur(80px) brightness(1.08)',
                         WebkitBackdropFilter: 'blur(80px) brightness(1.08)',
                         border: '1.5px solid rgba(255,255,255,0.65)',

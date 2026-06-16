@@ -13,6 +13,15 @@ const specs = [
   { label: 'Mounting',      value: 'All Directions' },
 ]
 
+const cartesianSpecs = [
+  { label: 'Applications', value: 'Adhesive, Painting, Welding' },
+  { label: 'Configuration', value: 'Custom Built' },
+  { label: 'Motion', value: 'Linear XYZ' },
+  { label: 'Workspace', value: 'As Required' },
+  { label: 'Tooling', value: 'Process Specific' },
+  { label: 'Integration', value: 'Factory Ready' },
+]
+
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
   show:   { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } },
@@ -27,11 +36,18 @@ export default function ProductShowcase() {
   const ref = useRef(null)
   const inView = useInView(ref, { once: true, margin: '-80px' })
   const [activePhoto, setActivePhoto] = useState(0)
+  const [activeCartesianPhoto, setActiveCartesianPhoto] = useState(0)
 
   const photos = [
     '/photos/photo1.png',
     '/photos/photo5.jpeg',
     '/photos/photo3.jpeg',
+  ]
+
+  const cartesianPhotos = [
+    '/photos/c1.jpeg',
+    '/photos/c2.jpeg',
+    '/photos/c3.jpeg',
   ]
 
   const handleDownload = () => {
@@ -201,6 +217,134 @@ export default function ProductShowcase() {
             </motion.div>
 
           </motion.div>
+        </div>
+
+        <div id="cartesian-robot" className="mt-20 scroll-mt-24 border-t border-black/10 pt-16 sm:mt-24 sm:pt-20 lg:mt-28 lg:scroll-mt-28">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.7, delay: 0.1 }}
+            className="mb-10 sm:mb-12 lg:mb-16"
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-[2px] bg-orange rounded-full" />
+              <span className="text-[11px] font-semibold tracking-[2.5px] uppercase text-orange">
+                Custom Automation
+              </span>
+            </div>
+            <h2
+              className="font-bold text-[#111] leading-[1.04]"
+              style={{ fontSize: 'clamp(32px, 10vw, 52px)', letterSpacing: '-1.5px' }}
+            >
+              Cartesian Robot
+            </h2>
+          </motion.div>
+
+          <div className="grid lg:grid-cols-2 gap-10 sm:gap-12 lg:gap-16 items-start">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              animate={inView ? { opacity: 1, x: 0 } : {}}
+              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <div
+                className="relative rounded-2xl overflow-hidden bg-[#e8e4de] mb-4 sm:rounded-3xl"
+                style={{ height: 'clamp(280px, 58vw, 480px)' }}
+              >
+                <motion.img
+                  key={activeCartesianPhoto}
+                  src={cartesianPhotos[activeCartesianPhoto]}
+                  alt="P. L. Robotics Cartesian Robot"
+                  initial={{ opacity: 0, scale: 1.04 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="w-full h-full object-contain object-center"
+                />
+              </div>
+
+              <div className="flex gap-2 sm:gap-3">
+                {cartesianPhotos.map((photo, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActiveCartesianPhoto(i)}
+                    className="relative rounded-xl overflow-hidden flex-1 cursor-pointer transition-all duration-200 bg-[#e8e4de]"
+                    style={{
+                      height: 72,
+                      border: activeCartesianPhoto === i
+                        ? '2px solid #ff9501'
+                        : '2px solid transparent',
+                      opacity: activeCartesianPhoto === i ? 1 : 0.5,
+                    }}
+                  >
+                    <img src={photo} alt="" className="w-full h-full object-contain object-center" />
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+
+            <motion.div
+              variants={stagger}
+              initial="hidden"
+              animate={inView ? 'show' : 'hidden'}
+            >
+              <motion.p
+                variants={fadeUp}
+                className="text-[14.5px] leading-[1.75] mb-8 max-w-[520px] sm:text-[15px] sm:leading-[1.85] sm:mb-10"
+                style={{ color: 'rgba(0,0,0,0.55)' }}
+              >
+                The P. L. Robotics Cartesian Robot is designed for customizable
+                process automation. It can be configured around your required
+                workspace, tooling, payload, and cycle needs for adhesive
+                dispensing, spray painting, welding, and similar industrial
+                applications.
+              </motion.p>
+
+              <motion.div
+                variants={stagger}
+                className="grid grid-cols-1 gap-3 mb-8 sm:grid-cols-2 sm:mb-10"
+              >
+                {cartesianSpecs.map(s => (
+                  <motion.div
+                    key={s.label}
+                    variants={fadeUp}
+                    whileHover={{
+                      y: -3,
+                      boxShadow: '0 8px 28px rgba(255,149,1,0.1)',
+                      borderColor: 'rgba(255,149,1,0.28)',
+                    }}
+                    transition={{ duration: 0.2 }}
+                    className="bg-white rounded-2xl p-4 flex flex-col gap-2 cursor-default sm:p-5"
+                    style={{
+                      background: '#ffffff',
+                      border: '1px solid rgba(0,0,0,0.07)',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                    }}
+                  >
+                    <div className="text-[10.5px] font-semibold tracking-[1.8px] uppercase text-[#aaa]">
+                      {s.label}
+                    </div>
+                    <div className="font-bold text-[18px] text-[#1a1208] tracking-tight leading-none sm:text-[20px]">
+                      {s.value}
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
+
+              <motion.div variants={fadeUp} className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+                <MotionLink
+                  to="/book-demo"
+                  whileHover={{ y: -2, boxShadow: '0 10px 36px rgba(255,149,1,0.5)' }}
+                  whileTap={{ scale: 0.97 }}
+                  className="inline-flex items-center justify-center gap-2 bg-orange text-white text-[13px] font-bold px-7 py-[13px] rounded-[10px] cursor-pointer"
+                  style={{ boxShadow: '0 4px 24px rgba(255,149,1,0.35)' }}
+                >
+                  Discuss Customization
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 8h10M9 4l4 4-4 4"/>
+                  </svg>
+                </MotionLink>
+              </motion.div>
+            </motion.div>
+          </div>
         </div>
       </div>
     </section>
