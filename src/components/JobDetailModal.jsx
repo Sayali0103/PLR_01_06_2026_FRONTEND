@@ -107,6 +107,21 @@ export default function JobDetailModal({ job, onClose, onApply }) {
               </div>
             )}
 
+            {/* Education Requirements */}
+            {job.educationRequirements?.length > 0 && (
+              <div>
+                <h3 className="text-[11px] font-bold tracking-[2px] uppercase text-orange mb-4">Education Requirements</h3>
+                <ul className="space-y-3">
+                  {job.educationRequirements.map((s, i) => (
+                    <li key={i} className="flex items-start gap-3 text-[14px] leading-[1.75] text-[#555]">
+                      <span className="mt-[7px] w-[5px] h-[5px] rounded-full bg-orange flex-shrink-0" />
+                      {s}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             {/* Additional Skills */}
             {job.additionalSkills?.length > 0 && (
               <div>

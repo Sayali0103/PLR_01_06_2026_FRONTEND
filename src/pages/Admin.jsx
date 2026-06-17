@@ -7,7 +7,7 @@ import {
 
 const EMPTY_JOB = {
   title: '', dept: '', location: 'Pune, India', positionType: 'Full time',
-  overview: '', responsibilities: '', requiredSkills: '', additionalSkills: '',
+  overview: '', responsibilities: '', requiredSkills: '', educationRequirements: '', additionalSkills: '',
   whyJoin: '', tags: '', applyInternUrl: '', applyJobUrl: '',
   isPaid: true, isActive: true,
 }
@@ -82,6 +82,7 @@ export default function Admin() {
       ...job,
       responsibilities: toStr(job.responsibilities),
       requiredSkills: toStr(job.requiredSkills),
+      educationRequirements: toStr(job.educationRequirements),
       additionalSkills: toStr(job.additionalSkills),
       whyJoin: toStr(job.whyJoin),
       tags: (job.tags || []).join(', '),
@@ -98,6 +99,7 @@ export default function Admin() {
       ...formData,
       responsibilities: toArr(formData.responsibilities),
       requiredSkills: toArr(formData.requiredSkills),
+      educationRequirements: toArr(formData.educationRequirements),
       additionalSkills: toArr(formData.additionalSkills),
       whyJoin: toArr(formData.whyJoin),
       tags: formData.tags.split(',').map(s => s.trim()).filter(Boolean),
@@ -436,7 +438,7 @@ export default function Admin() {
                     style={{ border: '1px solid rgba(0,0,0,0.09)' }} />
                 </div>
 
-                {[['responsibilities','Responsibilities (one per line)'],['requiredSkills','Required Skills (one per line)'],['additionalSkills','Additional Skills (one per line)'],['whyJoin','Why Join Us (one per line)']].map(([key, label]) => (
+                {[['responsibilities','Responsibilities (one per line)'],['requiredSkills','Required Skills (one per line)'],['educationRequirements','Education Requirements (one per line)'],['additionalSkills','Additional Skills (one per line)'],['whyJoin','Why Join Us (one per line)']].map(([key, label]) => (
                   <div key={key}>
                     <label className="block text-[11.5px] font-semibold text-[#666] mb-1.5">{label}</label>
                     <textarea value={formData[key]} onChange={e => setFormData(f => ({...f, [key]: e.target.value}))}

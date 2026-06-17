@@ -16,8 +16,9 @@ function getJobSortRank(title = '') {
   if (normalizedTitle.includes('ros developer')) return 0
   if (normalizedTitle.includes('mechanical engineer')) return 1
   if (normalizedTitle.includes('electronics engineer') || normalizedTitle.includes('electronic engineer')) return 2
-  if (normalizedTitle.includes('ui developer')) return 3
-  return 4
+  if (normalizedTitle.includes('technical sales engineer')) return 3
+  if (normalizedTitle.includes('ui developer')) return 4
+  return 5
 }
 
 export default function Careers() {
