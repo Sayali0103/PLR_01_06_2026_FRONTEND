@@ -3,7 +3,7 @@ import { matchPath, useLocation } from 'react-router-dom'
 import { applications } from '../pages/Applications'
 
 const SITE_URL = 'https://plrobotics.in'
-const DEFAULT_DESCRIPTION = 'P. L. Robotics designs advanced robotics and automation solutions for modern manufacturing.'
+const DEFAULT_DESCRIPTION = 'P. L. Robotics is a Pune based industrial robotics company building next-generation cobots and automation solutions for Indian manufacturing.'
 
 const routeMetadata = {
   '/': {
