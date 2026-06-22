@@ -80,6 +80,51 @@ const posts = [
     href: 'https://dbr77.com/industrial-robotics-trends-2026/',
     featured: false,
   },
+  {
+    id: 7,
+    title: 'I Replaced My Robot’s CNN With a Vision Transformer in ROS2. Here’s Exactly What Happened.',
+    date: 'April 2026',
+    readTime: 'Medium article',
+    summary: 'A hands-on look at replacing a robot’s CNN with a Vision Transformer in ROS2, and what that change meant in practice.',
+    tag: 'Robotics',
+    source: 'Medium',
+    type: 'Blog',
+    author: 'Aarohi',
+    authorRole: 'Full Stack Robotics Engineer at PL Robotics',
+    image: 'https://miro.medium.com/v2/resize:fit:1200/1*ljWYl1YnMcLdjliFSElxJw.png',
+    href: 'https://medium.com/@MLwithAarohi/i-replaced-my-robots-cnn-with-a-vision-transformer-in-ros2-here-s-exactly-what-happened-82010c4a993a',
+    featured: false,
+  },
+  {
+    id: 8,
+    title: 'ROS Is Underdeveloped — and It’s Holding Robotics Back',
+    date: 'April 2026',
+    readTime: 'Medium article',
+    summary: 'Aarohi’s perspective on the gaps in ROS and why strengthening the robotics software ecosystem matters for the field’s next chapter.',
+    tag: 'Robotics',
+    source: 'Medium',
+    type: 'Blog',
+    author: 'Aarohi',
+    authorRole: 'Full Stack Robotics Engineer at PL Robotics',
+    image: 'https://miro.medium.com/v2/resize:fit:1200/1*0UJ2k4ZPJobTniFR_-pRzg.png',
+    href: 'https://medium.com/@MLwithAarohi/ros-is-underdeveloped-and-its-holding-robotics-back-088da0dc0e21',
+    featured: false,
+  },
+  {
+    id: 9,
+    title: 'Top 10 Open-Source Robotics Tools You Should Learn in 2025 (With Examples)',
+    date: 'December 2025',
+    readTime: 'Medium article',
+    summary: 'A practical introduction to ten open-source tools that help robotics engineers build, simulate, and deploy better systems.',
+    tag: 'Engineering',
+    source: 'Medium',
+    type: 'Blog',
+    author: 'Aarohi',
+    authorRole: 'Full Stack Robotics Engineer at PL Robotics',
+    image: 'https://miro.medium.com/v2/resize:fit:1200/1*uB-mBtBk6wmXmhtmlhGgbQ.png',
+    href: 'https://medium.com/@MLwithAarohi/top-10-open-source-robotics-tools-you-should-learn-in-2025-with-examples-b1cd36ee33b8',
+    featured: false,
+  },
 ]
 
 const highlights = [
@@ -133,10 +178,12 @@ export default function Blogs() {
   const [activeTag, setActiveTag] = useState('All')
   const filtered = activeTag === 'All' ? posts : posts.filter(p => p.tag === activeTag)
   const featured = filtered.find(p => p.featured) || filtered[0]
-  const rest = filtered.filter(p => p.id !== featured?.id)
+  const rest = filtered
+    .filter(p => p.id !== featured?.id)
+    .sort((a, b) => (b.author ? 1 : 0) - (a.author ? 1 : 0))
 
   // Sidebar: latest 3 non-featured posts regardless of tag filter
-  const sidebarPosts = posts.filter(p => !p.featured).slice(0, 3)
+  const sidebarPosts = posts.filter(p => !p.featured).slice(-3).reverse()
 
   return (
     <main className="bg-cream min-h-screen pt-[90px] text-[#111] overflow-x-hidden">
@@ -263,6 +310,11 @@ export default function Blogs() {
                       {featured.title}
                     </h2>
                     <p className="text-[15px] leading-[1.85] text-[#666] mb-7 max-w-[560px]">{featured.summary}</p>
+                    {featured.author && (
+                      <p className="inline-flex items-center rounded-lg bg-[#fff3e0] px-3 py-2 text-[13px] font-medium text-[#7a4a08] mb-5">
+                        Written by <span className="font-bold text-[#333] ml-1">{featured.author}</span><span className="mx-2 text-orange">·</span>{featured.authorRole}
+                      </p>
+                    )}
 
                     <a href={featured.href} target="_blank" rel="noreferrer" className="inline-flex">
                       <motion.button
@@ -316,6 +368,11 @@ export default function Blogs() {
                         </div>
                         <h2 className="font-bold text-[20px] text-[#111] mb-2 leading-tight tracking-tight">{post.title}</h2>
                         <p className="text-[14px] leading-[1.75] text-[#666] max-w-[540px] mb-4">{post.summary}</p>
+                        {post.author && (
+                          <p className="inline-flex items-center rounded-lg bg-[#fff3e0] px-3 py-2 text-[13px] font-medium text-[#7a4a08] mb-4">
+                            Written by <span className="font-bold text-[#333] ml-1">{post.author}</span><span className="mx-2 text-orange">·</span>{post.authorRole}
+                          </p>
+                        )}
                       </div>
 
                       <div>
@@ -332,6 +389,24 @@ export default function Blogs() {
 
               {/* Sidebar */}
               <aside className="space-y-5">
+                {/* Author spotlight */}
+                <motion.div
+                  variants={fadeUp}
+                  className="rounded-[24px] p-5 sm:p-8"
+                  style={{ background: 'linear-gradient(145deg, #fff7eb, #fff3e0)', border: '1px solid rgba(255,149,1,0.18)' }}
+                >
+                  <p className="text-[10.5px] font-semibold tracking-[2px] uppercase text-orange mb-4">PL Robotics Author Spotlight</p>
+                  <h3 className="font-bold text-[22px] text-[#111] mb-2 tracking-tight">Aarohi on Medium</h3>
+                  <p className="text-[13px] font-semibold text-[#555] mb-3">Full Stack Robotics Engineer at PL Robotics</p>
+                  <p className="text-[14px] leading-[1.8] text-[#666] mb-5">Read Aarohi’s blog for perspectives on robotics, AI, and hands-on engineering.</p>
+                  <a href="https://medium.com/@MLwithAarohi" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-orange text-[13px] font-semibold">
+                    Visit Aarohi’s Medium blog
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M6 4l5 4-5 4" />
+                    </svg>
+                  </a>
+                </motion.div>
+
                 {/* Trend */}
                 <motion.div
                   variants={fadeUp}
