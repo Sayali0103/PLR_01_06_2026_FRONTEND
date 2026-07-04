@@ -77,6 +77,7 @@ const companyItems = [
   { label: 'About', path: '/about', desc: 'Who we are and our mission' },
   { label: 'Blogs', path: '/blogs', desc: 'Insights from our team' },
   { label: 'News', path: '/news', desc: 'Latest announcements' },
+  { label: 'FAQ', path: '/faq', desc: 'Answers to common robotics questions' },
 ]
 
 export default function Navbar() {

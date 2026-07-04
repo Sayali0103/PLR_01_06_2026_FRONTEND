@@ -30,6 +30,10 @@ const routeMetadata = {
     title: 'Robotics News | P. L. Robotics',
     description: 'Read the latest robotics and industrial automation news from P. L. Robotics.',
   },
+  '/faq': {
+    title: 'FAQ | P. L. Robotics',
+    description: 'Find answers to common questions about P. L. Robotics products, automation applications, demos, installation, and support.',
+  },
   '/careers': {
     title: 'Careers | P. L. Robotics',
     description: 'Explore career opportunities at P. L. Robotics and help build the future of industrial automation.',

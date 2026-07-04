@@ -26,7 +26,7 @@ function FormField({ field, value, onChange }) {
   )
 }
 
-export default function InquiryFormPage({ eyebrow, title, accentTitle, description, endpoint, fields, successMessage }) {
+export default function InquiryFormPage({ eyebrow, title, accentTitle, description, endpoint, fields, successMessage, helperLink }) {
   const emptyForm = Object.fromEntries([...fields.map(field => [field.name, '']), ['website', '']])
   const [form, setForm] = useState(emptyForm)
   const [state, setState] = useState({ submitting: false, error: '', success: false })
@@ -61,6 +61,17 @@ export default function InquiryFormPage({ eyebrow, title, accentTitle, descripti
             <span className="text-[#ff9501]">{accentTitle}</span>
           </h1>
           <p className="text-[15px] leading-[1.9] text-[#6d5f51] max-w-[450px]">{description}</p>
+          {helperLink && (
+            <Link
+              to={helperLink.to}
+              className="mt-6 inline-flex items-center gap-2 rounded-[12px] border border-[#ff9501]/20 bg-white px-5 py-3 text-[13px] font-bold text-[#ff9501] shadow-[0_8px_28px_rgba(26,18,8,0.05)]"
+            >
+              {helperLink.label}
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 8h10M9 4l4 4-4 4" />
+              </svg>
+            </Link>
+          )}
           <div className="mt-10 rounded-2xl border border-[#ff9501]/15 bg-[#fff8f0] p-5 text-[13px] leading-[1.8] text-[#6d5f51]">
             Prefer email? Write to <a href="mailto:contact@plrobotics.com" className="font-bold text-[#ff9501]">contact@plrobotics.com</a>
           </div>

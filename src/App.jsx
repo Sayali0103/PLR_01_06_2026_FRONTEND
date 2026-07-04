@@ -13,6 +13,7 @@ import Technology from './pages/Technology'
 import Admin from './pages/Admin'
 import Contact from './pages/Contact'
 import BookDemo from './pages/BookDemo'
+import FAQ from './pages/FAQ'
 import Seo from './components/Seo'
 
 function ScrollToHash() {
@@ -65,6 +66,8 @@ export default function App() {
         <Route path="/about"                     element={<About />} />
         <Route path="/blogs"                     element={<Blogs />} />
         <Route path="/news"                      element={<News />} />
+        <Route path="/faq"                       element={<FAQ />} />
+        <Route path="/faqs"                      element={<Navigate to="/faq" replace />} />
         <Route path="/careers"                   element={<Careers />} />
         <Route path="/contact"                   element={<Contact />} />
         <Route path="/book-demo"                 element={<BookDemo />} />

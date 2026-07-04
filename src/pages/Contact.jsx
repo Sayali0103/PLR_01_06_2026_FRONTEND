@@ -9,5 +9,5 @@ const fields = [
 ]
 
 export default function Contact() {
-  return <InquiryFormPage eyebrow="Contact P. L. Robotics" title="Let's" accentTitle="Connect." description="Tell us what you are looking for. Our team will review your message and get in touch with you directly." endpoint="/contact" fields={fields} successMessage="Your message has been received. The P. L. Robotics team will contact you shortly." />
+  return <InquiryFormPage eyebrow="Contact P. L. Robotics" title="Let's" accentTitle="Connect." description="Tell us what you are looking for. Our team will review your message and get in touch with you directly." endpoint="/contact" fields={fields} successMessage="Your message has been received. The P. L. Robotics team will contact you shortly." helperLink={{ to: '/faq', label: 'Have questions? View FAQ' }} />
 }

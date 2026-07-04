@@ -115,6 +115,13 @@ export default function Footer() {
                 Contact us
                 <span className="absolute left-0 bottom-[-4px] w-0 h-[2px] bg-orange transition-all duration-300 group-hover:w-full rounded-full" />
               </Link>
+              <Link
+                to="/faq"
+                className="block text-[14px] font-medium text-[#6d5f51] hover:text-orange transition-colors duration-300 relative group"
+              >
+                FAQ
+                <span className="absolute left-0 bottom-[-4px] w-0 h-[2px] bg-orange transition-all duration-300 group-hover:w-full rounded-full" />
+              </Link>
               <a
                 href="mailto:contact@plrobotics.com"
                 className="flex items-center gap-2 text-[14px] font-medium text-[#6d5f51] hover:text-orange transition-colors duration-300 group"
