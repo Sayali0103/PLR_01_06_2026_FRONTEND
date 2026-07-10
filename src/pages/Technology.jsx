@@ -16,9 +16,9 @@ const systems = [
     tagline: 'Program once. Deploy everywhere.',
     desc: 'Easy-to-use software that helps operators, technicians, and engineers quickly configure and manage robotic automation with confidence.',
     images: ['/photos/photo9.png', '/photos/photo11.png', '/photos/photo17.jpeg'],
-    color: '#ff9501',
-    colorBg: 'rgba(255,149,1,0.08)',
-    colorBorder: 'rgba(255,149,1,0.2)',
+    color: '#FF7D00',
+    colorBg: 'rgba(255,125,0,0.08)',
+    colorBorder: 'rgba(255,125,0,0.2)',
     features: [
       { title: 'Drag & Drop Programming', desc: 'Create automation workflows visually with an intuitive no-code programming environment.' },
       { title: '10" HD Teach Pendant', desc: 'Program, monitor, and control robots through a responsive touchscreen interface designed for operators of all skill levels.' },
@@ -49,9 +49,9 @@ const systems = [
     tagline: 'See everything. Miss nothing.',
     desc: 'Track robot health, performance, and operational status from a centralized dashboard, with instant notifications and actionable insights to keep production running smoothly.',
     images: ['/photos/photo13.png', '/photos/photo14.png', '/photos/photo15.png'],
-    color: '#ff9501',
-    colorBg: 'rgba(255,149,1,0.08)',
-    colorBorder: 'rgba(255,149,1,0.2)',
+    color: '#FF7D00',
+    colorBg: 'rgba(255,125,0,0.08)',
+    colorBorder: 'rgba(255,125,0,0.2)',
     features: [
       { title: 'Secure Login', desc: 'Authorized access with username and password protection.' },
       { title: 'Real-Time Visibility', desc: 'Stay connected to robot operations from anywhere.' },
@@ -81,9 +81,9 @@ const systems = [
     tagline: 'Robots that see. Precisely.',
     desc: 'Our vision system enables Delta Robots to recognize products, guide movements, and perform inspection tasks with greater accuracy and consistency.',
     images: ['/photos/photo21.png', '/photos/photo20.png', '/photos/deltacamera.jpg'],
-    color: '#ff9501',
-    colorBg: 'rgba(255,149,1,0.08)',
-    colorBorder: 'rgba(255,149,1,0.2)',
+    color: '#FF7D00',
+    colorBg: 'rgba(255,125,0,0.08)',
+    colorBorder: 'rgba(255,125,0,0.2)',
     features: [
       { title: 'Intelligent Object Detection', desc: 'Automatically identifies products, parts, and components within the workspace.' },
       { title: 'Vision-Guided Picking', desc: 'Enables robots to locate and pick randomly placed items with precision.' },
@@ -168,7 +168,7 @@ function SystemSection({ system, index }) {
                     style={{
                       background: activeFeature === i ? system.colorBg : 'transparent',
                       border: `1px solid ${activeFeature === i ? system.colorBorder : 'rgba(0,0,0,0.07)'}`,
-                      boxShadow: activeFeature === i ? '0 8px 24px rgba(255,149,1,0.08)' : 'none',
+                      boxShadow: activeFeature === i ? '0 8px 24px rgba(255,125,0,0.08)' : 'none',
                     }}
                   >
                     <div
@@ -248,11 +248,11 @@ function SystemSection({ system, index }) {
                   className="relative rounded-xl overflow-hidden flex-1 cursor-pointer transition-all duration-200 h-16 sm:h-[72px] bg-white"
                   style={{
                     border: activePhoto === i
-                      ? '2px solid #ff9501'
+                      ? '2px solid #FF7D00'
                       : '2px solid transparent',
                     opacity: activePhoto === i ? 1 : 0.55,
                     boxShadow: activePhoto === i
-                      ? '0 8px 24px rgba(255,149,1,0.18)'
+                      ? '0 8px 24px rgba(255,125,0,0.18)'
                       : 'none',
                   }}
                   aria-label={`Show ${system.label} image ${i + 1}`}
@@ -291,9 +291,9 @@ export default function Technology() {
       <section ref={heroRef} className="relative pt-32 pb-20 px-5 sm:px-6 lg:pt-36 lg:pb-24 overflow-hidden">
         {/* Bg glows */}
         <div className="absolute top-0 right-0 pointer-events-none rounded-full"
-          style={{ width: 700, height: 700, transform: 'translate(30%,-30%)', background: 'radial-gradient(circle, rgba(255,149,1,0.07) 0%, transparent 65%)' }} />
+          style={{ width: 700, height: 700, transform: 'translate(30%,-30%)', background: 'radial-gradient(circle, rgba(255,125,0,0.07) 0%, transparent 65%)' }} />
         <div className="absolute bottom-0 left-0 pointer-events-none rounded-full"
-          style={{ width: 500, height: 500, transform: 'translate(-30%,30%)', background: 'radial-gradient(circle, rgba(255,149,1,0.05) 0%, transparent 65%)' }} />
+          style={{ width: 500, height: 500, transform: 'translate(-30%,30%)', background: 'radial-gradient(circle, rgba(255,125,0,0.05) 0%, transparent 65%)' }} />
 
         <div className="max-w-[1320px] mx-auto">
           <motion.div
@@ -310,8 +310,8 @@ export default function Technology() {
                 >
                   The Intelligence<br />
                   Behind{' '}
-                  <span className="text-[#ff9501]"
-                    style={{ filter: 'drop-shadow(0 0 18px rgba(255,149,1,0.3))' }}>
+                  <span className="text-[#FF7D00]"
+                    style={{ filter: 'drop-shadow(0 0 18px rgba(255,125,0,0.3))' }}>
                     Every Robot.
                   </span>
                 </motion.h1>
@@ -372,29 +372,29 @@ export default function Technology() {
             className="relative rounded-[32px] overflow-hidden"
             style={{
               background: 'linear-gradient(135deg, #fff8f0 0%, #fef3e4 50%, #fff8f0 100%)',
-              border: '1px solid rgba(255,149,1,0.18)',
-              boxShadow: '0 8px 48px rgba(255,149,1,0.08)',
+              border: '1px solid rgba(255,125,0,0.18)',
+              boxShadow: '0 8px 48px rgba(255,125,0,0.08)',
             }}
           >
             <div className="absolute pointer-events-none rounded-full"
-              style={{ top: -180, left: '50%', transform: 'translateX(-50%)', width: 600, height: 600, background: 'radial-gradient(circle, rgba(255,149,1,0.12) 0%, transparent 65%)' }} />
+              style={{ top: -180, left: '50%', transform: 'translateX(-50%)', width: 600, height: 600, background: 'radial-gradient(circle, rgba(255,125,0,0.12) 0%, transparent 65%)' }} />
             <div
               className="absolute top-0 right-0 w-64 h-64 pointer-events-none opacity-[0.07]"
               style={{
-                backgroundImage: 'radial-gradient(circle, #ff9501 1px, transparent 1px)',
+                backgroundImage: 'radial-gradient(circle, #FF7D00 1px, transparent 1px)',
                 backgroundSize: '20px 20px',
               }}
             />
             <div
               className="absolute bottom-0 left-0 w-48 h-48 pointer-events-none opacity-[0.06]"
               style={{
-                backgroundImage: 'radial-gradient(circle, #ff9501 1px, transparent 1px)',
+                backgroundImage: 'radial-gradient(circle, #FF7D00 1px, transparent 1px)',
                 backgroundSize: '20px 20px',
               }}
             />
             <div
               className="absolute top-0 left-1/4 right-1/4 h-[2px] rounded-full"
-              style={{ background: 'linear-gradient(90deg, transparent, #ff9501, transparent)' }}
+              style={{ background: 'linear-gradient(90deg, transparent, #FF7D00, transparent)' }}
             />
 
             <div className="relative z-[1] px-6 py-10 sm:px-10 lg:px-16 lg:py-16 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-10 lg:gap-12">
@@ -404,7 +404,7 @@ export default function Technology() {
                   style={{ fontSize: 'clamp(28px, 3.8vw, 50px)', letterSpacing: '-1.5px' }}
                 >
                   Ready to <br />
-                  <span className="text-[#ff9501]">Automate?</span>
+                  <span className="text-[#FF7D00]">Automate?</span>
                 </h2>
 
                 <p
@@ -415,7 +415,7 @@ export default function Technology() {
                   software platform, telemetry, and vision systems work together.
                 </p>
 
-                <p className="text-[11px] font-semibold tracking-[2px] uppercase text-[#ff9501]/70">
+                <p className="text-[11px] font-semibold tracking-[2px] uppercase text-[#FF7D00]/70">
                   Built to Work. Designed to Last.
                 </p>
               </div>
@@ -424,8 +424,8 @@ export default function Technology() {
                 <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
                   <Link
                     to="/book-demo"
-                    className="inline-flex w-full items-center justify-center gap-2 bg-[#ff9501] text-white text-[13.5px] font-bold px-8 py-[14px] rounded-[12px] cursor-pointer"
-                    style={{ boxShadow: '0 4px 20px rgba(255,149,1,0.35)' }}
+                    className="inline-flex w-full items-center justify-center gap-2 bg-[#FF7D00] text-white text-[13.5px] font-bold px-8 py-[14px] rounded-[12px] cursor-pointer"
+                    style={{ boxShadow: '0 4px 20px rgba(255,125,0,0.35)' }}
                   >
                     Book a Live Demo
                     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

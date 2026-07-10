@@ -38,7 +38,7 @@ export default function JobDetailModal({ job, onClose, onApply }) {
               <div className="flex items-center gap-2 mb-2 flex-wrap">
                 <span
                   className="text-[11px] font-semibold tracking-[1.5px] uppercase text-orange px-3 py-[3px] rounded-full"
-                  style={{ background: 'rgba(255,149,1,0.08)', border: '1px solid rgba(255,149,1,0.2)' }}
+                  style={{ background: 'rgba(255,125,0,0.08)', border: '1px solid rgba(255,125,0,0.2)' }}
                 >
                   {job.dept}
                 </span>
@@ -139,7 +139,7 @@ export default function JobDetailModal({ job, onClose, onApply }) {
 
             {/* Why Join */}
             {job.whyJoin?.length > 0 && (
-              <div className="rounded-2xl p-5 sm:p-6" style={{ background: 'linear-gradient(145deg,#fff7eb,#ffefd4)', border: '1px solid rgba(255,149,1,0.18)' }}>
+              <div className="rounded-2xl p-5 sm:p-6" style={{ background: 'linear-gradient(145deg,#fff7eb,#ffefd4)', border: '1px solid rgba(255,125,0,0.18)' }}>
                 <h3 className="text-[11px] font-bold tracking-[2px] uppercase text-orange mb-4">Why Join PLR?</h3>
                 <ul className="space-y-3">
                   {job.whyJoin.map((w, i) => (
@@ -177,11 +177,11 @@ export default function JobDetailModal({ job, onClose, onApply }) {
             style={{ background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(12px)', borderTop: '1px solid rgba(0,0,0,0.07)' }}
           >
             <motion.button
-              whileHover={{ scale: 1.03, boxShadow: '0 8px 28px rgba(255,149,1,0.4)' }}
+              whileHover={{ scale: 1.03, boxShadow: '0 8px 28px rgba(255,125,0,0.4)' }}
               whileTap={{ scale: 0.97 }}
               onClick={() => onApply(job, 'intern')}
               className="inline-flex flex-1 items-center justify-center gap-2 bg-orange text-white text-[13px] font-bold px-7 py-[12px] rounded-xl cursor-pointer sm:flex-none"
-              style={{ boxShadow: '0 4px 18px rgba(255,149,1,0.3)' }}
+              style={{ boxShadow: '0 4px 18px rgba(255,125,0,0.3)' }}
             >
               Apply Now
               <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

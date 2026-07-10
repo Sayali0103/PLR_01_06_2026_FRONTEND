@@ -35,7 +35,7 @@ export default function Footer() {
           >
             <Link to="/" className="inline-block group">
               <img
-                src="/logo/logo.png"
+                src="/logo/PLRFinalLogo.png"
                 alt="P. L. Robotics"
                 className="h-10 w-auto object-contain transition-opacity duration-300 group-hover:opacity-80"
               />

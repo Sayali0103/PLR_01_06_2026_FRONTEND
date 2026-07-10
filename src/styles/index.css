@@ -14,8 +14,8 @@
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
-  --orange:  #ff9501;
-  --amber:   #E68A00;
+  --orange:  #FF7D00;
+  --amber:   #FF7D00;
   --tan:     #d4ba99;
   --silver:  #c1bfbf;
   --dark:    #111111;

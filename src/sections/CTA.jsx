@@ -18,8 +18,8 @@ export default function CTA() {
           className="relative rounded-3xl overflow-hidden sm:rounded-[32px]"
           style={{
             background: 'linear-gradient(135deg, #fff8f0 0%, #fef3e4 50%, #fff8f0 100%)',
-            border: '1px solid rgba(255,149,1,0.18)',
-            boxShadow: '0 8px 48px rgba(255,149,1,0.08)',
+            border: '1px solid rgba(255,125,0,0.18)',
+            boxShadow: '0 8px 48px rgba(255,125,0,0.08)',
           }}
         >
           {/* Orange glow top center */}
@@ -28,7 +28,7 @@ export default function CTA() {
             style={{
               top: -180, left: '50%', transform: 'translateX(-50%)',
               width: 600, height: 600,
-              background: 'radial-gradient(circle, rgba(255,149,1,0.12) 0%, transparent 65%)',
+              background: 'radial-gradient(circle, rgba(255,125,0,0.12) 0%, transparent 65%)',
             }}
           />
 
@@ -36,7 +36,7 @@ export default function CTA() {
           <div
             className="absolute top-0 right-0 w-64 h-64 pointer-events-none opacity-[0.07]"
             style={{
-              backgroundImage: 'radial-gradient(circle, #ff9501 1px, transparent 1px)',
+              backgroundImage: 'radial-gradient(circle, #FF7D00 1px, transparent 1px)',
               backgroundSize: '20px 20px',
             }}
           />
@@ -45,7 +45,7 @@ export default function CTA() {
           <div
             className="absolute bottom-0 left-0 w-48 h-48 pointer-events-none opacity-[0.06]"
             style={{
-              backgroundImage: 'radial-gradient(circle, #ff9501 1px, transparent 1px)',
+              backgroundImage: 'radial-gradient(circle, #FF7D00 1px, transparent 1px)',
               backgroundSize: '20px 20px',
             }}
           />
@@ -53,7 +53,7 @@ export default function CTA() {
           {/* Orange accent line top */}
           <div
             className="absolute top-0 left-1/4 right-1/4 h-[2px] rounded-full"
-            style={{ background: 'linear-gradient(90deg, transparent, #ff9501, transparent)' }}
+            style={{ background: 'linear-gradient(90deg, transparent, #FF7D00, transparent)' }}
           />
 
           {/* Content */}
@@ -66,7 +66,7 @@ export default function CTA() {
                 style={{ fontSize: 'clamp(28px, 9vw, 50px)', letterSpacing: '-1.5px' }}
               >
                 Ready to Automate<br />
-                <span className="text-[#ff9501]">Your Factory Floor?</span>
+                <span className="text-[#FF7D00]">Your Factory Floor?</span>
               </h2>
 
               <p
@@ -77,7 +77,7 @@ export default function CTA() {
                 cobots fit into your workflow.
               </p>
 
-              <p className="text-[11px] font-semibold tracking-[2px] uppercase text-[#ff9501]/70">
+              <p className="text-[11px] font-semibold tracking-[2px] uppercase text-[#FF7D00]/70">
                 Built to Work. Designed to Last.
               </p>
             </div>
@@ -86,10 +86,10 @@ export default function CTA() {
             <div className="flex flex-col gap-3 flex-shrink-0 min-w-[220px] w-full lg:w-auto">
               <MotionLink
                 to="/book-demo"
-                whileHover={{ y: -2, boxShadow: '0 12px 36px rgba(255,149,1,0.45)' }}
+                whileHover={{ y: -2, boxShadow: '0 12px 36px rgba(255,125,0,0.45)' }}
                 whileTap={{ scale: 0.97 }}
-                className="inline-flex items-center justify-center gap-2 bg-[#ff9501] text-white text-[13.5px] font-bold px-8 py-[14px] rounded-[12px] cursor-pointer"
-                style={{ boxShadow: '0 4px 20px rgba(255,149,1,0.35)' }}
+                className="inline-flex items-center justify-center gap-2 bg-[#FF7D00] text-white text-[13.5px] font-bold px-8 py-[14px] rounded-[12px] cursor-pointer"
+                style={{ boxShadow: '0 4px 20px rgba(255,125,0,0.35)' }}
               >
                 Book a Free Demo
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

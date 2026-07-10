@@ -61,7 +61,7 @@ export default function AboutStrip() {
         style={{
           top: -300, right: -200,
           width: 700, height: 700,
-          background: 'radial-gradient(circle, rgba(255,149,1,0.12) 0%, transparent 65%)',
+          background: 'radial-gradient(circle, rgba(255,125,0,0.12) 0%, transparent 65%)',
         }}
       />
 
@@ -97,10 +97,10 @@ export default function AboutStrip() {
             <motion.div variants={fadeUp}>
               <MotionLink
                 to="/about"
-                whileHover={{ y: -2, boxShadow: '0 10px 36px rgba(255,149,1,0.5)' }}
+                whileHover={{ y: -2, boxShadow: '0 10px 36px rgba(255,125,0,0.5)' }}
                 whileTap={{ scale: 0.97 }}
                 className="inline-flex items-center justify-center gap-2 bg-orange text-white text-[13px] font-bold px-7 py-[13px] rounded-[10px] cursor-pointer"
-                style={{ boxShadow: '0 4px 20px rgba(255,149,1,0.35)' }}
+                style={{ boxShadow: '0 4px 20px rgba(255,125,0,0.35)' }}
               >
                 Our Story
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -123,19 +123,19 @@ export default function AboutStrip() {
                 variants={fadeUp}
                 whileHover={{
                   x: 6,
-                  borderColor: 'rgba(255,149,1,0.3)',
-                  background: 'rgba(255,149,1,0.08)',
+                  borderColor: 'rgba(255,125,0,0.3)',
+                  background: 'rgba(255,125,0,0.08)',
                 }}
                 transition={{ duration: 0.22 }}
                 className="flex flex-col gap-4 p-5 rounded-2xl cursor-default transition-colors duration-200 sm:flex-row sm:gap-5 sm:p-6"
                 style={{
-                  border: '1px solid rgba(255,149,1,0.18)',
+                  border: '1px solid rgba(255,125,0,0.18)',
                   background: 'rgba(255,255,255,0.95)',
                 }}
               >
                 <div
                   className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 text-orange"
-                  style={{ background: 'rgba(255,149,1,0.12)' }}
+                  style={{ background: 'rgba(255,125,0,0.12)' }}
                 >
                   {p.icon}
                 </div>

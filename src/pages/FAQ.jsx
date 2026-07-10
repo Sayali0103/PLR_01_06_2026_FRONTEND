@@ -59,8 +59,8 @@ export default function FAQ() {
         >
           <div className="lg:sticky lg:top-32 lg:self-start">
             <div className="mb-5 flex items-center gap-3">
-              <div className="h-[2px] w-8 rounded-full bg-[#ff9501]" />
-              <span className="text-[11px] font-semibold uppercase tracking-[2.5px] text-[#ff9501]">
+              <div className="h-[2px] w-8 rounded-full bg-[#FF7D00]" />
+              <span className="text-[11px] font-semibold uppercase tracking-[2.5px] text-[#FF7D00]">
                 FAQ
               </span>
             </div>
@@ -70,7 +70,7 @@ export default function FAQ() {
             >
               Frequently Asked
               <br />
-              <span className="text-[#ff9501]">Questions.</span>
+              <span className="text-[#FF7D00]">Questions.</span>
             </h1>
             <p className="max-w-[440px] text-[15px] leading-[1.9] text-[#6d5f51]">
               Quick answers about our robotics products, automation applications, demos, installation, and support.
@@ -78,7 +78,7 @@ export default function FAQ() {
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 to="/contact"
-                className="inline-flex rounded-[12px] bg-[#ff9501] px-6 py-3 text-[13px] font-bold text-white shadow-[0_5px_22px_rgba(255,149,1,0.28)]"
+                className="inline-flex rounded-[12px] bg-[#FF7D00] px-6 py-3 text-[13px] font-bold text-white shadow-[0_5px_22px_rgba(255,125,0,0.28)]"
               >
                 Contact Us
               </Link>
@@ -114,8 +114,8 @@ export default function FAQ() {
                       {item.question}
                     </span>
                     <span
-                      className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-[22px] font-semibold text-[#ff9501]"
-                      style={{ background: 'rgba(255,149,1,0.09)' }}
+                      className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-[22px] font-semibold text-[#FF7D00]"
+                      style={{ background: 'rgba(255,125,0,0.09)' }}
                     >
                       {isOpen ? '-' : '+'}
                     </span>

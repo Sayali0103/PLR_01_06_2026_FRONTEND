@@ -53,7 +53,7 @@ export default function Careers() {
                 style={{ fontSize: 'clamp(40px,5vw,68px)', letterSpacing: '-2px' }}
               >
                 Build the Future<br />of{' '}
-                <span className="text-orange" style={{ filter: 'drop-shadow(0 0 16px rgba(255,149,1,0.25))' }}>
+                <span className="text-orange" style={{ filter: 'drop-shadow(0 0 16px rgba(255,125,0,0.25))' }}>
                   Robotics
                 </span>
               </h1>
@@ -83,12 +83,12 @@ export default function Careers() {
                 },
               ].map(s => (
                 <motion.div key={s.title}
-                  whileHover={{ y: -4, boxShadow: '0 12px 40px rgba(255,149,1,0.1)', borderColor: 'rgba(255,149,1,0.25)' }}
+                  whileHover={{ y: -4, boxShadow: '0 12px 40px rgba(255,125,0,0.1)', borderColor: 'rgba(255,125,0,0.25)' }}
                   transition={{ duration: 0.22 }}
                   className="bg-white rounded-2xl p-5 cursor-default sm:p-6"
                   style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}
                 >
-                  <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-4 text-orange" style={{ background: 'rgba(255,149,1,0.08)' }}>
+                  <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-4 text-orange" style={{ background: 'rgba(255,125,0,0.08)' }}>
                     {s.icon}
                   </div>
                   <h3 className="font-bold text-[15px] text-[#111] tracking-tight mb-2">{s.title}</h3>
@@ -102,7 +102,7 @@ export default function Careers() {
 
       {/* Divider */}
       <div className="max-w-[1320px] mx-auto px-5 mt-10 sm:px-6 sm:mt-14 lg:px-16">
-        <div className="h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,149,1,0.2), transparent)' }} />
+        <div className="h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,125,0,0.2), transparent)' }} />
       </div>
 
       {/* ── JOB LISTINGS ── */}
@@ -124,8 +124,8 @@ export default function Careers() {
                 className={`flex-shrink-0 px-5 py-2 rounded-full text-[13px] font-medium cursor-pointer transition-all duration-200 ${activeDept === dept ? 'bg-orange text-white' : 'bg-white text-[#555] hover:text-orange'
                   }`}
                 style={{
-                  border: activeDept === dept ? '1px solid #ff9501' : '1px solid rgba(0,0,0,0.1)',
-                  boxShadow: activeDept === dept ? '0 2px 12px rgba(255,149,1,0.3)' : '0 1px 4px rgba(0,0,0,0.05)',
+                  border: activeDept === dept ? '1px solid #FF7D00' : '1px solid rgba(0,0,0,0.1)',
+                  boxShadow: activeDept === dept ? '0 2px 12px rgba(255,125,0,0.3)' : '0 1px 4px rgba(0,0,0,0.05)',
                 }}
               >
                 {dept}
@@ -159,7 +159,7 @@ export default function Careers() {
                 <motion.div
                   key={job._id}
                   variants={fadeUp}
-                  whileHover={{ y: -3, boxShadow: '0 16px 52px rgba(255,149,1,0.09)', borderColor: 'rgba(255,149,1,0.3)' }}
+                  whileHover={{ y: -3, boxShadow: '0 16px 52px rgba(255,125,0,0.09)', borderColor: 'rgba(255,125,0,0.3)' }}
                   transition={{ duration: 0.22 }}
                   className="bg-white rounded-[18px] p-5 grid gap-6 items-center sm:p-8 lg:grid-cols-[1fr_auto] lg:gap-8"
                   style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}
@@ -169,7 +169,7 @@ export default function Careers() {
                     <div className="flex items-center gap-2 mb-3 flex-wrap">
                       <span
                         className="text-[11px] font-semibold tracking-[1.5px] uppercase text-orange px-[10px] py-[3px] rounded-full"
-                        style={{ background: 'rgba(255,149,1,0.07)', border: '1px solid rgba(255,149,1,0.18)' }}
+                        style={{ background: 'rgba(255,125,0,0.07)', border: '1px solid rgba(255,125,0,0.18)' }}
                       >
                         {job.dept}
                       </span>
@@ -208,11 +208,11 @@ export default function Careers() {
                   {/* Right — 2 buttons */}
                   <div className="grid grid-cols-1 gap-2 flex-shrink-0 sm:grid-cols-2 lg:flex lg:flex-col" onClick={e => e.stopPropagation()}>
                     <motion.button
-                      whileHover={{ scale: 1.04, boxShadow: '0 6px 24px rgba(255,149,1,0.38)' }}
+                      whileHover={{ scale: 1.04, boxShadow: '0 6px 24px rgba(255,125,0,0.38)' }}
                       whileTap={{ scale: 0.96 }}
                       onClick={() => setApplyJob(job)}
                       className="inline-flex w-full items-center justify-center gap-2 bg-orange text-white text-[13px] font-bold px-6 py-[11px] rounded-xl whitespace-nowrap cursor-pointer"
-                      style={{ boxShadow: '0 4px 18px rgba(255,149,1,0.28)' }}
+                      style={{ boxShadow: '0 4px 18px rgba(255,125,0,0.28)' }}
                     >
                       Apply Now
                       <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -220,7 +220,7 @@ export default function Careers() {
                       </svg>
                     </motion.button>
                     <motion.button
-                      whileHover={{ scale: 1.04, borderColor: 'rgba(255,149,1,0.35)', color: '#FF9501' }}
+                      whileHover={{ scale: 1.04, borderColor: 'rgba(255,125,0,0.35)', color: '#FF7D00' }}
                       whileTap={{ scale: 0.96 }}
                       onClick={() => setSelectedJob(job)}
                       className="inline-flex w-full items-center justify-center gap-2 text-[#555] text-[13px] font-semibold px-6 py-[11px] rounded-xl whitespace-nowrap cursor-pointer transition-all duration-200 bg-white"

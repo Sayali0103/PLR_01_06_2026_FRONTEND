@@ -137,7 +137,7 @@ export default function Navbar() {
         {/* ── Logo ── */}
         <Link to="/" className="flex-shrink-0 flex items-center">
           <motion.img
-            src="/logo/logo.png"
+            src="/logo/PLRFinalLogo.png"
             alt="PLR Robotics"
             whileHover={{ scale: 1.05 }}
             transition={{ type: 'spring', stiffness: 400, damping: 22 }}
@@ -165,7 +165,7 @@ export default function Navbar() {
                     type="button"
                     onClick={() => openDropdown === dropdown ? setOpen(null) : open(dropdown)}
                     className="relative flex items-center gap-[5px] px-5 py-3 rounded-[12px] text-[14.5px] font-[550] tracking-[-0.1px] whitespace-nowrap transition-all duration-200 group"
-                    style={{ color: active ? '#ff9501' : '#1a1208' }}
+                    style={{ color: active ? '#FF7D00' : '#1a1208' }}
                   >
                     <motion.span
                       className="absolute inset-0 rounded-[12px]"
@@ -173,7 +173,7 @@ export default function Navbar() {
                       animate={{ opacity: active ? 1 : 0 }}
                       whileHover={{ opacity: 1 }}
                       transition={{ duration: 0.18 }}
-                      style={{ background: active ? 'rgba(255,149,1,0.1)' : 'rgba(0,0,0,0.05)' }}
+                      style={{ background: active ? 'rgba(255,125,0,0.1)' : 'rgba(0,0,0,0.05)' }}
                     />
 
                     <span className="relative z-[1]">{label}</span>
@@ -193,7 +193,7 @@ export default function Navbar() {
                   <Link
                     to={path}
                     onClick={() => setOpen(null)}
-                    className="relative flex items-center gap-[5px] px-5 py-3 rounded-[12px] text-[14.5px] font-[550] tracking-[-0.1px] whitespace-nowrap text-[#1a1208] hover:text-[#ff9501] transition-colors duration-200 group"
+                    className="relative flex items-center gap-[5px] px-5 py-3 rounded-[12px] text-[14.5px] font-[550] tracking-[-0.1px] whitespace-nowrap text-[#1a1208] hover:text-[#FF7D00] transition-colors duration-200 group"
                   >
                     {/* Animated bg on hover */}
                     <motion.span
@@ -282,12 +282,12 @@ export default function Navbar() {
                                   <div
                                     className="w-full h-full flex items-center justify-center"
                                     style={{
-                                      background: 'linear-gradient(135deg, rgba(255,149,1,0.12), rgba(26,18,8,0.05))',
+                                      background: 'linear-gradient(135deg, rgba(255,125,0,0.12), rgba(26,18,8,0.05))',
                                     }}
                                   >
                                     <span
                                       className="text-[11px] font-bold tracking-[2px] uppercase text-orange px-3 py-[6px] rounded-full"
-                                      style={{ background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(255,149,1,0.22)' }}
+                                      style={{ background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(255,125,0,0.22)' }}
                                     >
                                       Coming Soon
                                     </span>
@@ -341,7 +341,7 @@ export default function Navbar() {
                           </span>
                           <div
                             className="flex items-center gap-2 text-orange text-[12px] font-semibold px-3 py-[6px] rounded-full transition-all duration-200 group-hover/all:bg-orange group-hover/all:text-white"
-                            style={{ border: '1px solid rgba(255,149,1,0.3)' }}
+                            style={{ border: '1px solid rgba(255,125,0,0.3)' }}
                           >
                             Explore
                             <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -391,12 +391,12 @@ export default function Navbar() {
                             to={item.path}
                             onClick={() => setOpen(null)}
                             className="flex items-start gap-3 px-3 py-[10px] rounded-[12px] transition-all duration-200 group/tech cursor-pointer"
-                            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,149,1,0.06)'}
+                            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,125,0,0.06)'}
                             onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                           >
                             <div
                               className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-orange mt-[1px]"
-                              style={{ background: 'rgba(255,149,1,0.08)' }}
+                              style={{ background: 'rgba(255,125,0,0.08)' }}
                             >
                               {item.icon}
                             </div>
@@ -452,7 +452,7 @@ export default function Navbar() {
                             to={item.path}
                             onClick={() => setOpen(null)}
                             className="flex items-start gap-3 px-3 py-[10px] rounded-[12px] transition-all duration-200 group/company cursor-pointer"
-                            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,149,1,0.06)'}
+                            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,125,0,0.06)'}
                             onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                           >
                             <div>
@@ -480,7 +480,7 @@ export default function Navbar() {
           <Link
             to="/contact"
             className="relative text-[14px] font-[550] px-5 py-[9px] rounded-[12px] overflow-hidden transition-colors duration-200 group"
-            style={{ color: contactActive ? '#ff9501' : '#333' }}
+            style={{ color: contactActive ? '#FF7D00' : '#333' }}
           >
             <motion.span
               className="absolute inset-0 rounded-[12px]"
@@ -488,7 +488,7 @@ export default function Navbar() {
               animate={{ opacity: contactActive ? 1 : 0 }}
               whileHover={{ opacity: 1 }}
               transition={{ duration: 0.18 }}
-              style={{ background: contactActive ? 'rgba(255,149,1,0.1)' : 'rgba(0,0,0,0.05)' }}
+              style={{ background: contactActive ? 'rgba(255,125,0,0.1)' : 'rgba(0,0,0,0.05)' }}
             />
             <span className="relative z-[1] transition-colors duration-200">
               Contact
@@ -501,8 +501,8 @@ export default function Navbar() {
               className="inline-flex items-center gap-2 text-[13.5px] font-bold text-white bg-orange px-6 py-[11px] rounded-[12px] whitespace-nowrap transition-all duration-200 hover:bg-amber"
               style={{
                 boxShadow: demoActive
-                  ? '0 0 0 3px rgba(255,149,1,0.18), 0 6px 24px rgba(255,149,1,0.45)'
-                  : '0 2px 20px rgba(255,149,1,0.35)',
+                  ? '0 0 0 3px rgba(255,125,0,0.18), 0 6px 24px rgba(255,125,0,0.45)'
+                  : '0 2px 20px rgba(255,125,0,0.35)',
               }}
             >
               Book Demo
@@ -520,7 +520,7 @@ export default function Navbar() {
           onClick={() => setMobileOpen(open => !open)}
           className="relative z-[220] flex h-11 w-11 items-center justify-center rounded-2xl text-[#1a1208] lg:hidden"
           style={{
-            background: mobileOpen ? 'rgba(255,149,1,0.16)' : 'rgba(255,255,255,0.55)',
+            background: mobileOpen ? 'rgba(255,125,0,0.16)' : 'rgba(255,255,255,0.55)',
             border: '1px solid rgba(255,255,255,0.65)',
             boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.7), 0 10px 28px rgba(0,0,0,0.08)',
           }}
@@ -565,13 +565,13 @@ export default function Navbar() {
               exit={{ opacity: 0, x: 34, scale: 0.98 }}
               transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
               style={{
-                border: '1px solid rgba(255,149,1,0.18)',
+                border: '1px solid rgba(255,125,0,0.18)',
                 boxShadow: '0 32px 90px rgba(26,18,8,0.24)',
               }}
             >
               <div className="mb-7 flex items-center justify-between pr-14">
                 <Link to="/" className="flex items-center">
-                  <img src="/logo/logo.png" alt="PLR Robotics" className="h-11 w-auto object-contain" />
+                  <img src="/logo/PLRFinalLogo.png" alt="PLR Robotics" className="h-11 w-auto object-contain" />
                 </Link>
               </div>
 
@@ -623,7 +623,7 @@ export default function Navbar() {
                                 <div
                                   key={item.label}
                                   className="rounded-2xl bg-[#fff8f0] px-3 py-3"
-                                  style={{ border: '1px solid rgba(255,149,1,0.12)' }}
+                                  style={{ border: '1px solid rgba(255,125,0,0.12)' }}
                                 >
                                   <div className="flex items-center justify-between gap-3">
                                     <div>
@@ -640,7 +640,7 @@ export default function Navbar() {
                                   key={item.label}
                                   to={item.path}
                                   className="block rounded-2xl bg-[#fff8f0] px-3 py-3 transition-colors hover:bg-orange/10"
-                                  style={{ border: '1px solid rgba(255,149,1,0.12)' }}
+                                  style={{ border: '1px solid rgba(255,125,0,0.12)' }}
                                 >
                                   <div className="text-[14px] font-semibold text-[#1a1208]">{item.label}</div>
                                   <div className="mt-1 text-[12px] leading-[1.45] text-[#7b7166]">{item.desc}</div>
@@ -729,7 +729,7 @@ export default function Navbar() {
                 <Link
                   to="/book-demo"
                   className="inline-flex items-center justify-center gap-2 rounded-2xl bg-orange px-5 py-[14px] text-[14px] font-bold text-white"
-                  style={{ boxShadow: '0 10px 28px rgba(255,149,1,0.32)' }}
+                  style={{ boxShadow: '0 10px 28px rgba(255,125,0,0.32)' }}
                 >
                   Book Demo
                   <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

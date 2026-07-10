@@ -14,7 +14,7 @@ const EMPTY_JOB = {
 
 const statusColors = {
   new: { bg: 'rgba(30,100,220,0.07)', text: '#1e64dc', border: 'rgba(30,100,220,0.18)' },
-  reviewing: { bg: 'rgba(255,149,1,0.08)', text: '#FF9501', border: 'rgba(255,149,1,0.2)' },
+  reviewing: { bg: 'rgba(255,125,0,0.08)', text: '#FF7D00', border: 'rgba(255,125,0,0.2)' },
   shortlisted: { bg: 'rgba(20,160,80,0.07)', text: '#14a050', border: 'rgba(20,160,80,0.18)' },
   rejected: { bg: 'rgba(220,0,0,0.06)', text: '#dc3030', border: 'rgba(220,0,0,0.15)' },
 }
@@ -152,7 +152,7 @@ export default function Admin() {
           className="w-full max-w-[380px] bg-white rounded-[28px] p-10"
           style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 8px 50px rgba(0,0,0,0.08)' }}
         >
-          <img src="/logo/logo.png" alt="PLR" className="h-9 mb-8 object-contain" />
+          <img src="/logo/PLRFinalLogo.png" alt="PLR" className="h-9 mb-8 object-contain" />
           <h1 className="font-bold text-[22px] text-[#111] mb-1 tracking-tight">Admin Dashboard</h1>
           <p className="text-[13.5px] text-[#aaa] mb-8">Enter your admin password to continue.</p>
           <form onSubmit={login} className="space-y-4">
@@ -171,7 +171,7 @@ export default function Admin() {
             <motion.button
               whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
               className="w-full bg-orange text-white font-bold text-[14px] py-[12px] rounded-xl cursor-pointer"
-              style={{ boxShadow: '0 4px 18px rgba(255,149,1,0.28)' }}
+              style={{ boxShadow: '0 4px 18px rgba(255,125,0,0.28)' }}
             >
               Sign In →
             </motion.button>
@@ -214,8 +214,8 @@ export default function Admin() {
                 tab === t ? 'bg-orange text-white' : 'bg-white text-[#555] hover:text-orange'
               }`}
               style={{
-                border: tab === t ? '1px solid #FF9501' : '1px solid rgba(0,0,0,0.09)',
-                boxShadow: tab === t ? '0 2px 12px rgba(255,149,1,0.28)' : '0 1px 4px rgba(0,0,0,0.04)',
+                border: tab === t ? '1px solid #FF7D00' : '1px solid rgba(0,0,0,0.09)',
+                boxShadow: tab === t ? '0 2px 12px rgba(255,125,0,0.28)' : '0 1px 4px rgba(0,0,0,0.04)',
               }}
             >
               {t} {t === 'jobs' ? `(${jobs.length})` : `(${applications.length})`}
@@ -232,7 +232,7 @@ export default function Admin() {
                 whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
                 onClick={openCreate}
                 className="inline-flex items-center gap-2 bg-orange text-white text-[13px] font-bold px-6 py-[10px] rounded-xl cursor-pointer"
-                style={{ boxShadow: '0 4px 18px rgba(255,149,1,0.28)' }}
+                style={{ boxShadow: '0 4px 18px rgba(255,125,0,0.28)' }}
               >
                 + Add Job
               </motion.button>
@@ -324,7 +324,7 @@ export default function Admin() {
                           <p className="font-bold text-[17px] text-[#111] tracking-tight">{applicantName}</p>
                           <span
                             className="text-[10.5px] font-semibold tracking-[1px] uppercase px-2.5 py-[3px] rounded-full"
-                            style={{ background: app.applicantType === 'intern' ? 'rgba(255,149,1,0.08)' : 'rgba(30,100,220,0.07)', color: app.applicantType === 'intern' ? '#FF9501' : '#1e64dc', border: `1px solid ${app.applicantType === 'intern' ? 'rgba(255,149,1,0.2)' : 'rgba(30,100,220,0.18)'}` }}
+                            style={{ background: app.applicantType === 'intern' ? 'rgba(255,125,0,0.08)' : 'rgba(30,100,220,0.07)', color: app.applicantType === 'intern' ? '#FF7D00' : '#1e64dc', border: `1px solid ${app.applicantType === 'intern' ? 'rgba(255,125,0,0.2)' : 'rgba(30,100,220,0.18)'}` }}
                           >
                             {app.applicantType}
                           </span>
@@ -479,7 +479,7 @@ export default function Admin() {
                 <div className="flex items-center gap-3 pt-3 sticky bottom-0 bg-white pb-2">
                   <motion.button type="submit" disabled={saving} whileHover={{ scale: saving ? 1 : 1.02 }} whileTap={{ scale: saving ? 1 : 0.97 }}
                     className="flex-1 bg-orange text-white font-bold text-[13.5px] py-[12px] rounded-xl cursor-pointer disabled:opacity-60"
-                    style={{ boxShadow: '0 4px 18px rgba(255,149,1,0.28)' }}>
+                    style={{ boxShadow: '0 4px 18px rgba(255,125,0,0.28)' }}>
                     {saving ? 'Saving...' : editingJob ? 'Save Changes' : 'Create Job'}
                   </motion.button>
                   <button type="button" onClick={() => setShowForm(false)}

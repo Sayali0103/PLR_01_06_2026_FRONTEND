@@ -22,13 +22,13 @@ function ChoiceStep({ job, onSelect, onClose }) {
 
       <div className="px-5 py-6 grid gap-4 sm:px-8 sm:py-7 sm:grid-cols-2">
         <motion.button
-          whileHover={{ y: -4, boxShadow: '0 16px 48px rgba(255,149,1,0.14)', borderColor: 'rgba(255,149,1,0.4)' }}
+          whileHover={{ y: -4, boxShadow: '0 16px 48px rgba(255,125,0,0.14)', borderColor: 'rgba(255,125,0,0.4)' }}
           whileTap={{ scale: 0.98 }}
           onClick={() => onSelect('intern')}
           className="flex flex-col items-start text-left p-5 rounded-[20px] bg-white cursor-pointer transition-all duration-200 sm:p-6"
-          style={{ border: '1px solid rgba(255,149,1,0.2)', boxShadow: '0 4px 20px rgba(255,149,1,0.07)' }}
+          style={{ border: '1px solid rgba(255,125,0,0.2)', boxShadow: '0 4px 20px rgba(255,125,0,0.07)' }}
         >
-          <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-4 text-orange" style={{ background: 'rgba(255,149,1,0.09)' }}>
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-4 text-orange" style={{ background: 'rgba(255,125,0,0.09)' }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
             </svg>
@@ -37,7 +37,7 @@ function ChoiceStep({ job, onSelect, onClose }) {
           <p className="text-[12.5px] leading-[1.7] text-[#777] mb-4">
             6-month paid internship. Based on performance, you may receive a Pre-Placement Offer (PPO) for a full-time role at PLR.
           </p>
-          <div className="mt-auto pt-3 w-full" style={{ borderTop: '1px solid rgba(255,149,1,0.12)' }}>
+          <div className="mt-auto pt-3 w-full" style={{ borderTop: '1px solid rgba(255,125,0,0.12)' }}>
             <p className="text-[11px] font-semibold text-orange uppercase tracking-[1.5px] mb-1">Eligibility</p>
             <p className="text-[12px] text-[#888] leading-[1.6]">Pre-final year, final year, or recent graduates (freshers welcome)</p>
           </div>
@@ -87,14 +87,14 @@ function FileUploader({ label, hint, required, file, onChange, onClear, accept, 
     <Field label={label} hint={hint} required={required}>
       <label
         className="flex items-center gap-3 w-full px-3 py-[10px] bg-[#f9f6f1] rounded-xl cursor-pointer hover:bg-[#f3ede5] transition-colors duration-200 sm:px-4"
-        style={{ border: `1px solid ${file ? 'rgba(255,149,1,0.4)' : 'rgba(0,0,0,0.09)'}` }}
+        style={{ border: `1px solid ${file ? 'rgba(255,125,0,0.4)' : 'rgba(0,0,0,0.09)'}` }}
       >
         <div
           className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-          style={{ background: file ? 'rgba(255,149,1,0.1)' : 'rgba(0,0,0,0.05)' }}
+          style={{ background: file ? 'rgba(255,125,0,0.1)' : 'rgba(0,0,0,0.05)' }}
         >
           {icon || (
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={file ? '#FF9501' : '#bbb'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={file ? '#FF7D00' : '#bbb'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
             </svg>
           )}
@@ -202,9 +202,9 @@ function FormStep({ job, applicantType, onClose, onBack, onSuccess }) {
               <span
                 className="text-[11px] font-bold tracking-[2px] uppercase px-3 py-[3px] rounded-full"
                 style={{
-                  background: isIntern ? 'rgba(255,149,1,0.09)' : 'rgba(30,100,220,0.07)',
-                  color: isIntern ? '#FF9501' : '#1e64dc',
-                  border: `1px solid ${isIntern ? 'rgba(255,149,1,0.2)' : 'rgba(30,100,220,0.18)'}`,
+                  background: isIntern ? 'rgba(255,125,0,0.09)' : 'rgba(30,100,220,0.07)',
+                  color: isIntern ? '#FF7D00' : '#1e64dc',
+                  border: `1px solid ${isIntern ? 'rgba(255,125,0,0.2)' : 'rgba(30,100,220,0.18)'}`,
                 }}
               >
                 {isIntern ? 'Internship' : 'Full-time'} Application
@@ -302,7 +302,7 @@ function FormStep({ job, applicantType, onClose, onBack, onSuccess }) {
           onChange={setResumeFile}
           onClear={() => setResumeFile(null)}
           icon={
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={resumeFile ? '#FF9501' : '#bbb'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={resumeFile ? '#FF7D00' : '#bbb'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
             </svg>
           }
@@ -317,7 +317,7 @@ function FormStep({ job, applicantType, onClose, onBack, onSuccess }) {
           onChange={setProjectFile}
           onClear={() => setProjectFile(null)}
           icon={
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={projectFile ? '#FF9501' : '#bbb'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={projectFile ? '#FF7D00' : '#bbb'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>
             </svg>
           }
@@ -327,10 +327,10 @@ function FormStep({ job, applicantType, onClose, onBack, onSuccess }) {
         <div className="flex flex-col gap-3 pt-2 pb-1 sm:flex-row sm:items-center">
           <motion.button
             type="submit" disabled={loading}
-            whileHover={{ scale: loading ? 1 : 1.02, boxShadow: '0 8px 28px rgba(255,149,1,0.4)' }}
+            whileHover={{ scale: loading ? 1 : 1.02, boxShadow: '0 8px 28px rgba(255,125,0,0.4)' }}
             whileTap={{ scale: loading ? 1 : 0.97 }}
             className="flex-1 bg-orange text-white text-[13.5px] font-bold py-[13px] rounded-xl cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-            style={{ boxShadow: '0 4px 18px rgba(255,149,1,0.28)' }}
+            style={{ boxShadow: '0 4px 18px rgba(255,125,0,0.28)' }}
           >
             {loading ? 'Submitting...' : 'Submit Application'}
           </motion.button>
@@ -364,7 +364,7 @@ function SuccessStep({ name, onClose }) {
         whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
         onClick={onClose}
         className="mt-8 bg-orange text-white text-[13px] font-bold px-10 py-[12px] rounded-xl cursor-pointer"
-        style={{ boxShadow: '0 4px 18px rgba(255,149,1,0.28)' }}
+        style={{ boxShadow: '0 4px 18px rgba(255,125,0,0.28)' }}
       >
         Done
       </motion.button>
@@ -405,7 +405,7 @@ export default function ApplyModal({ job, onClose }) {
           style={{
             boxShadow: '0 32px 100px rgba(0,0,0,0.25)',
             scrollbarWidth: 'thin',
-            scrollbarColor: 'rgba(255,149,1,0.4) transparent',
+            scrollbarColor: 'rgba(255,125,0,0.4) transparent',
           }}
           onClick={e => e.stopPropagation()}
         >

@@ -113,7 +113,7 @@ function VideoCard({ app, variants }) {
       <div
         className="pointer-events-none absolute inset-0 transition-opacity duration-300"
         style={{
-          background: 'linear-gradient(to top, rgba(26,18,8,0.72) 8%, rgba(26,18,8,0.34) 40%, rgba(255,149,1,0.05) 75%, transparent 100%)',
+          background: 'linear-gradient(to top, rgba(26,18,8,0.72) 8%, rgba(26,18,8,0.34) 40%, rgba(255,125,0,0.05) 75%, transparent 100%)',
         }}
       />
       <div className="pointer-events-none absolute bottom-0 left-0 right-0 p-5 sm:p-6">
@@ -122,13 +122,13 @@ function VideoCard({ app, variants }) {
         </h3>
         <p
           className="text-[13px] leading-[1.6] transition-all duration-300 max-h-[90px] overflow-hidden sm:max-h-0 sm:group-hover:max-h-[80px]"
-          style={{ color: 'rgba(255,236,200,0.95)' }}
+          style={{ color: 'rgba(255,125,0,0.95)' }}
         >
           {app.desc}
         </p>
         <div
           className="flex items-center gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-          style={{ color: '#ffb35f' }}
+          style={{ color: '#FF7D00' }}
         >
         </div>
       </div>
@@ -149,7 +149,7 @@ export default function Applications() {
         style={{
           bottom: -300, left: -200,
           width: 700, height: 700,
-          background: 'radial-gradient(circle, rgba(255,149,1,0.18) 0%, transparent 65%)',
+          background: 'radial-gradient(circle, rgba(255,125,0,0.18) 0%, transparent 65%)',
         }}
       />
 
@@ -184,17 +184,17 @@ export default function Applications() {
             whileTap={{ scale: 0.97 }}
             className="inline-flex w-full items-center justify-center gap-2 text-[13px] font-semibold px-6 py-[12px] rounded-[10px] cursor-pointer transition-all duration-200 sm:w-auto"
             style={{
-              color: '#ff9501',
-              border: '1px solid rgba(255,149,1,0.25)',
-              background: 'rgba(255,149,1,0.08)',
+              color: '#FF7D00',
+              border: '1px solid rgba(255,125,0,0.25)',
+              background: 'rgba(255,125,0,0.08)',
             }}
             onMouseEnter={e => {
-              e.currentTarget.style.borderColor = 'rgba(255,149,1,0.4)'
-              e.currentTarget.style.background = 'rgba(255,149,1,0.14)'
+              e.currentTarget.style.borderColor = 'rgba(255,125,0,0.4)'
+              e.currentTarget.style.background = 'rgba(255,125,0,0.14)'
             }}
             onMouseLeave={e => {
-              e.currentTarget.style.borderColor = 'rgba(255,149,1,0.25)'
-              e.currentTarget.style.background = 'rgba(255,149,1,0.08)'
+              e.currentTarget.style.borderColor = 'rgba(255,125,0,0.25)'
+              e.currentTarget.style.background = 'rgba(255,125,0,0.08)'
             }}
           >
             View All Applications

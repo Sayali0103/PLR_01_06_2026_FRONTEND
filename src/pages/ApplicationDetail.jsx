@@ -11,7 +11,7 @@ const fadeUp = {
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.1, delayChildren: 0.2 } } }
 
 const robotColors = {
-  COBOT: { bg: 'rgba(255,149,1,0.08)', border: 'rgba(255,149,1,0.25)', text: '#ff9501' },
+  COBOT: { bg: 'rgba(255,125,0,0.08)', border: 'rgba(255,125,0,0.25)', text: '#FF7D00' },
   SCARA: { bg: 'rgba(59,130,246,0.08)', border: 'rgba(59,130,246,0.25)', text: '#3b82f6' },
   DELTA: { bg: 'rgba(16,185,129,0.08)', border: 'rgba(16,185,129,0.25)', text: '#10b981' },
 }
@@ -200,7 +200,7 @@ export default function ApplicationDetail() {
     return (
       <div className="min-h-screen bg-[#faf7f2] flex flex-col items-center justify-center pt-20 gap-4">
         <h2 className="font-bold text-[28px] text-[#1a1208]">Application not found</h2>
-        <Link to="/applications" className="text-[#ff9501] font-semibold underline">← Back to Applications</Link>
+        <Link to="/applications" className="text-[#FF7D00] font-semibold underline">← Back to Applications</Link>
       </div>
     )
   }
@@ -233,7 +233,7 @@ export default function ApplicationDetail() {
             transition={{ duration: 0.5 }}
             className="flex items-center gap-2 mb-10 text-[13px] text-white/60"
           >
-            <Link to="/applications" className="hover:text-[#ff9501] transition-colors">Applications</Link>
+            <Link to="/applications" className="hover:text-[#FF7D00] transition-colors">Applications</Link>
             <span>/</span>
             <span className="text-white/80">{app.title}</span>
           </motion.div>
@@ -267,7 +267,7 @@ export default function ApplicationDetail() {
             <motion.p
               variants={fadeUp}
               className="text-[18px] font-medium mb-8"
-              style={{ color: '#ff9501' }}
+              style={{ color: '#FF7D00' }}
             >
               "{detail.tagline}"
             </motion.p>
@@ -283,10 +283,10 @@ export default function ApplicationDetail() {
             <motion.div variants={fadeUp} className="flex items-center gap-3 flex-wrap">
               <MotionLink
                 to="/book-demo"
-                whileHover={{ y: -2, boxShadow: '0 10px 36px rgba(255,149,1,0.5)' }}
+                whileHover={{ y: -2, boxShadow: '0 10px 36px rgba(255,125,0,0.5)' }}
                 whileTap={{ scale: 0.97 }}
-                className="inline-flex items-center gap-2 bg-[#ff9501] text-white text-[13px] font-bold px-7 py-[13px] rounded-[10px] cursor-pointer"
-                style={{ boxShadow: '0 4px 20px rgba(255,149,1,0.4)' }}
+                className="inline-flex items-center gap-2 bg-[#FF7D00] text-white text-[13px] font-bold px-7 py-[13px] rounded-[10px] cursor-pointer"
+                style={{ boxShadow: '0 4px 20px rgba(255,125,0,0.4)' }}
               >
                 Book Demo
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -328,8 +328,8 @@ export default function ApplicationDetail() {
             transition={{ duration: 0.8 }}
           >
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-8 h-[2px] bg-[#ff9501] rounded-full" />
-              <span className="text-[11px] font-semibold tracking-[2.5px] uppercase text-[#ff9501]">Overview</span>
+              <div className="w-8 h-[2px] bg-[#FF7D00] rounded-full" />
+              <span className="text-[11px] font-semibold tracking-[2.5px] uppercase text-[#FF7D00]">Overview</span>
             </div>
             <h2 className="font-bold text-[#1a1208] mb-6 leading-tight"
               style={{ fontSize: 'clamp(26px,3vw,38px)', letterSpacing: '-1px' }}>
@@ -340,12 +340,12 @@ export default function ApplicationDetail() {
             ))}
 
             {/* Benefits */}
-            <div className="mt-8 p-6 rounded-2xl" style={{ background: 'rgba(255,149,1,0.05)', border: '1px solid rgba(255,149,1,0.15)' }}>
+            <div className="mt-8 p-6 rounded-2xl" style={{ background: 'rgba(255,125,0,0.05)', border: '1px solid rgba(255,125,0,0.15)' }}>
               <h4 className="font-semibold text-[14px] text-[#1a1208] mb-4 tracking-tight">Key Benefits</h4>
               <div className="flex flex-col gap-3">
                 {app.benefits.map(b => (
                   <div key={b} className="flex items-start gap-3">
-                    <div className="w-5 h-5 rounded-full bg-[#ff9501] flex items-center justify-center flex-shrink-0 mt-[1px]">
+                    <div className="w-5 h-5 rounded-full bg-[#FF7D00] flex items-center justify-center flex-shrink-0 mt-[1px]">
                       <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M2 6l3 3 5-5"/>
                       </svg>
@@ -385,12 +385,12 @@ export default function ApplicationDetail() {
       {/* ── PROCESS STEPS ── */}
       <section className="py-20 px-6 bg-[#111] relative overflow-hidden">
         <div className="absolute pointer-events-none rounded-full"
-          style={{ top: -200, right: -200, width: 600, height: 600, background: 'radial-gradient(circle, rgba(255,149,1,0.07) 0%, transparent 65%)' }} />
+          style={{ top: -200, right: -200, width: 600, height: 600, background: 'radial-gradient(circle, rgba(255,125,0,0.07) 0%, transparent 65%)' }} />
 
         <div className="max-w-[1320px] mx-auto relative z-[1]">
           <div className="flex items-center gap-3 mb-12">
-            <div className="w-8 h-[2px] bg-[#ff9501] rounded-full" />
-            <span className="text-[11px] font-semibold tracking-[2.5px] uppercase text-[#ff9501]">Process Flow</span>
+            <div className="w-8 h-[2px] bg-[#FF7D00] rounded-full" />
+            <span className="text-[11px] font-semibold tracking-[2.5px] uppercase text-[#FF7D00]">Process Flow</span>
           </div>
 
           <motion.div
@@ -406,14 +406,14 @@ export default function ApplicationDetail() {
                 variants={fadeUp}
                 className="relative p-6 rounded-2xl cursor-default"
                 style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
-                whileHover={{ y: -4, borderColor: 'rgba(255,149,1,0.3)', background: 'rgba(255,149,1,0.05)' }}
+                whileHover={{ y: -4, borderColor: 'rgba(255,125,0,0.3)', background: 'rgba(255,125,0,0.05)' }}
                 transition={{ duration: 0.22 }}
               >
-                <div className="text-[11px] font-bold tracking-[2px] text-[#ff9501]/60 mb-3">{step.num}</div>
+                <div className="text-[11px] font-bold tracking-[2px] text-[#FF7D00]/60 mb-3">{step.num}</div>
                 <h4 className="font-semibold text-[15px] text-white mb-2">{step.title}</h4>
                 <p className="text-[13px] leading-[1.6]" style={{ color: 'rgba(255,255,255,0.45)' }}>{step.desc}</p>
                 {i < detail.steps.length - 1 && (
-                  <div className="hidden xl:block absolute top-1/2 -right-2 w-4 h-[1.5px] bg-[#ff9501]/30" />
+                  <div className="hidden xl:block absolute top-1/2 -right-2 w-4 h-[1.5px] bg-[#FF7D00]/30" />
                 )}
               </motion.div>
             ))}
@@ -428,13 +428,13 @@ export default function ApplicationDetail() {
             <div className="flex items-center justify-between mb-10">
               <div>
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-8 h-[2px] bg-[#ff9501] rounded-full" />
-                  <span className="text-[11px] font-semibold tracking-[2.5px] uppercase text-[#ff9501]">More {app.robot} Applications</span>
+                  <div className="w-8 h-[2px] bg-[#FF7D00] rounded-full" />
+                  <span className="text-[11px] font-semibold tracking-[2.5px] uppercase text-[#FF7D00]">More {app.robot} Applications</span>
                 </div>
                 <h3 className="font-bold text-[26px] text-[#1a1208] tracking-tight">Related Applications</h3>
               </div>
               <Link to="/applications"
-                className="text-[13px] font-semibold text-[#ff9501] flex items-center gap-1 hover:gap-2 transition-all duration-200">
+                className="text-[13px] font-semibold text-[#FF7D00] flex items-center gap-1 hover:gap-2 transition-all duration-200">
                 View all
                 <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M3 8h10M9 4l4 4-4 4"/>
@@ -446,7 +446,7 @@ export default function ApplicationDetail() {
               {related.map(rel => (
                 <motion.div
                   key={rel.slug}
-                  whileHover={{ y: -5, boxShadow: '0 20px 60px rgba(0,0,0,0.1)', borderColor: 'rgba(255,149,1,0.25)' }}
+                  whileHover={{ y: -5, boxShadow: '0 20px 60px rgba(0,0,0,0.1)', borderColor: 'rgba(255,125,0,0.25)' }}
                   transition={{ duration: 0.25 }}
                   className="group bg-white rounded-[18px] overflow-hidden"
                   style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 2px 16px rgba(0,0,0,0.05)' }}
@@ -456,12 +456,12 @@ export default function ApplicationDetail() {
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   </div>
                   <div className="p-5">
-                    <h4 className="font-bold text-[16px] text-[#1a1208] mb-2 tracking-tight group-hover:text-[#ff9501] transition-colors">
+                    <h4 className="font-bold text-[16px] text-[#1a1208] mb-2 tracking-tight group-hover:text-[#FF7D00] transition-colors">
                       {rel.title}
                     </h4>
                     <p className="text-[13px] text-[#777] leading-[1.6] mb-4 line-clamp-2">{rel.short}</p>
                     <Link to={`/applications/${rel.slug}`}
-                      className="text-[12.5px] font-semibold text-[#ff9501] flex items-center gap-1">
+                      className="text-[12.5px] font-semibold text-[#FF7D00] flex items-center gap-1">
                       Explore →
                     </Link>
                   </div>
@@ -478,7 +478,7 @@ export default function ApplicationDetail() {
           <div className="rounded-[24px] px-12 py-12 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden"
             style={{ background: 'linear-gradient(135deg, #111 0%, #1e1408 100%)' }}>
             <div className="absolute rounded-full pointer-events-none"
-              style={{ top: -150, right: -100, width: 400, height: 400, background: 'radial-gradient(circle, rgba(255,149,1,0.1) 0%, transparent 65%)' }} />
+              style={{ top: -150, right: -100, width: 400, height: 400, background: 'radial-gradient(circle, rgba(255,125,0,0.1) 0%, transparent 65%)' }} />
             <div className="relative z-[1]">
               <h3 className="font-bold text-white mb-2 text-[22px] tracking-tight">
                 Ready to automate {app.title.toLowerCase()}?
@@ -491,8 +491,8 @@ export default function ApplicationDetail() {
               <MotionLink
                 to="/book-demo"
                 whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
-                className="inline-flex items-center gap-2 bg-[#ff9501] text-white text-[13px] font-bold px-7 py-[13px] rounded-[10px] cursor-pointer"
-                style={{ boxShadow: '0 4px 20px rgba(255,149,1,0.4)' }}
+                className="inline-flex items-center gap-2 bg-[#FF7D00] text-white text-[13px] font-bold px-7 py-[13px] rounded-[10px] cursor-pointer"
+                style={{ boxShadow: '0 4px 20px rgba(255,125,0,0.4)' }}
               >
                 Book Demo →
               </MotionLink>

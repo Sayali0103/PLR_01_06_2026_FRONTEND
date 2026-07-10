@@ -136,7 +136,7 @@ const highlights = [
 const allTags = ['All', 'Automation', 'Robotics', 'Industry', 'Engineering']
 
 const tagColors = {
-  Automation: { bg: 'rgba(255,149,1,0.08)', text: '#FF9501', border: 'rgba(255,149,1,0.2)' },
+  Automation: { bg: 'rgba(255,125,0,0.08)', text: '#FF7D00', border: 'rgba(255,125,0,0.2)' },
   Robotics:   { bg: 'rgba(30,100,220,0.07)', text: '#1e64dc', border: 'rgba(30,100,220,0.18)' },
   Industry:   { bg: 'rgba(20,160,80,0.07)', text: '#14a050', border: 'rgba(20,160,80,0.18)' },
   Engineering: { bg: 'rgba(130,60,200,0.07)', text: '#823cc8', border: 'rgba(130,60,200,0.18)' },
@@ -191,7 +191,7 @@ export default function Blogs() {
       {/* ── HERO ── */}
       <section className="max-w-[1320px] mx-auto px-5 pt-10 pb-12 relative sm:px-6 sm:pt-14 sm:pb-16 lg:px-16">
         <div className="absolute inset-0 pointer-events-none" style={{ background: 'rgba(255,255,255,0.18)' }} />
-        <div className="absolute pointer-events-none" style={{ top: -100, left: -80, width: 500, height: 500, background: 'radial-gradient(circle, rgba(255,149,1,0.06) 0%, transparent 65%)', borderRadius: '50%' }} />
+        <div className="absolute pointer-events-none" style={{ top: -100, left: -80, width: 500, height: 500, background: 'radial-gradient(circle, rgba(255,125,0,0.06) 0%, transparent 65%)', borderRadius: '50%' }} />
 
         <motion.div
           initial={{ opacity: 0, y: 36 }}
@@ -206,7 +206,7 @@ export default function Blogs() {
               >
                 Stories from<br />
                 the robotics<br />
-                <span style={{ color: '#FF9501' }}>floor.</span>
+                <span style={{ color: '#FF7D00' }}>floor.</span>
               </h1>
               <p className="text-[16px] leading-[1.85] text-[#666] max-w-[500px]">
                 Automation experiences, product design insights, and manufacturing success stories crafted for Indian industry teams.
@@ -216,7 +216,7 @@ export default function Blogs() {
             {/* Highlights */}
             <div
               className="rounded-[24px] p-5 sm:p-8"
-              style={{ background: 'linear-gradient(145deg, #fff7eb, #fff3e0)', border: '1px solid rgba(255,149,1,0.18)' }}
+              style={{ background: 'linear-gradient(145deg, #fff7eb, #fff3e0)', border: '1px solid rgba(255,125,0,0.18)' }}
             >
               <p className="text-[11px] font-semibold tracking-[2px] uppercase text-orange mb-5">Featured Takeaways</p>
               <ul className="space-y-4">
@@ -251,8 +251,8 @@ export default function Blogs() {
                   : 'bg-white text-[#555] hover:text-orange'
               }`}
               style={{
-                border: activeTag === tag ? '1px solid #FF9501' : '1px solid rgba(0,0,0,0.09)',
-                boxShadow: activeTag === tag ? '0 2px 12px rgba(255,149,1,0.28)' : '0 1px 4px rgba(0,0,0,0.04)',
+                border: activeTag === tag ? '1px solid #FF7D00' : '1px solid rgba(0,0,0,0.09)',
+                boxShadow: activeTag === tag ? '0 2px 12px rgba(255,125,0,0.28)' : '0 1px 4px rgba(0,0,0,0.04)',
               }}
             >
               {tag}
@@ -274,14 +274,14 @@ export default function Blogs() {
                 {featured && (
                   <motion.article
                     variants={fadeUp}
-                    whileHover={{ y: -4, boxShadow: '0 24px 64px rgba(255,149,1,0.11)', borderColor: 'rgba(255,149,1,0.28)' }}
+                    whileHover={{ y: -4, boxShadow: '0 24px 64px rgba(255,125,0,0.11)', borderColor: 'rgba(255,125,0,0.28)' }}
                     transition={{ duration: 0.22 }}
                     className="bg-white rounded-[24px] p-5 cursor-pointer relative overflow-hidden sm:rounded-[28px] sm:p-8 lg:p-10"
                     style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 4px 24px rgba(0,0,0,0.05)' }}
                   >
                     <div
                       className="absolute top-0 right-0 px-4 py-2 rounded-bl-[18px] rounded-tr-[28px] text-[10.5px] font-bold tracking-[1.5px] uppercase text-orange"
-                      style={{ background: 'rgba(255,149,1,0.08)', border: '1px solid rgba(255,149,1,0.14)' }}
+                      style={{ background: 'rgba(255,125,0,0.08)', border: '1px solid rgba(255,125,0,0.14)' }}
                     >
                       Featured
                     </div>
@@ -318,10 +318,10 @@ export default function Blogs() {
 
                     <a href={featured.href} target="_blank" rel="noreferrer" className="inline-flex">
                       <motion.button
-                        whileHover={{ scale: 1.03, boxShadow: '0 6px 24px rgba(255,149,1,0.36)' }}
+                        whileHover={{ scale: 1.03, boxShadow: '0 6px 24px rgba(255,125,0,0.36)' }}
                         whileTap={{ scale: 0.97 }}
                         className="inline-flex items-center gap-2 bg-orange text-white text-[13px] font-bold px-6 py-[11px] rounded-xl"
-                        style={{ boxShadow: '0 4px 18px rgba(255,149,1,0.28)' }}
+                        style={{ boxShadow: '0 4px 18px rgba(255,125,0,0.28)' }}
                       >
                         Read Article
                         <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -337,7 +337,7 @@ export default function Blogs() {
                   <motion.article
                     key={post.id}
                     variants={fadeUp}
-                    whileHover={{ y: -3, boxShadow: '0 16px 50px rgba(255,149,1,0.09)', borderColor: 'rgba(255,149,1,0.22)' }}
+                    whileHover={{ y: -3, boxShadow: '0 16px 50px rgba(255,125,0,0.09)', borderColor: 'rgba(255,125,0,0.22)' }}
                     transition={{ duration: 0.22 }}
                     className="bg-white rounded-[24px] overflow-hidden cursor-pointer grid grid-cols-1 lg:grid-cols-[260px_1fr] items-stretch p-5 gap-5 sm:p-6 sm:gap-6"
                     style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}
@@ -393,7 +393,7 @@ export default function Blogs() {
                 <motion.div
                   variants={fadeUp}
                   className="rounded-[24px] p-5 sm:p-8"
-                  style={{ background: 'linear-gradient(145deg, #fff7eb, #fff3e0)', border: '1px solid rgba(255,149,1,0.18)' }}
+                  style={{ background: 'linear-gradient(145deg, #fff7eb, #fff3e0)', border: '1px solid rgba(255,125,0,0.18)' }}
                 >
                   <p className="text-[10.5px] font-semibold tracking-[2px] uppercase text-orange mb-4">PL Robotics Author Spotlight</p>
                   <h3 className="font-bold text-[22px] text-[#111] mb-2 tracking-tight">Aarohi on Medium</h3>

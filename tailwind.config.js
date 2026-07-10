@@ -7,8 +7,8 @@ export default {
   theme: {
     extend: {
       colors: {
-        orange: "#ff9501",
-        amber: "#e07d00",
+        orange: "#FF7D00",
+        amber: "#FF7D00",
         cream: "#faf7f2",
         cream2: "#f3ede3",
         dark: "#1a1208",

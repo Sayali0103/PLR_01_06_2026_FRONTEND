@@ -91,7 +91,7 @@ export default function Applications() {
         {/* Soft orange bloom */}
         <div className="absolute top-0 right-0 w-[700px] h-[700px] rounded-full pointer-events-none"
           style={{
-            background: 'radial-gradient(circle, rgba(255,149,1,0.07) 0%, transparent 65%)',
+            background: 'radial-gradient(circle, rgba(255,125,0,0.07) 0%, transparent 65%)',
             transform: 'translate(30%, -30%)',
           }} />
 
@@ -106,7 +106,7 @@ export default function Applications() {
               style={{ fontSize: 'clamp(36px,5vw,62px)', letterSpacing: '-2.5px', lineHeight: 1.05 }}>
               One Platform.<br />
               <span style={{
-                background: 'linear-gradient(135deg, #ff9501 0%, #e07800 100%)',
+                background: 'linear-gradient(135deg, #FF7D00 0%, #FF7D00 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
               }}>
@@ -145,7 +145,7 @@ export default function Applications() {
                 whileHover={{
                   y: -6,
                   boxShadow: '0 4px 8px rgba(0,0,0,0.04), 0 20px 56px rgba(0,0,0,0.10)',
-                  borderColor: 'rgba(255,149,1,0.25)',
+                  borderColor: 'rgba(255,125,0,0.25)',
                 }}
                 transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
               >
@@ -185,8 +185,8 @@ export default function Applications() {
                       <div key={b} className="flex items-center gap-[10px]">
                         {/* Checkmark icon */}
                         <div className="flex-shrink-0 w-[18px] h-[18px] rounded-full flex items-center justify-center"
-                          style={{ background: 'rgba(255,149,1,0.1)', border: '1px solid rgba(255,149,1,0.2)' }}>
-                          <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#ff9501" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                          style={{ background: 'rgba(255,125,0,0.1)', border: '1px solid rgba(255,125,0,0.2)' }}>
+                          <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#FF7D00" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M2 6l3 3 5-5" />
                           </svg>
                         </div>
@@ -214,8 +214,8 @@ export default function Applications() {
             className="relative rounded-[24px] overflow-hidden sm:rounded-[28px]"
             style={{
               background: 'linear-gradient(135deg, #fff8f0 0%, #fef3e4 50%, #fff8f0 100%)',
-              border: '1px solid rgba(255,149,1,0.18)',
-              boxShadow: '0 8px 48px rgba(255,149,1,0.08)',
+              border: '1px solid rgba(255,125,0,0.18)',
+              boxShadow: '0 8px 48px rgba(255,125,0,0.08)',
             }}
           >
             {/* Glow */}
@@ -223,26 +223,26 @@ export default function Applications() {
               style={{
                 top: -180, left: '50%', transform: 'translateX(-50%)',
                 width: 600, height: 600,
-                background: 'radial-gradient(circle, rgba(255,149,1,0.11) 0%, transparent 65%)',
+                background: 'radial-gradient(circle, rgba(255,125,0,0.11) 0%, transparent 65%)',
               }} />
 
             {/* Dot grid top-right */}
             <div className="absolute top-0 right-0 w-64 h-64 pointer-events-none opacity-[0.06]"
               style={{
-                backgroundImage: 'radial-gradient(circle, #ff9501 1px, transparent 1px)',
+                backgroundImage: 'radial-gradient(circle, #FF7D00 1px, transparent 1px)',
                 backgroundSize: '20px 20px',
               }} />
 
             {/* Dot grid bottom-left */}
             <div className="absolute bottom-0 left-0 w-48 h-48 pointer-events-none opacity-[0.05]"
               style={{
-                backgroundImage: 'radial-gradient(circle, #ff9501 1px, transparent 1px)',
+                backgroundImage: 'radial-gradient(circle, #FF7D00 1px, transparent 1px)',
                 backgroundSize: '20px 20px',
               }} />
 
             {/* Top accent line */}
             <div className="absolute top-0 left-1/4 right-1/4 h-[2px] rounded-full"
-              style={{ background: 'linear-gradient(90deg, transparent, #ff9501, transparent)' }} />
+              style={{ background: 'linear-gradient(90deg, transparent, #FF7D00, transparent)' }} />
 
             <div className="relative z-[1] px-6 py-10 flex flex-col items-start justify-between gap-8 sm:px-10 sm:py-12 lg:px-16 lg:py-16 lg:flex-row lg:items-center lg:gap-12">
               {/* Left */}
@@ -250,13 +250,13 @@ export default function Applications() {
                 <h2 className="font-bold text-[#0f0a04] leading-[1.05] mb-4"
                   style={{ fontSize: 'clamp(26px,3.5vw,46px)', letterSpacing: '-1.5px' }}>
                   Not Sure Which Robot<span className="hidden sm:inline"><br /></span>{' '}
-                  <span className="text-[#ff9501]">Fits Your Process?</span>
+                  <span className="text-[#FF7D00]">Fits Your Process?</span>
                 </h2>
                 <p className="text-[15px] leading-[1.8] mb-5" style={{ color: 'rgba(26,18,8,0.52)' }}>
                   Our automation engineers will assess your workflow and recommend
                   the right solution.
                 </p>
-                <p className="text-[10.5px] font-bold tracking-[2.5px] uppercase text-[#ff9501]/60">
+                <p className="text-[10.5px] font-bold tracking-[2.5px] uppercase text-[#FF7D00]/60">
                   Built to Work. Designed to Last.
                 </p>
               </div>
@@ -265,12 +265,12 @@ export default function Applications() {
               <div className="flex flex-col gap-3 flex-shrink-0 w-full lg:min-w-[230px] lg:w-auto">
                 <MotionLink
                   to="/book-demo"
-                  whileHover={{ y: -2, boxShadow: '0 12px 36px rgba(255,149,1,0.42)' }}
+                  whileHover={{ y: -2, boxShadow: '0 12px 36px rgba(255,125,0,0.42)' }}
                   whileTap={{ scale: 0.97 }}
                   className="inline-flex w-full items-center justify-center gap-2 text-center text-white text-[13.5px] font-bold px-5 py-[14px] rounded-[12px] cursor-pointer sm:px-8"
                   style={{
-                    background: 'linear-gradient(135deg, #ff9501 0%, #e07800 100%)',
-                    boxShadow: '0 4px 20px rgba(255,149,1,0.32)',
+                    background: 'linear-gradient(135deg, #FF7D00 0%, #FF7D00 100%)',
+                    boxShadow: '0 4px 20px rgba(255,125,0,0.32)',
                   }}
                 >
                   Get Automation Consultation

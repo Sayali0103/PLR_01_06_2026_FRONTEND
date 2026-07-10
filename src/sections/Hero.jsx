@@ -134,7 +134,7 @@ export default function Hero() {
           width: 900,
           height: 900,
           background:
-            'radial-gradient(circle, rgba(255,149,1,0.1) 0%, transparent 60%)',
+            'radial-gradient(circle, rgba(255,125,0,0.1) 0%, transparent 60%)',
         }}
       />
 
@@ -143,7 +143,7 @@ export default function Hero() {
         className="absolute bottom-0 left-0 right-0 z-[6] h-[2px]"
         style={{
           background:
-            'linear-gradient(90deg, transparent 0%, #ff9501 25%, #ff9501 75%, transparent 100%)',
+            'linear-gradient(90deg, transparent 0%, #FF7D00 25%, #FF7D00 75%, transparent 100%)',
         }}
       />
 
@@ -165,7 +165,7 @@ export default function Hero() {
             Anything.<br />
             <span
               className="text-orange"
-              style={{ filter: 'drop-shadow(0 0 16px rgba(255,149,1,0.35))' }}
+              style={{ filter: 'drop-shadow(0 0 16px rgba(255,125,0,0.35))' }}
             >
               Precisely.
             </span>
@@ -187,12 +187,12 @@ export default function Hero() {
               href="#product-showcase"
               whileHover={{
                 y: -2,
-                boxShadow: '0 10px 36px rgba(255,149,1,0.5)',
+                boxShadow: '0 10px 36px rgba(255,125,0,0.5)',
               }}
               whileTap={{ scale: 0.97 }}
               className="inline-flex items-center justify-center gap-2 bg-orange text-white text-[13px] font-bold tracking-[0.3px] px-7 py-[13px] rounded-[10px] cursor-pointer sm:px-8 sm:py-[14px]"
               style={{
-                boxShadow: '0 4px 24px rgba(255,149,1,0.38)',
+                boxShadow: '0 4px 24px rgba(255,125,0,0.38)',
               }}
             >
               Explore CO5

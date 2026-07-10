@@ -121,7 +121,7 @@ export default function ProductShowcase() {
                   style={{
                     height: 72,
                     border: activePhoto === i
-                      ? '2px solid #ff9501'
+                      ? '2px solid #FF7D00'
                       : '2px solid transparent',
                     opacity: activePhoto === i ? 1 : 0.5,
                   }}
@@ -159,8 +159,8 @@ export default function ProductShowcase() {
                   variants={fadeUp}
                   whileHover={{
                     y: -3,
-                    boxShadow: '0 8px 28px rgba(255,149,1,0.1)',
-                    borderColor: 'rgba(255,149,1,0.28)',
+                    boxShadow: '0 8px 28px rgba(255,125,0,0.1)',
+                    borderColor: 'rgba(255,125,0,0.28)',
                   }}
                   transition={{ duration: 0.2 }}
                   className="bg-white rounded-2xl p-4 flex flex-col gap-2 cursor-default sm:p-5"
@@ -184,10 +184,10 @@ export default function ProductShowcase() {
             <motion.div variants={fadeUp} className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
               <MotionLink
                 to="/book-demo"
-                whileHover={{ y: -2, boxShadow: '0 10px 36px rgba(255,149,1,0.5)' }}
+                whileHover={{ y: -2, boxShadow: '0 10px 36px rgba(255,125,0,0.5)' }}
                 whileTap={{ scale: 0.97 }}
                 className="inline-flex items-center justify-center gap-2 bg-orange text-white text-[13px] font-bold px-7 py-[13px] rounded-[10px] cursor-pointer"
-                style={{ boxShadow: '0 4px 24px rgba(255,149,1,0.35)' }}
+                style={{ boxShadow: '0 4px 24px rgba(255,125,0,0.35)' }}
               >
                 Request Demo
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -270,7 +270,7 @@ export default function ProductShowcase() {
                     style={{
                       height: 72,
                       border: activeCartesianPhoto === i
-                        ? '2px solid #ff9501'
+                        ? '2px solid #FF7D00'
                         : '2px solid transparent',
                       opacity: activeCartesianPhoto === i ? 1 : 0.5,
                     }}
@@ -308,8 +308,8 @@ export default function ProductShowcase() {
                     variants={fadeUp}
                     whileHover={{
                       y: -3,
-                      boxShadow: '0 8px 28px rgba(255,149,1,0.1)',
-                      borderColor: 'rgba(255,149,1,0.28)',
+                      boxShadow: '0 8px 28px rgba(255,125,0,0.1)',
+                      borderColor: 'rgba(255,125,0,0.28)',
                     }}
                     transition={{ duration: 0.2 }}
                     className="bg-white rounded-2xl p-4 flex flex-col gap-2 cursor-default sm:p-5"
@@ -332,10 +332,10 @@ export default function ProductShowcase() {
               <motion.div variants={fadeUp} className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
                 <MotionLink
                   to="/book-demo"
-                  whileHover={{ y: -2, boxShadow: '0 10px 36px rgba(255,149,1,0.5)' }}
+                  whileHover={{ y: -2, boxShadow: '0 10px 36px rgba(255,125,0,0.5)' }}
                   whileTap={{ scale: 0.97 }}
                   className="inline-flex items-center justify-center gap-2 bg-orange text-white text-[13px] font-bold px-7 py-[13px] rounded-[10px] cursor-pointer"
-                  style={{ boxShadow: '0 4px 24px rgba(255,149,1,0.35)' }}
+                  style={{ boxShadow: '0 4px 24px rgba(255,125,0,0.35)' }}
                 >
                   Discuss Customization
                   <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

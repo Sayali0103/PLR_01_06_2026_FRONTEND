@@ -87,7 +87,7 @@ export default function News() {
       <section className="max-w-[1320px] mx-auto px-5 pt-10 pb-12 relative sm:px-6 sm:pt-14 sm:pb-16 lg:px-16">
         <div className="absolute inset-0 pointer-events-none" style={{ background: 'rgba(255,255,255,0.18)' }} />
         <div className="absolute pointer-events-none"
-          style={{ top: -80, right: -60, width: 520, height: 520, background: 'radial-gradient(circle, rgba(255,149,1,0.06) 0%, transparent 65%)', borderRadius: '50%' }} />
+          style={{ top: -80, right: -60, width: 520, height: 520, background: 'radial-gradient(circle, rgba(255,125,0,0.06) 0%, transparent 65%)', borderRadius: '50%' }} />
 
         <motion.div
           initial={{ opacity: 0, y: 36 }}
@@ -101,7 +101,7 @@ export default function News() {
                 style={{ fontSize: 'clamp(44px,5.5vw,76px)', letterSpacing: '-2.5px' }}
               >
                 News from the<br />P. L. Robotics<br />
-                <span style={{ color: '#FF9501' }}>radar.</span>
+                <span style={{ color: '#FF7D00' }}>radar.</span>
               </h1>
               <p className="text-[16px] leading-[1.85] text-[#666] max-w-[500px]">
                 Curated reads on automation, robotics, AI-enabled factories, and the Indian market signals shaping the next decade of manufacturing.
@@ -111,7 +111,7 @@ export default function News() {
             {/* Top highlights */}
             <div
               className="rounded-[24px] p-5 sm:p-8"
-              style={{ background: 'linear-gradient(145deg, #fff7eb, #fff3e0)', border: '1px solid rgba(255,149,1,0.18)' }}
+              style={{ background: 'linear-gradient(145deg, #fff7eb, #fff3e0)', border: '1px solid rgba(255,125,0,0.18)' }}
             >
               <p className="text-[11px] font-semibold tracking-[2px] uppercase text-orange mb-5">Top Highlights</p>
               <ul className="space-y-4">
@@ -151,14 +151,14 @@ export default function News() {
               target="_blank"
               rel="noreferrer"
               variants={fadeUp}
-              whileHover={{ y: -4, boxShadow: '0 24px 64px rgba(255,149,1,0.11)', borderColor: 'rgba(255,149,1,0.28)' }}
+              whileHover={{ y: -4, boxShadow: '0 24px 64px rgba(255,125,0,0.11)', borderColor: 'rgba(255,125,0,0.28)' }}
               transition={{ duration: 0.22 }}
               className="block bg-white rounded-[24px] p-6 cursor-pointer relative overflow-hidden sm:rounded-[28px] sm:p-8 lg:p-10"
               style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 4px 24px rgba(0,0,0,0.05)' }}
             >
               <div
                 className="absolute top-0 right-0 px-4 py-2 rounded-bl-[18px] rounded-tr-[28px] text-[10.5px] font-bold tracking-[1.5px] uppercase text-orange"
-                style={{ background: 'rgba(255,149,1,0.08)', border: '1px solid rgba(255,149,1,0.14)' }}
+                style={{ background: 'rgba(255,125,0,0.08)', border: '1px solid rgba(255,125,0,0.14)' }}
               >
                 Latest
               </div>
@@ -166,7 +166,7 @@ export default function News() {
               <div className="flex items-center gap-3 mb-5 flex-wrap">
                 <span
                   className="text-[11px] font-bold tracking-[1.5px] uppercase px-3 py-[4px] rounded-full text-orange"
-                  style={{ background: 'rgba(255,149,1,0.08)', border: '1px solid rgba(255,149,1,0.18)' }}
+                  style={{ background: 'rgba(255,125,0,0.08)', border: '1px solid rgba(255,125,0,0.18)' }}
                 >
                   {featured.category}
                 </span>
@@ -183,10 +183,10 @@ export default function News() {
               <p className="text-[15px] leading-[1.85] text-[#666] mb-7 max-w-[580px]">{featured.detail}</p>
 
               <motion.span
-                whileHover={{ scale: 1.03, boxShadow: '0 6px 24px rgba(255,149,1,0.36)' }}
+                whileHover={{ scale: 1.03, boxShadow: '0 6px 24px rgba(255,125,0,0.36)' }}
                 whileTap={{ scale: 0.97 }}
                 className="inline-flex items-center gap-2 bg-orange text-white text-[13px] font-bold px-6 py-[11px] rounded-xl"
-                style={{ boxShadow: '0 4px 18px rgba(255,149,1,0.28)' }}
+                style={{ boxShadow: '0 4px 18px rgba(255,125,0,0.28)' }}
               >
                 Read Article
                 <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -203,7 +203,7 @@ export default function News() {
                 target="_blank"
                 rel="noreferrer"
                 variants={fadeUp}
-                whileHover={{ y: -3, boxShadow: '0 16px 50px rgba(255,149,1,0.08)', borderColor: 'rgba(255,149,1,0.2)' }}
+                whileHover={{ y: -3, boxShadow: '0 16px 50px rgba(255,125,0,0.08)', borderColor: 'rgba(255,125,0,0.2)' }}
                 transition={{ duration: 0.22 }}
                 className="block bg-white rounded-[24px] p-5 cursor-pointer sm:p-8"
                 style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}
@@ -211,7 +211,7 @@ export default function News() {
                 <div className="flex items-center gap-3 mb-3 flex-wrap">
                   <span
                     className="text-[11px] font-bold tracking-[1.5px] uppercase px-3 py-[4px] rounded-full text-orange"
-                    style={{ background: 'rgba(255,149,1,0.08)', border: '1px solid rgba(255,149,1,0.18)' }}
+                    style={{ background: 'rgba(255,125,0,0.08)', border: '1px solid rgba(255,125,0,0.18)' }}
                   >
                     {item.category}
                   </span>
@@ -253,7 +253,7 @@ export default function News() {
             <motion.div
               variants={fadeUp}
               className="rounded-[24px] p-5 sm:p-8"
-              style={{ background: 'linear-gradient(145deg, #fff7eb, #fff3e0)', border: '1px solid rgba(255,149,1,0.18)' }}
+              style={{ background: 'linear-gradient(145deg, #fff7eb, #fff3e0)', border: '1px solid rgba(255,125,0,0.18)' }}
             >
               <p className="text-[10.5px] font-semibold tracking-[2px] uppercase text-orange mb-4">Why It Matters</p>
               <h3 className="font-bold text-[20px] text-[#111] mb-3 tracking-tight leading-tight">Automation is becoming a competitive baseline.</h3>
