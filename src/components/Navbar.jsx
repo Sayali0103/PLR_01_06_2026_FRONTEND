@@ -16,17 +16,16 @@ const productItems = [
     path: '/#cartesian-robot',
   },
   {
-    label: 'SCARA',
-    desc: 'High-speed selective compliance arm for assembly',
-    image: '/photos/photo5.jpeg',
-    comingSoon: true,
+    label: 'VSCARA VS3',
+    desc: 'High-speed 4-axis robot for precise pick-and-place automation',
+    image: '/photos/vscara-vs3.png',
+    path: '/#vscara-vs3',
   },
   {
-    label: 'DELTA',
-    desc: 'Ultra-fast parallel robot for picking & packaging',
-    image: '/photos/photo3.jpeg',
-    tag: null,
-    comingSoon: true,
+    label: 'Delta DR1',
+    desc: 'High-speed delta robot for picking, sorting and packaging',
+    image: '/photos/delta-dr1.png',
+    path: '/#delta-dr1',
   },
 ]
 
