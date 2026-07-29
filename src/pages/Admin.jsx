@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   adminFetchJobs, adminCreateJob, adminUpdateJob, adminDeleteJob,
-  adminFetchApplications, adminUpdateAppStatus, adminDeleteApplication,
+  adminFetchApplications, adminUpdateAppStatus, adminDeleteApplication, adminFetchInterviewers, adminScheduleInterviews,
 } from '../hooks/useJobs'
 
 const EMPTY_JOB = {
@@ -17,6 +17,19 @@ const statusColors = {
   reviewing: { bg: 'rgba(255,125,0,0.08)', text: '#FF7D00', border: 'rgba(255,125,0,0.2)' },
   shortlisted: { bg: 'rgba(20,160,80,0.07)', text: '#14a050', border: 'rgba(20,160,80,0.18)' },
   rejected: { bg: 'rgba(220,0,0,0.06)', text: '#dc3030', border: 'rgba(220,0,0,0.15)' },
+}
+
+function formatInterviewTime(date, index, total) {
+  if (!date || !total) return ''
+  const start = new Date(`${date}T15:00:00+05:30`)
+  const length = (2 * 60 * 60 * 1000) / total
+  const format = value => new Intl.DateTimeFormat('en-IN', { timeZone: 'Asia/Kolkata', hour: 'numeric', minute: '2-digit' }).format(new Date(value))
+  return `${format(start.getTime() + index * length)}–${format(start.getTime() + (index + 1) * length)} IST`
+}
+
+function formatScheduledInterview(interview) {
+  if (!interview?.startAt) return ''
+  return new Date(interview.startAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })
 }
 
 export default function Admin() {
@@ -35,6 +48,12 @@ export default function Admin() {
   const [formData, setFormData] = useState(EMPTY_JOB)
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState('')
+  const [selectedInterviewIds, setSelectedInterviewIds] = useState([])
+  const [interviewers, setInterviewers] = useState([])
+  const [interviewAssignments, setInterviewAssignments] = useState({})
+  const [interviewDate, setInterviewDate] = useState('')
+  const [interviewError, setInterviewError] = useState('')
+  const [schedulingInterviews, setSchedulingInterviews] = useState(false)
 
   // Login
   const login = async e => {
@@ -44,6 +63,7 @@ export default function Admin() {
       await adminFetchJobs(password)
       setAuthed(true)
       loadJobs()
+      loadInterviewers()
     } catch {
       setAuthError('Incorrect password.')
     }
@@ -139,6 +159,54 @@ export default function Admin() {
     if (!confirm('Delete this application?')) return
     await adminDeleteApplication(id, password)
     loadApps()
+  }
+
+  const loadInterviewers = async () => {
+    try { setInterviewers(await adminFetchInterviewers(password)) }
+    catch { setInterviewError('Unable to load the interviewer list.') }
+  }
+
+  const toggleInterviewCandidate = id => {
+    if (selectedInterviewIds.includes(id)) {
+      setSelectedInterviewIds(current => current.filter(candidateId => candidateId !== id))
+      setInterviewAssignments(assignments => {
+        const remaining = { ...assignments }
+        delete remaining[id]
+        return remaining
+      })
+    } else if (selectedInterviewIds.length < 10) {
+      setSelectedInterviewIds(current => [...current, id])
+    }
+    setInterviewError('')
+  }
+
+  const scheduleInterviews = async () => {
+    if (!interviewDate || !selectedInterviewIds.length) {
+      setInterviewError('Select at least one candidate and an interview date.')
+      return
+    }
+    const assignments = selectedInterviewIds.map(applicationId => ({
+      applicationId,
+      interviewerEmail: interviewAssignments[applicationId],
+    }))
+    if (assignments.some(assignment => !assignment.interviewerEmail)) {
+      setInterviewError('Select an interviewer for every candidate.')
+      return
+    }
+    setSchedulingInterviews(true)
+    setInterviewError('')
+    try {
+      const result = await adminScheduleInterviews(selectedInterviewIds, interviewDate, assignments, password)
+      setSelectedInterviewIds([])
+      setInterviewAssignments({})
+      setInterviewDate('')
+      if (result.failedEmails) setInterviewError(`${result.scheduled} interviews were scheduled, but ${result.failedEmails} confirmation email(s) failed. Check email configuration.`)
+      loadApps()
+    } catch (err) {
+      setInterviewError(err.message)
+    } finally {
+      setSchedulingInterviews(false)
+    }
   }
 
   // ── LOGIN SCREEN ──
@@ -296,10 +364,38 @@ export default function Admin() {
         {/* ── APPLICATIONS TAB ── */}
         {tab === 'applications' && (
           <div>
-            <div className="mb-5">
-              <h2 className="font-bold text-[18px] text-[#111] tracking-tight">Applications Received</h2>
-              <p className="mt-1 text-[12.5px] text-[#999]">Review candidate details, attachments, and application status.</p>
+            <div className="mb-5 flex items-start justify-between gap-5 flex-wrap">
+              <div>
+                <h2 className="font-bold text-[18px] text-[#111] tracking-tight">Applications Received</h2>
+                <p className="mt-1 text-[12.5px] text-[#999]">Select up to 10 candidates, then schedule a Thursday or Sunday interview batch.</p>
+              </div>
+              {selectedInterviewIds.length > 0 && <span className="rounded-full bg-orange/10 px-4 py-2 text-[12px] font-bold text-orange" style={{ border: '1px solid rgba(255,125,0,0.2)' }}>{selectedInterviewIds.length} candidate{selectedInterviewIds.length === 1 ? '' : 's'} selected</span>}
             </div>
+            {selectedInterviewIds.length > 0 && (
+              <div className="mb-6 rounded-2xl bg-[#fff8f0] p-5 sm:p-6" style={{ border: '1px solid rgba(255,125,0,0.2)' }}>
+                <div className="flex items-end gap-4 flex-wrap">
+                  <label className="min-w-[210px] flex-1">
+                    <span className="mb-1.5 block text-[11px] font-bold uppercase tracking-[1.2px] text-[#7b6c5e]">Interview date</span>
+                    <input type="date" value={interviewDate} onChange={event => { setInterviewDate(event.target.value); setInterviewError('') }} className="w-full rounded-xl border border-black/10 bg-white px-4 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-orange/20" />
+                  </label>
+                  <button onClick={scheduleInterviews} disabled={schedulingInterviews} className="rounded-xl bg-orange px-5 py-2.5 text-[13px] font-bold text-white shadow-[0_4px_18px_rgba(255,125,0,0.28)] disabled:opacity-60">{schedulingInterviews ? 'Creating Meet links...' : 'Confirm & email candidates'}</button>
+                  <button onClick={() => { setSelectedInterviewIds([]); setInterviewAssignments({}); setInterviewError('') }} className="px-3 py-2.5 text-[12px] font-semibold text-[#777]">Clear</button>
+                </div>
+                <div className="mt-4 grid gap-3 text-[12px] text-[#66584c] sm:grid-cols-2">{selectedInterviewIds.map((id, index) => {
+                  const candidate = applications.find(application => application._id === id)
+                  return <div key={id} className="rounded-lg bg-white p-3" style={{ border: '1px solid rgba(0,0,0,0.06)' }}>
+                    <p className="font-bold text-[#3f352b]">{candidate ? `${candidate.firstName} ${candidate.lastName}` : 'Candidate'}</p>
+                    {interviewDate && <p className="mt-1 text-[#8b7a69]">{formatInterviewTime(interviewDate, index, selectedInterviewIds.length)}</p>}
+                    <select value={interviewAssignments[id] || ''} onChange={event => { setInterviewAssignments(assignments => ({ ...assignments, [id]: event.target.value })); setInterviewError('') }} className="mt-2 w-full rounded-lg border border-black/10 bg-[#faf7f2] px-2.5 py-2 text-[12px] font-medium text-[#55483d] outline-none focus:ring-2 focus:ring-orange/20">
+                      <option value="">Assign interviewer...</option>
+                      {interviewers.map(interviewer => <option key={interviewer.email} value={interviewer.email}>{interviewer.name}</option>)}
+                    </select>
+                  </div>
+                })}</div>
+                <p className="mt-3 text-[11.5px] leading-[1.6] text-[#8b7a69]">The API only accepts future Thursdays or Sundays. The 3:00–5:00 PM IST window is divided evenly between selected candidates; each receives a Google Calendar invitation and a PL Robotics email.</p>
+                {interviewError && <p className="mt-3 text-[12.5px] font-semibold text-red-600">{interviewError}</p>}
+              </div>
+            )}
             {loadingApps ? (
               <div className="space-y-4">{[1,2,3].map(i => <div key={i} className="bg-white h-52 rounded-2xl animate-pulse" style={{ border: '1px solid rgba(0,0,0,0.07)' }} />)}</div>
             ) : (
@@ -311,6 +407,8 @@ export default function Admin() {
                     ? new Date(app.createdAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
                     : 'Date unavailable'
                   const hasAtsScore = Number.isFinite(app.atsScore)
+                  const isInterviewScheduled = app.interview?.status === 'scheduled'
+                  const isSelectedForInterview = selectedInterviewIds.includes(app._id)
                   return (
                     <motion.div
                       key={app._id}
@@ -359,8 +457,19 @@ export default function Admin() {
                           </a>
                         )}
                         {app.message && <p className="text-[12.5px] text-[#777] mt-2 max-w-[500px] leading-[1.6]">"{app.message}"</p>}
+                        {isInterviewScheduled && (
+                          <div className="mt-4 flex items-center gap-3 flex-wrap rounded-xl bg-[#f4fbf6] px-3 py-2.5 text-[12px]" style={{ border: '1px solid rgba(20,160,80,0.18)' }}>
+                            <span className="font-bold text-[#168044]">Interview: {formatScheduledInterview(app.interview)} IST</span>
+                            {app.interview.interviewerName && <span className="text-[#397052]">Interviewer: {app.interview.interviewerName}</span>}
+                            {app.interview.meetLink && <a href={app.interview.meetLink} target="_blank" rel="noopener noreferrer" className="font-bold text-orange hover:underline">Join Google Meet →</a>}
+                          </div>
+                        )}
                       </div>
                       <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
+                        <label className={`inline-flex items-center gap-2 rounded-lg px-3 py-[8px] text-[12px] font-semibold ${isInterviewScheduled ? 'cursor-not-allowed bg-[#f5f3ef] text-[#aaa]' : 'cursor-pointer bg-[#fff8f0] text-orange'}`} style={{ border: '1px solid rgba(255,125,0,0.2)' }}>
+                          <input type="checkbox" checked={isSelectedForInterview} disabled={isInterviewScheduled} onChange={() => toggleInterviewCandidate(app._id)} className="accent-[#FF7D00]" />
+                          {isInterviewScheduled ? 'Scheduled' : 'Interview'}
+                        </label>
                         <select
                           value={app.status}
                           onChange={e => updateStatus(app._id, e.target.value)}

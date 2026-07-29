@@ -91,3 +91,20 @@ export async function adminDeleteApplication(id, password) {
   if (!res.ok) throw new Error('Failed to delete')
   return res.json()
 }
+
+export async function adminFetchInterviewers(password) {
+  const res = await fetch(`${API}/applications/interviewers`, { headers: { 'x-admin-password': password } })
+  if (!res.ok) throw new Error('Unable to load interviewers')
+  return res.json()
+}
+
+export async function adminScheduleInterviews(applicationIds, date, assignments, password) {
+  const res = await fetch(`${API}/applications/schedule-interviews`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-password': password },
+    body: JSON.stringify({ applicationIds, date, assignments }),
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.error || 'Unable to schedule interviews')
+  return data
+}
