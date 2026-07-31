@@ -108,3 +108,24 @@ export async function adminScheduleInterviews(applicationIds, date, assignments,
   if (!res.ok) throw new Error(data.error || 'Unable to schedule interviews')
   return data
 }
+
+export async function adminEditInterview(id, date, interviewerEmail, password) {
+  const res = await fetch(`${API}/applications/${id}/edit-interview`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', 'x-admin-password': password },
+    body: JSON.stringify({ date, interviewerEmail }),
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.error || 'Unable to edit interview')
+  return data
+}
+
+export async function adminCancelInterview(id, password) {
+  const res = await fetch(`${API}/applications/${id}/cancel-interview`, {
+    method: 'POST',
+    headers: { 'x-admin-password': password },
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.error || 'Unable to cancel interview')
+  return data
+}

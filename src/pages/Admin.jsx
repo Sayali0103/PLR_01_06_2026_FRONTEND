@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   adminFetchJobs, adminCreateJob, adminUpdateJob, adminDeleteJob,
   adminFetchApplications, adminUpdateAppStatus, adminDeleteApplication, adminFetchInterviewers, adminScheduleInterviews,
+  adminEditInterview, adminCancelInterview,
 } from '../hooks/useJobs'
 
 const EMPTY_JOB = {
@@ -54,6 +55,11 @@ export default function Admin() {
   const [interviewDate, setInterviewDate] = useState('')
   const [interviewError, setInterviewError] = useState('')
   const [schedulingInterviews, setSchedulingInterviews] = useState(false)
+  const [editingApp, setEditingApp] = useState(null)
+  const [editDate, setEditDate] = useState('')
+  const [editInterviewer, setEditInterviewer] = useState('')
+  const [editing, setEditing] = useState(false)
+  const [editError, setEditError] = useState('')
 
   // Login
   const login = async e => {
@@ -164,6 +170,30 @@ export default function Admin() {
   const loadInterviewers = async () => {
     try { setInterviewers(await adminFetchInterviewers(password)) }
     catch { setInterviewError('Unable to load the interviewer list.') }
+  }
+
+  // Open edit modal for a single application
+  const openEditInterview = app => {
+    setEditingApp(app)
+    setEditDate(app.interview?.startAt ? new Date(app.interview.startAt).toISOString().slice(0,10) : '')
+    setEditInterviewer(app.interview?.interviewerEmail || '')
+    setEditError('')
+  }
+
+  const closeEdit = () => {
+    setEditingApp(null); setEditDate(''); setEditInterviewer(''); setEditError('')
+  }
+
+  const submitEdit = async () => {
+    if (!editDate || !editInterviewer) { setEditError('Select date and interviewer'); return }
+    setEditing(true); setEditError('')
+    try {
+      await adminEditInterview(editingApp._id, editDate, editInterviewer, password)
+      loadApps()
+      closeEdit()
+    } catch (err) {
+      setEditError(err.message)
+    } finally { setEditing(false) }
   }
 
   const toggleInterviewCandidate = id => {
@@ -392,6 +422,14 @@ export default function Admin() {
                     </select>
                   </div>
                 })}</div>
+                {/* Slots remaining */}
+                {interviewDate && (() => {
+                  const dayStart = new Date(`${interviewDate}T00:00:00+05:30`)
+                  const dayEnd = new Date(`${interviewDate}T23:59:59.999+05:30`)
+                  const existingCount = applications.filter(a => a.interview?.startAt && new Date(a.interview.startAt) >= dayStart && new Date(a.interview.startAt) <= dayEnd).length
+                  const remaining = Math.max(0, 10 - existingCount)
+                  return <p className="mt-3 text-[12px] font-semibold text-[#555]">Slots remaining for {interviewDate}: <span className="font-bold">{remaining}</span></p>
+                })()}
                 <p className="mt-3 text-[11.5px] leading-[1.6] text-[#8b7a69]">The API only accepts future Thursdays or Sundays. The 3:00–5:00 PM IST window is divided evenly between selected candidates; each receives a Google Calendar invitation and a PL Robotics email.</p>
                 {interviewError && <p className="mt-3 text-[12.5px] font-semibold text-red-600">{interviewError}</p>}
               </div>
@@ -470,6 +508,16 @@ export default function Admin() {
                           <input type="checkbox" checked={isSelectedForInterview} disabled={isInterviewScheduled} onChange={() => toggleInterviewCandidate(app._id)} className="accent-[#FF7D00]" />
                           {isInterviewScheduled ? 'Scheduled' : 'Interview'}
                         </label>
+                        {isInterviewScheduled && (
+                          <>
+                            <button onClick={() => openEditInterview(app)} className="text-[12px] font-semibold text-[#555] hover:text-orange px-3 py-[8px] rounded-lg transition-colors duration-200 cursor-pointer" style={{ border: '1px solid rgba(0,0,0,0.08)' }}>
+                              Edit Interview
+                            </button>
+                            <button onClick={async () => { if (!confirm('Cancel this interview?')) return; try { await adminCancelInterview(app._id, password); loadApps() } catch (err) { alert(err.message) } }} className="text-[12px] font-semibold text-[#aaa] hover:text-red-500 px-3 py-[8px] rounded-lg transition-colors duration-200 cursor-pointer" style={{ border: '1px solid rgba(0,0,0,0.08)' }}>
+                              Cancel Interview
+                            </button>
+                          </>
+                        )}
                         <select
                           value={app.status}
                           onChange={e => updateStatus(app._id, e.target.value)}
@@ -500,6 +548,37 @@ export default function Admin() {
       </div>
 
       {/* ── JOB FORM MODAL ── */}
+      {/* ── EDIT INTERVIEW MODAL ── */}
+      <AnimatePresence>
+        {editingApp && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[300] flex items-center justify-center px-4" style={{ background: 'rgba(10,6,2,0.72)', backdropFilter: 'blur(6px)' }} onClick={closeEdit}>
+            <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 12 }} transition={{ duration: 0.28 }} className="w-full max-w-[520px] bg-white rounded-2xl p-6" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-bold text-[18px]">Edit Interview</h3>
+                <button onClick={closeEdit} className="text-[#bbb] hover:text-[#333]">Close</button>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-[13px] font-semibold mb-1">Interview Date</label>
+                  <input type="date" value={editDate} onChange={e => setEditDate(e.target.value)} className="w-full rounded-xl border border-black/10 bg-white px-3 py-2" />
+                </div>
+                <div>
+                  <label className="block text-[13px] font-semibold mb-1">Assign Interviewer</label>
+                  <select value={editInterviewer} onChange={e => setEditInterviewer(e.target.value)} className="w-full rounded-xl border border-black/10 bg-white px-3 py-2">
+                    <option value="">Select interviewer</option>
+                    {interviewers.map(i => <option key={i.email} value={i.email}>{i.name}</option>)}
+                  </select>
+                </div>
+                {editError && <p className="text-red-600">{editError}</p>}
+                <div className="flex items-center gap-3 mt-4">
+                  <button disabled={editing} onClick={submitEdit} className="bg-orange text-white px-4 py-2 rounded-xl">{editing ? 'Saving...' : 'Save changes'}</button>
+                  <button onClick={closeEdit} className="px-4 py-2 rounded-xl border">Cancel</button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <AnimatePresence>
         {showForm && (
           <motion.div
