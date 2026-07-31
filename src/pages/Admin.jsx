@@ -30,7 +30,8 @@ function formatInterviewTime(date, index, total) {
 
 function formatScheduledInterview(interview) {
   if (!interview?.startAt) return ''
-  return new Date(interview.startAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })
+  const dateStr = new Date(interview.startAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium' })
+  return `${dateStr}, 3:00 pm–5:00 pm IST`
 }
 
 export default function Admin() {
@@ -426,7 +427,7 @@ export default function Admin() {
                 {interviewDate && (() => {
                   const dayStart = new Date(`${interviewDate}T00:00:00+05:30`)
                   const dayEnd = new Date(`${interviewDate}T23:59:59.999+05:30`)
-                  const existingCount = applications.filter(a => a.interview?.startAt && new Date(a.interview.startAt) >= dayStart && new Date(a.interview.startAt) <= dayEnd).length
+                  const existingCount = applications.filter(a => a.interview?.startAt && a.interview?.status === 'scheduled' && new Date(a.interview.startAt) >= dayStart && new Date(a.interview.startAt) <= dayEnd).length
                   const remaining = Math.max(0, 10 - existingCount)
                   return <p className="mt-3 text-[12px] font-semibold text-[#555]">Slots remaining for {interviewDate}: <span className="font-bold">{remaining}</span></p>
                 })()}
@@ -497,7 +498,7 @@ export default function Admin() {
                         {app.message && <p className="text-[12.5px] text-[#777] mt-2 max-w-[500px] leading-[1.6]">"{app.message}"</p>}
                         {isInterviewScheduled && (
                           <div className="mt-4 flex items-center gap-3 flex-wrap rounded-xl bg-[#f4fbf6] px-3 py-2.5 text-[12px]" style={{ border: '1px solid rgba(20,160,80,0.18)' }}>
-                            <span className="font-bold text-[#168044]">Interview: {formatScheduledInterview(app.interview)} IST</span>
+                            <span className="font-bold text-[#168044]">Interview: {formatScheduledInterview(app.interview)}</span>
                             {app.interview.interviewerName && <span className="text-[#397052]">Interviewer: {app.interview.interviewerName}</span>}
                             {app.interview.meetLink && <a href={app.interview.meetLink} target="_blank" rel="noopener noreferrer" className="font-bold text-orange hover:underline">Join Google Meet →</a>}
                           </div>
