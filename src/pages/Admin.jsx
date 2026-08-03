@@ -20,18 +20,22 @@ const statusColors = {
   rejected: { bg: 'rgba(220,0,0,0.06)', text: '#dc3030', border: 'rgba(220,0,0,0.15)' },
 }
 
-function formatInterviewTime(date, index, total) {
-  if (!date || !total) return ''
-  const start = new Date(`${date}T15:00:00+05:30`)
-  const length = (2 * 60 * 60 * 1000) / total
+function formatInterviewTime(date, startTime, durationHours, index, total) {
+  if (!date || !startTime || !total) return ''
+  const start = new Date(`${date}T${startTime}:00+05:30`)
+  const length = Number(durationHours) * 60 * 60 * 1000
   const format = value => new Intl.DateTimeFormat('en-IN', { timeZone: 'Asia/Kolkata', hour: 'numeric', minute: '2-digit' }).format(new Date(value))
-  return `${format(start.getTime() + index * length)}–${format(start.getTime() + (index + 1) * length)} IST`
+  const slotStart = new Date(start.getTime() + index * length)
+  const slotEnd = new Date(slotStart.getTime() + length)
+  return `${format(slotStart)}–${format(slotEnd)} IST`
 }
 
 function formatScheduledInterview(interview) {
   if (!interview?.startAt) return ''
   const dateStr = new Date(interview.startAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium' })
-  return `${dateStr}, 3:00 pm–5:00 pm IST`
+  const start = new Date(interview.startAt).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: 'numeric', minute: '2-digit' })
+  const end = new Date(interview.endAt).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: 'numeric', minute: '2-digit' })
+  return `${dateStr}, ${start}–${end} IST`
 }
 
 export default function Admin() {
@@ -54,10 +58,14 @@ export default function Admin() {
   const [interviewers, setInterviewers] = useState([])
   const [interviewAssignments, setInterviewAssignments] = useState({})
   const [interviewDate, setInterviewDate] = useState('')
+  const [interviewStartTime, setInterviewStartTime] = useState('15:00')
+  const [interviewDuration, setInterviewDuration] = useState('2')
   const [interviewError, setInterviewError] = useState('')
   const [schedulingInterviews, setSchedulingInterviews] = useState(false)
   const [editingApp, setEditingApp] = useState(null)
   const [editDate, setEditDate] = useState('')
+  const [editStartTime, setEditStartTime] = useState('15:00')
+  const [editDuration, setEditDuration] = useState('2')
   const [editInterviewer, setEditInterviewer] = useState('')
   const [editing, setEditing] = useState(false)
   const [editError, setEditError] = useState('')
@@ -177,19 +185,21 @@ export default function Admin() {
   const openEditInterview = app => {
     setEditingApp(app)
     setEditDate(app.interview?.startAt ? new Date(app.interview.startAt).toISOString().slice(0,10) : '')
+    setEditStartTime(app.interview?.startAt ? new Date(app.interview.startAt).toLocaleTimeString('en-GB', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' }).slice(0,5) : '15:00')
+    setEditDuration(app.interview?.endAt ? String(Math.round((new Date(app.interview.endAt).getTime() - new Date(app.interview.startAt).getTime()) / (60*60*1000))) : '2')
     setEditInterviewer(app.interview?.interviewerEmail || '')
     setEditError('')
   }
 
   const closeEdit = () => {
-    setEditingApp(null); setEditDate(''); setEditInterviewer(''); setEditError('')
+    setEditingApp(null); setEditDate(''); setEditStartTime('15:00'); setEditDuration('2'); setEditInterviewer(''); setEditError('')
   }
 
   const submitEdit = async () => {
-    if (!editDate || !editInterviewer) { setEditError('Select date and interviewer'); return }
+    if (!editDate || !editStartTime || !editInterviewer) { setEditError('Select date, time and interviewer'); return }
     setEditing(true); setEditError('')
     try {
-      await adminEditInterview(editingApp._id, editDate, editInterviewer, password)
+      await adminEditInterview(editingApp._id, editDate, editStartTime, editDuration, editInterviewer, password)
       loadApps()
       closeEdit()
     } catch (err) {
@@ -212,8 +222,8 @@ export default function Admin() {
   }
 
   const scheduleInterviews = async () => {
-    if (!interviewDate || !selectedInterviewIds.length) {
-      setInterviewError('Select at least one candidate and an interview date.')
+    if (!interviewDate || !interviewStartTime || !selectedInterviewIds.length) {
+      setInterviewError('Select at least one candidate, an interview date, and a start time.')
       return
     }
     const assignments = selectedInterviewIds.map(applicationId => ({
@@ -227,10 +237,12 @@ export default function Admin() {
     setSchedulingInterviews(true)
     setInterviewError('')
     try {
-      const result = await adminScheduleInterviews(selectedInterviewIds, interviewDate, assignments, password)
+      const result = await adminScheduleInterviews(selectedInterviewIds, interviewDate, interviewStartTime, interviewDuration, assignments, password)
       setSelectedInterviewIds([])
       setInterviewAssignments({})
       setInterviewDate('')
+      setInterviewStartTime('15:00')
+      setInterviewDuration('2')
       if (result.failedEmails) setInterviewError(`${result.scheduled} interviews were scheduled, but ${result.failedEmails} confirmation email(s) failed. Check email configuration.`)
       loadApps()
     } catch (err) {
@@ -398,7 +410,7 @@ export default function Admin() {
             <div className="mb-5 flex items-start justify-between gap-5 flex-wrap">
               <div>
                 <h2 className="font-bold text-[18px] text-[#111] tracking-tight">Applications Received</h2>
-                <p className="mt-1 text-[12.5px] text-[#999]">Select up to 10 candidates, then schedule a Thursday or Sunday interview batch.</p>
+                <p className="mt-1 text-[12.5px] text-[#999]">Select up to 10 candidates, then choose any date, start time, and duration for the interview slot.</p>
               </div>
               {selectedInterviewIds.length > 0 && <span className="rounded-full bg-orange/10 px-4 py-2 text-[12px] font-bold text-orange" style={{ border: '1px solid rgba(255,125,0,0.2)' }}>{selectedInterviewIds.length} candidate{selectedInterviewIds.length === 1 ? '' : 's'} selected</span>}
             </div>
@@ -409,6 +421,17 @@ export default function Admin() {
                     <span className="mb-1.5 block text-[11px] font-bold uppercase tracking-[1.2px] text-[#7b6c5e]">Interview date</span>
                     <input type="date" value={interviewDate} onChange={event => { setInterviewDate(event.target.value); setInterviewError('') }} className="w-full rounded-xl border border-black/10 bg-white px-4 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-orange/20" />
                   </label>
+                  <label className="min-w-[140px]">
+                    <span className="mb-1.5 block text-[11px] font-bold uppercase tracking-[1.2px] text-[#7b6c5e]">Start time</span>
+                    <input type="time" value={interviewStartTime} onChange={event => { setInterviewStartTime(event.target.value); setInterviewError('') }} className="w-full rounded-xl border border-black/10 bg-white px-4 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-orange/20" />
+                  </label>
+                  <label className="min-w-[140px]">
+                    <span className="mb-1.5 block text-[11px] font-bold uppercase tracking-[1.2px] text-[#7b6c5e]">Duration</span>
+                    <select value={interviewDuration} onChange={event => { setInterviewDuration(event.target.value); setInterviewError('') }} className="w-full rounded-xl border border-black/10 bg-white px-4 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-orange/20">
+                      <option value="1">1 hour</option>
+                      <option value="2">2 hours</option>
+                    </select>
+                  </label>
                   <button onClick={scheduleInterviews} disabled={schedulingInterviews} className="rounded-xl bg-orange px-5 py-2.5 text-[13px] font-bold text-white shadow-[0_4px_18px_rgba(255,125,0,0.28)] disabled:opacity-60">{schedulingInterviews ? 'Creating Meet links...' : 'Confirm & email candidates'}</button>
                   <button onClick={() => { setSelectedInterviewIds([]); setInterviewAssignments({}); setInterviewError('') }} className="px-3 py-2.5 text-[12px] font-semibold text-[#777]">Clear</button>
                 </div>
@@ -416,7 +439,7 @@ export default function Admin() {
                   const candidate = applications.find(application => application._id === id)
                   return <div key={id} className="rounded-lg bg-white p-3" style={{ border: '1px solid rgba(0,0,0,0.06)' }}>
                     <p className="font-bold text-[#3f352b]">{candidate ? `${candidate.firstName} ${candidate.lastName}` : 'Candidate'}</p>
-                    {interviewDate && <p className="mt-1 text-[#8b7a69]">{formatInterviewTime(interviewDate, index, selectedInterviewIds.length)}</p>}
+                    {interviewDate && <p className="mt-1 text-[#8b7a69]">{formatInterviewTime(interviewDate, interviewStartTime, interviewDuration, index, selectedInterviewIds.length)}</p>}
                     <select value={interviewAssignments[id] || ''} onChange={event => { setInterviewAssignments(assignments => ({ ...assignments, [id]: event.target.value })); setInterviewError('') }} className="mt-2 w-full rounded-lg border border-black/10 bg-[#faf7f2] px-2.5 py-2 text-[12px] font-medium text-[#55483d] outline-none focus:ring-2 focus:ring-orange/20">
                       <option value="">Assign interviewer...</option>
                       {interviewers.map(interviewer => <option key={interviewer.email} value={interviewer.email}>{interviewer.name}</option>)}
@@ -431,7 +454,7 @@ export default function Admin() {
                   const remaining = Math.max(0, 10 - existingCount)
                   return <p className="mt-3 text-[12px] font-semibold text-[#555]">Slots remaining for {interviewDate}: <span className="font-bold">{remaining}</span></p>
                 })()}
-                <p className="mt-3 text-[11.5px] leading-[1.6] text-[#8b7a69]">The API only accepts future Thursdays or Sundays. The 3:00–5:00 PM IST window is divided evenly between selected candidates; each receives a Google Calendar invitation and a PL Robotics email.</p>
+                <p className="mt-3 text-[11.5px] leading-[1.6] text-[#8b7a69]">Choose any future date and start time; interviews can be 1 or 2 hours long. Each selected candidate gets a Google Calendar invitation and a PL Robotics email.</p>
                 {interviewError && <p className="mt-3 text-[12.5px] font-semibold text-red-600">{interviewError}</p>}
               </div>
             )}
@@ -562,6 +585,17 @@ export default function Admin() {
                 <div>
                   <label className="block text-[13px] font-semibold mb-1">Interview Date</label>
                   <input type="date" value={editDate} onChange={e => setEditDate(e.target.value)} className="w-full rounded-xl border border-black/10 bg-white px-3 py-2" />
+                </div>
+                <div>
+                  <label className="block text-[13px] font-semibold mb-1">Start Time</label>
+                  <input type="time" value={editStartTime} onChange={e => setEditStartTime(e.target.value)} className="w-full rounded-xl border border-black/10 bg-white px-3 py-2" />
+                </div>
+                <div>
+                  <label className="block text-[13px] font-semibold mb-1">Duration</label>
+                  <select value={editDuration} onChange={e => setEditDuration(e.target.value)} className="w-full rounded-xl border border-black/10 bg-white px-3 py-2">
+                    <option value="1">1 hour</option>
+                    <option value="2">2 hours</option>
+                  </select>
                 </div>
                 <div>
                   <label className="block text-[13px] font-semibold mb-1">Assign Interviewer</label>

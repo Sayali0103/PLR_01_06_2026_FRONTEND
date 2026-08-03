@@ -98,22 +98,22 @@ export async function adminFetchInterviewers(password) {
   return res.json()
 }
 
-export async function adminScheduleInterviews(applicationIds, date, assignments, password) {
+export async function adminScheduleInterviews(applicationIds, date, startTime, durationHours, assignments, password) {
   const res = await fetch(`${API}/applications/schedule-interviews`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-admin-password': password },
-    body: JSON.stringify({ applicationIds, date, assignments }),
+    body: JSON.stringify({ applicationIds, date, startTime, durationHours, assignments }),
   })
   const data = await res.json()
   if (!res.ok) throw new Error(data.error || 'Unable to schedule interviews')
   return data
 }
 
-export async function adminEditInterview(id, date, interviewerEmail, password) {
+export async function adminEditInterview(id, date, startTime, durationHours, interviewerEmail, password) {
   const res = await fetch(`${API}/applications/${id}/edit-interview`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json', 'x-admin-password': password },
-    body: JSON.stringify({ date, interviewerEmail }),
+    body: JSON.stringify({ date, startTime, durationHours, interviewerEmail }),
   })
   const data = await res.json()
   if (!res.ok) throw new Error(data.error || 'Unable to edit interview')
