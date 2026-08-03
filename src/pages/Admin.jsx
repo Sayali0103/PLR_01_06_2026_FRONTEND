@@ -186,7 +186,10 @@ export default function Admin() {
     setEditingApp(app)
     setEditDate(app.interview?.startAt ? new Date(app.interview.startAt).toISOString().slice(0,10) : '')
     setEditStartTime(app.interview?.startAt ? new Date(app.interview.startAt).toLocaleTimeString('en-GB', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' }).slice(0,5) : '15:00')
-    setEditDuration(app.interview?.endAt ? String(Math.round((new Date(app.interview.endAt).getTime() - new Date(app.interview.startAt).getTime()) / (60*60*1000))) : '2')
+    const existingDuration = app.interview?.endAt && app.interview?.startAt
+      ? String(Math.round((new Date(app.interview.endAt).getTime() - new Date(app.interview.startAt).getTime()) / (60 * 60 * 1000)))
+      : '2'
+    setEditDuration(existingDuration === '1' || existingDuration === '2' ? existingDuration : '2')
     setEditInterviewer(app.interview?.interviewerEmail || '')
     setEditError('')
   }

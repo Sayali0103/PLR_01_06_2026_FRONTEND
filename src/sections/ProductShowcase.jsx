@@ -481,7 +481,7 @@ export default function ProductShowcase() {
           id="vscara-vs3"
           eyebrow="High-Speed Automation"
           title="VSCARA VS3"
-          description="The VS3 is a high-performance 4-axis robot designed for compact and efficient pick-and-place automation. It delivers fast, precise, and reliable motion with press synchronization support for modern industrial workflows."
+          description="The VSCARA VS3 is a high-performance 4-axis robot designed for compact and efficient pick-and-place automation in modern press machines. It automates the complete material handling process, from loading raw blanks into the press machine to transferring parts between operations and unloading finished components with high speed and precision. Compatible with mechanical, hydraulic, pneumatic, servo, and stamping press machines, the VS3 ensures smooth, continuous production while increasing throughput, reducing cycle times, improving product quality, minimizing manual handling, and enhancing workplace safety. It is the ideal automation solution for manufacturers looking to maximize productivity and optimize their press line performance."
           image="/photos/vscara-vs3.png"
           imageAlt="P. L. Robotics VSCARA VS3 robot"
           specs={vscaraSpecs}
