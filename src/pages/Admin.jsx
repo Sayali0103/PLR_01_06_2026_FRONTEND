@@ -20,14 +20,10 @@ const statusColors = {
   rejected: { bg: 'rgba(220,0,0,0.06)', text: '#dc3030', border: 'rgba(220,0,0,0.15)' },
 }
 
-function formatInterviewTime(date, startTime, durationHours, index, total) {
-  if (!date || !startTime || !total) return ''
-  const start = new Date(`${date}T${startTime}:00+05:30`)
-  const length = Number(durationHours) * 60 * 60 * 1000
-  const format = value => new Intl.DateTimeFormat('en-IN', { timeZone: 'Asia/Kolkata', hour: 'numeric', minute: '2-digit' }).format(new Date(value))
-  const slotStart = new Date(start.getTime() + index * length)
-  const slotEnd = new Date(slotStart.getTime() + length)
-  return `${format(slotStart)}–${format(slotEnd)} IST`
+function formatInterviewTime(date) {
+    if (!date) return ''
+    const formattedDate = new Date(`${date}T00:00:00+05:30`).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium' })
+    return `${formattedDate}, 3:00–5:00 PM IST`
 }
 
 function formatScheduledInterview(interview) {
@@ -58,15 +54,11 @@ export default function Admin() {
   const [interviewers, setInterviewers] = useState([])
   const [interviewAssignments, setInterviewAssignments] = useState({})
   const [interviewDate, setInterviewDate] = useState('')
-  const [interviewStartTime, setInterviewStartTime] = useState('15:00')
-  const [interviewDuration, setInterviewDuration] = useState('2')
   const [interviewError, setInterviewError] = useState('')
   const [schedulingInterviews, setSchedulingInterviews] = useState(false)
   const [editingApp, setEditingApp] = useState(null)
   const [editDate, setEditDate] = useState('')
-  const [editStartTime, setEditStartTime] = useState('15:00')
-  const [editDuration, setEditDuration] = useState('2')
-  const [editInterviewer, setEditInterviewer] = useState('')
+  const [editInterviewerEmails, setEditInterviewerEmails] = useState([])
   const [editing, setEditing] = useState(false)
   const [editError, setEditError] = useState('')
 
@@ -185,29 +177,33 @@ export default function Admin() {
   const openEditInterview = app => {
     setEditingApp(app)
     setEditDate(app.interview?.startAt ? new Date(app.interview.startAt).toISOString().slice(0,10) : '')
-    setEditStartTime(app.interview?.startAt ? new Date(app.interview.startAt).toLocaleTimeString('en-GB', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' }).slice(0,5) : '15:00')
-    const existingDuration = app.interview?.endAt && app.interview?.startAt
-      ? String(Math.round((new Date(app.interview.endAt).getTime() - new Date(app.interview.startAt).getTime()) / (60 * 60 * 1000)))
-      : '2'
-    setEditDuration(existingDuration === '1' || existingDuration === '2' ? existingDuration : '2')
-    setEditInterviewer(app.interview?.interviewerEmail || '')
+    setEditInterviewerEmails(app.interview?.interviewers?.map(i => i.email) || [])
     setEditError('')
   }
 
   const closeEdit = () => {
-    setEditingApp(null); setEditDate(''); setEditStartTime('15:00'); setEditDuration('2'); setEditInterviewer(''); setEditError('')
+    setEditingApp(null)
+    setEditDate('')
+    setEditInterviewerEmails([])
+    setEditError('')
   }
 
   const submitEdit = async () => {
-    if (!editDate || !editStartTime || !editInterviewer) { setEditError('Select date, time and interviewer'); return }
-    setEditing(true); setEditError('')
+    if (!editDate || editInterviewerEmails.length === 0) {
+      setEditError('Select a date and at least one interviewer')
+      return
+    }
+    setEditing(true)
+    setEditError('')
     try {
-      await adminEditInterview(editingApp._id, editDate, editStartTime, editDuration, editInterviewer, password)
+      await adminEditInterview(editingApp._id, editDate, editInterviewerEmails, password)
       loadApps()
       closeEdit()
     } catch (err) {
       setEditError(err.message)
-    } finally { setEditing(false) }
+    } finally {
+      setEditing(false)
+    }
   }
 
   const toggleInterviewCandidate = id => {
@@ -225,27 +221,25 @@ export default function Admin() {
   }
 
   const scheduleInterviews = async () => {
-    if (!interviewDate || !interviewStartTime || !selectedInterviewIds.length) {
-      setInterviewError('Select at least one candidate, an interview date, and a start time.')
+    if (!interviewDate || !selectedInterviewIds.length) {
+      setInterviewError('Select at least one candidate and an interview date.')
       return
     }
     const assignments = selectedInterviewIds.map(applicationId => ({
       applicationId,
-      interviewerEmail: interviewAssignments[applicationId],
+      interviewerEmails: interviewAssignments[applicationId],
     }))
-    if (assignments.some(assignment => !assignment.interviewerEmail)) {
-      setInterviewError('Select an interviewer for every candidate.')
+    if (assignments.some(assignment => !Array.isArray(assignment.interviewerEmails) || assignment.interviewerEmails.length === 0)) {
+      setInterviewError('Assign interviewer(s) to every candidate.')
       return
     }
     setSchedulingInterviews(true)
     setInterviewError('')
     try {
-      const result = await adminScheduleInterviews(selectedInterviewIds, interviewDate, interviewStartTime, interviewDuration, assignments, password)
+      const result = await adminScheduleInterviews(selectedInterviewIds, interviewDate, assignments, password)
       setSelectedInterviewIds([])
       setInterviewAssignments({})
       setInterviewDate('')
-      setInterviewStartTime('15:00')
-      setInterviewDuration('2')
       if (result.failedEmails) setInterviewError(`${result.scheduled} interviews were scheduled, but ${result.failedEmails} confirmation email(s) failed. Check email configuration.`)
       loadApps()
     } catch (err) {
@@ -413,7 +407,7 @@ export default function Admin() {
             <div className="mb-5 flex items-start justify-between gap-5 flex-wrap">
               <div>
                 <h2 className="font-bold text-[18px] text-[#111] tracking-tight">Applications Received</h2>
-                <p className="mt-1 text-[12.5px] text-[#999]">Select up to 10 candidates, then choose any date, start time, and duration for the interview slot.</p>
+                <p className="mt-1 text-[12.5px] text-[#999]">Select up to 10 candidates, then choose a Thursday or Sunday date for the fixed 3:00–5:00 PM IST interview slot.</p>
               </div>
               {selectedInterviewIds.length > 0 && <span className="rounded-full bg-orange/10 px-4 py-2 text-[12px] font-bold text-orange" style={{ border: '1px solid rgba(255,125,0,0.2)' }}>{selectedInterviewIds.length} candidate{selectedInterviewIds.length === 1 ? '' : 's'} selected</span>}
             </div>
@@ -424,29 +418,31 @@ export default function Admin() {
                     <span className="mb-1.5 block text-[11px] font-bold uppercase tracking-[1.2px] text-[#7b6c5e]">Interview date</span>
                     <input type="date" value={interviewDate} onChange={event => { setInterviewDate(event.target.value); setInterviewError('') }} className="w-full rounded-xl border border-black/10 bg-white px-4 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-orange/20" />
                   </label>
-                  <label className="min-w-[140px]">
-                    <span className="mb-1.5 block text-[11px] font-bold uppercase tracking-[1.2px] text-[#7b6c5e]">Start time</span>
-                    <input type="time" value={interviewStartTime} onChange={event => { setInterviewStartTime(event.target.value); setInterviewError('') }} className="w-full rounded-xl border border-black/10 bg-white px-4 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-orange/20" />
-                  </label>
-                  <label className="min-w-[140px]">
-                    <span className="mb-1.5 block text-[11px] font-bold uppercase tracking-[1.2px] text-[#7b6c5e]">Duration</span>
-                    <select value={interviewDuration} onChange={event => { setInterviewDuration(event.target.value); setInterviewError('') }} className="w-full rounded-xl border border-black/10 bg-white px-4 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-orange/20">
-                      <option value="1">1 hour</option>
-                      <option value="2">2 hours</option>
-                    </select>
-                  </label>
-                  <button onClick={scheduleInterviews} disabled={schedulingInterviews} className="rounded-xl bg-orange px-5 py-2.5 text-[13px] font-bold text-white shadow-[0_4px_18px_rgba(255,125,0,0.28)] disabled:opacity-60">{schedulingInterviews ? 'Creating Meet links...' : 'Confirm & email candidates'}</button>
+                  <div className="min-w-[140px]">
+                    <span className="mb-1.5 block text-[11px] font-bold uppercase tracking-[1.2px] text-[#7b6c5e]">Interview slot</span>
+                    <div className="rounded-xl border border-black/10 bg-[#faf7f2] px-4 py-2.5 text-[13px] text-[#55483d]">Thu/Sun 3:00–5:00 PM IST</div>
+                  </div>
+                  <button onClick={scheduleInterviews} disabled={schedulingInterviews} className="rounded-xl bg-orange px-5 py-2.5 text-[13px] font-bold text-white shadow-[0_4px_18px_rgba(255,125,0,0.28)] disabled:opacity-60">{schedulingInterviews ? 'Scheduling interviews...' : 'Confirm & email candidates'}</button>
                   <button onClick={() => { setSelectedInterviewIds([]); setInterviewAssignments({}); setInterviewError('') }} className="px-3 py-2.5 text-[12px] font-semibold text-[#777]">Clear</button>
                 </div>
                 <div className="mt-4 grid gap-3 text-[12px] text-[#66584c] sm:grid-cols-2">{selectedInterviewIds.map((id, index) => {
                   const candidate = applications.find(application => application._id === id)
                   return <div key={id} className="rounded-lg bg-white p-3" style={{ border: '1px solid rgba(0,0,0,0.06)' }}>
                     <p className="font-bold text-[#3f352b]">{candidate ? `${candidate.firstName} ${candidate.lastName}` : 'Candidate'}</p>
-                    {interviewDate && <p className="mt-1 text-[#8b7a69]">{formatInterviewTime(interviewDate, interviewStartTime, interviewDuration, index, selectedInterviewIds.length)}</p>}
-                    <select value={interviewAssignments[id] || ''} onChange={event => { setInterviewAssignments(assignments => ({ ...assignments, [id]: event.target.value })); setInterviewError('') }} className="mt-2 w-full rounded-lg border border-black/10 bg-[#faf7f2] px-2.5 py-2 text-[12px] font-medium text-[#55483d] outline-none focus:ring-2 focus:ring-orange/20">
-                      <option value="">Assign interviewer...</option>
+                    {interviewDate && <p className="mt-1 text-[#8b7a69]">{formatInterviewTime(interviewDate)}</p>}
+                    <select
+                      multiple
+                      value={interviewAssignments[id] || []}
+                      onChange={event => {
+                        const selected = Array.from(event.target.selectedOptions).map(option => option.value)
+                        setInterviewAssignments(assignments => ({ ...assignments, [id]: selected }))
+                        setInterviewError('')
+                      }}
+                      className="mt-2 h-32 w-full rounded-lg border border-black/10 bg-[#faf7f2] px-2.5 py-2 text-[12px] font-medium text-[#55483d] outline-none focus:ring-2 focus:ring-orange/20"
+                    >
                       {interviewers.map(interviewer => <option key={interviewer.email} value={interviewer.email}>{interviewer.name}</option>)}
                     </select>
+                    <p className="mt-2 text-[11px] text-[#8b7a69]">Hold Ctrl/Cmd to select multiple interviewers. Electronics candidates require both Pratik and Shantanu.</p>
                   </div>
                 })}</div>
                 {/* Slots remaining */}
@@ -457,7 +453,7 @@ export default function Admin() {
                   const remaining = Math.max(0, 10 - existingCount)
                   return <p className="mt-3 text-[12px] font-semibold text-[#555]">Slots remaining for {interviewDate}: <span className="font-bold">{remaining}</span></p>
                 })()}
-                <p className="mt-3 text-[11.5px] leading-[1.6] text-[#8b7a69]">Choose any future date and start time; interviews can be 1 or 2 hours long. Each selected candidate gets a Google Calendar invitation and a PL Robotics email.</p>
+                <p className="mt-3 text-[11.5px] leading-[1.6] text-[#8b7a69]">Choose any future date and start time; interviews can be 1 or 2 hours long. Each selected candidate gets the shared interview Meet link and a PL Robotics email.</p>
                 {interviewError && <p className="mt-3 text-[12.5px] font-semibold text-red-600">{interviewError}</p>}
               </div>
             )}
@@ -590,22 +586,23 @@ export default function Admin() {
                   <input type="date" value={editDate} onChange={e => setEditDate(e.target.value)} className="w-full rounded-xl border border-black/10 bg-white px-3 py-2" />
                 </div>
                 <div>
-                  <label className="block text-[13px] font-semibold mb-1">Start Time</label>
-                  <input type="time" value={editStartTime} onChange={e => setEditStartTime(e.target.value)} className="w-full rounded-xl border border-black/10 bg-white px-3 py-2" />
+                  <label className="block text-[13px] font-semibold mb-1">Interview slot</label>
+                  <div className="w-full rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-2 text-[13px]">Thu/Sun 3:00–5:00 PM IST</div>
                 </div>
                 <div>
-                  <label className="block text-[13px] font-semibold mb-1">Duration</label>
-                  <select value={editDuration} onChange={e => setEditDuration(e.target.value)} className="w-full rounded-xl border border-black/10 bg-white px-3 py-2">
-                    <option value="1">1 hour</option>
-                    <option value="2">2 hours</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-[13px] font-semibold mb-1">Assign Interviewer</label>
-                  <select value={editInterviewer} onChange={e => setEditInterviewer(e.target.value)} className="w-full rounded-xl border border-black/10 bg-white px-3 py-2">
-                    <option value="">Select interviewer</option>
+                  <label className="block text-[13px] font-semibold mb-1">Assign interviewer(s)</label>
+                  <select
+                    multiple
+                    value={editInterviewerEmails}
+                    onChange={e => {
+                      const selected = Array.from(e.target.selectedOptions).map(option => option.value)
+                      setEditInterviewerEmails(selected)
+                    }}
+                    className="w-full h-36 rounded-xl border border-black/10 bg-white px-3 py-2"
+                  >
                     {interviewers.map(i => <option key={i.email} value={i.email}>{i.name}</option>)}
                   </select>
+                  <p className="mt-2 text-[11px] text-[#8b7a69]">Hold Ctrl/Cmd to assign more than one interviewer.</p>
                 </div>
                 {editError && <p className="text-red-600">{editError}</p>}
                 <div className="flex items-center gap-3 mt-4">
