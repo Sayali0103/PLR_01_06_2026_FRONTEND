@@ -6,6 +6,7 @@ import Home from './pages/Home'
 import Careers from './pages/Careers'
 import About from './pages/About'
 import Blogs from './pages/Blogs'
+import BlogAutomationExpo from './pages/BlogAutomationExpo'
 import News from './pages/News'
 import Applications from './pages/Applications'
 import ApplicationDetail from './pages/ApplicationDetail'
@@ -65,6 +66,7 @@ export default function App() {
         <Route path="/company"                   element={<div className="pt-20 min-h-screen flex items-center justify-center">Company — Coming Soon</div>} />
         <Route path="/about"                     element={<About />} />
         <Route path="/blogs"                     element={<Blogs />} />
+        <Route path="/blogs/plr-automation-expo-2026" element={<BlogAutomationExpo />} />
         <Route path="/news"                      element={<News />} />
         <Route path="/faq"                       element={<FAQ />} />
         <Route path="/faqs"                      element={<Navigate to="/faq" replace />} />
