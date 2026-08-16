@@ -329,7 +329,7 @@ export default function Blogs() {
                       </p>
                     )}
 
-                    {/* <a href={featured.href} target="_blank" rel="noreferrer" className="inline-flex">
+                    <a href={featured.href} target="_blank" rel="noreferrer" className="inline-flex">
                       <motion.button
                         whileHover={{ scale: 1.03, boxShadow: '0 6px 24px rgba(255,125,0,0.36)' }}
                         whileTap={{ scale: 0.97 }}
@@ -341,7 +341,7 @@ export default function Blogs() {
                           <path d="M3 8h10M9 4l4 4-4 4" />
                         </svg>
                       </motion.button>
-                    </a> */}
+                    </a>
                   </motion.article>
                 )}
 
