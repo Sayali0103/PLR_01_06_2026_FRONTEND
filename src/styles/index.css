@@ -32,10 +32,40 @@ body {
   font-family: var(--font);
   background: var(--white);
   color: var(--dark);
+  font-size: 16px;
+  line-height: 1.5;
+  text-rendering: optimizeLegibility;
   overflow-x: hidden;
 }
 
 a { text-decoration: none; color: inherit; }
-button { cursor: pointer; font-family: var(--font); border: none; }
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; border: none; }
 img, video { display: block; max-width: 100%; }
 section { width: 100%; }
+
+:where(h1, h2, h3, h4, h5, h6) {
+  line-height: 1.1;
+  text-wrap: balance;
+}
+
+:where(p, li, dd) {
+  text-align: justify;
+  text-wrap: pretty;
+}
+
+:where(p, li) {
+  overflow-wrap: break-word;
+}
+
+:where(button, a, input, textarea, select) {
+  vertical-align: middle;
+}
+
+:where(input, textarea, select) {
+  line-height: 1.4;
+}
+
+:where(textarea) {
+  resize: vertical;
+}

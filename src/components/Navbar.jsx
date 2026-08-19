@@ -267,7 +267,7 @@ export default function Navbar() {
                             <CardTag
                               key={item.label}
                               {...cardProps}
-                              className={`group/card rounded-[20px] overflow-hidden block bg-white transition-all duration-300 ${item.comingSoon
+                              className={`group/card rounded-[20px] overflow-hidden flex flex-col bg-white transition-all duration-300 ${item.comingSoon
                                 ? 'cursor-default'
                                 : 'cursor-pointer hover:-translate-y-1'
                                 }`}
@@ -310,12 +310,12 @@ export default function Navbar() {
                                 </div>
                               </div>
 
-                              <div className="px-4 py-4 transition-colors duration-200 group-hover/card:bg-orange/5">
-                                <p className="text-[13px] leading-[1.6] text-[#555] group-hover/card:text-[#333] transition-colors duration-200">
+                              <div className="flex flex-1 flex-col px-4 py-4 transition-colors duration-200 group-hover/card:bg-orange/5">
+                                <p className="text-left text-[13px] leading-[1.6] text-[#555] group-hover/card:text-[#333] transition-colors duration-200">
                                   {item.desc}
                                 </p>
                                 {!item.comingSoon && (
-                                  <div className="flex items-center gap-1 mt-3 text-orange opacity-0 group-hover/card:opacity-100 transition-opacity duration-200">
+                                  <div className="flex items-center gap-1 mt-auto pt-3 text-orange opacity-0 group-hover/card:opacity-100 transition-opacity duration-200">
                                     <span className="text-[12px] font-semibold">Learn more</span>
                                     <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                       <path d="M3 8h10M9 4l4 4-4 4" />
