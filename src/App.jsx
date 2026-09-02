@@ -12,6 +12,7 @@ import Applications from './pages/Applications'
 import ApplicationDetail from './pages/ApplicationDetail'
 import Technology from './pages/Technology'
 import Admin from './pages/Admin'
+import Employee from './pages/Employee'
 import Contact from './pages/Contact'
 import BookDemo from './pages/BookDemo'
 import FAQ from './pages/FAQ'
@@ -37,7 +38,7 @@ function ScrollToHash() {
 
 function SiteNavbar() {
   const { pathname } = useLocation()
-  return pathname === '/admin' ? null : <Navbar />
+  return ['/admin', '/employee'].includes(pathname) ? null : <Navbar />
 }
 
 function NotFound() {
@@ -74,6 +75,7 @@ export default function App() {
         <Route path="/contact"                   element={<Contact />} />
         <Route path="/book-demo"                 element={<BookDemo />} />
         <Route path="/admin"                     element={<Admin />} />
+        <Route path="/employee"                  element={<Employee />} />
         <Route path="*"                          element={<NotFound />} />
       </Routes>
       <Footer />

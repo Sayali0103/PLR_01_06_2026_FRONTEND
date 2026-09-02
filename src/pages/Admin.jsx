@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   adminFetchJobs, adminCreateJob, adminUpdateJob, adminDeleteJob,
   adminFetchApplications, adminUpdateAppStatus, adminDeleteApplication, adminFetchInterviewers, adminScheduleInterviews,
   adminEditInterview, adminCancelInterview,
 } from '../hooks/useJobs'
+import AttendanceCalendar from '../components/AttendanceCalendar'
+import { adminClearAttendance, adminCreateEmployee, adminFetchAttendance, adminFetchEmployees, adminSaveAttendance } from '../services/api'
 
 const EMPTY_JOB = {
   title: '', dept: '', location: 'Pune, India', positionType: 'Full time',
@@ -38,7 +40,7 @@ export default function Admin() {
   const [password, setPassword] = useState('')
   const [authed, setAuthed] = useState(false)
   const [authError, setAuthError] = useState('')
-  const [tab, setTab] = useState('jobs') // 'jobs' | 'applications'
+  const [tab, setTab] = useState('jobs')
 
   const [jobs, setJobs] = useState([])
   const [applications, setApplications] = useState([])
@@ -61,6 +63,13 @@ export default function Admin() {
   const [editInterviewerEmails, setEditInterviewerEmails] = useState([])
   const [editing, setEditing] = useState(false)
   const [editError, setEditError] = useState('')
+  const [employees, setEmployees] = useState([])
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState('')
+  const [attendance, setAttendance] = useState([])
+  const [employeeName, setEmployeeName] = useState('')
+  const [employeeEmail, setEmployeeEmail] = useState('')
+  const [attendanceError, setAttendanceError] = useState('')
+  const [savingAttendance, setSavingAttendance] = useState(false)
 
   // Login
   const login = async e => {
@@ -71,6 +80,7 @@ export default function Admin() {
       setAuthed(true)
       loadJobs()
       loadInterviewers()
+      loadEmployees()
     } catch {
       setAuthError('Incorrect password.')
     }
@@ -89,8 +99,6 @@ export default function Admin() {
     catch { /* handled */ }
     finally { setLoadingApps(false) }
   }
-
-  useEffect(() => { if (authed && tab === 'applications') loadApps() }, [tab, authed])
 
   // Helpers — convert textarea lines to/from arrays
   const toArr = str => str.split('\n').map(s => s.trim()).filter(Boolean)
@@ -171,6 +179,41 @@ export default function Admin() {
   const loadInterviewers = async () => {
     try { setInterviewers(await adminFetchInterviewers(password)) }
     catch { setInterviewError('Unable to load the interviewer list.') }
+  }
+
+  const loadEmployees = async () => {
+    try { setEmployees(await adminFetchEmployees(password)) }
+    catch { setAttendanceError('Unable to load employees.') }
+  }
+
+  const loadAttendance = async employeeId => {
+    if (!employeeId) { setAttendance([]); return }
+    try { setAttendance(await adminFetchAttendance(employeeId, password)); setAttendanceError('') }
+    catch (err) { setAttendanceError(err.message) }
+  }
+
+  const addEmployee = async event => {
+    event.preventDefault()
+    setAttendanceError('')
+    try {
+      const employee = await adminCreateEmployee({ name: employeeName, email: employeeEmail }, password)
+      setEmployees(current => [...current, employee].sort((a, b) => a.name.localeCompare(b.name)))
+      setSelectedEmployeeId(employee._id)
+      setEmployeeName('')
+      setEmployeeEmail('')
+    } catch (err) { setAttendanceError(err.message) }
+  }
+
+  const changeAttendance = async (date, status) => {
+    if (!selectedEmployeeId || savingAttendance) return
+    setSavingAttendance(true)
+    setAttendanceError('')
+    try {
+      if (status) await adminSaveAttendance(selectedEmployeeId, date, status, password)
+      else await adminClearAttendance(selectedEmployeeId, date, password)
+      await loadAttendance(selectedEmployeeId)
+    } catch (err) { setAttendanceError(err.message) }
+    finally { setSavingAttendance(false) }
   }
 
   // Open edit modal for a single application
@@ -298,7 +341,7 @@ export default function Admin() {
         <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
           <div>
             <h1 className="font-bold text-[26px] text-[#111] tracking-tight">Admin Dashboard</h1>
-            <p className="text-[13px] text-[#aaa] mt-1">Manage job listings and applications</p>
+            <p className="text-[13px] text-[#aaa] mt-1">Manage jobs, applications, and employee attendance</p>
           </div>
           <button
             onClick={() => { setAuthed(false); setPassword('') }}
@@ -314,10 +357,14 @@ export default function Admin() {
 
         {/* Tabs */}
         <div className="flex items-center gap-2 mb-8">
-          {['jobs', 'applications'].map(t => (
+          {['jobs', 'applications', 'attendance'].map(t => (
             <button
               key={t}
-              onClick={() => setTab(t)}
+              onClick={() => {
+                setTab(t)
+                if (t === 'applications') loadApps()
+                if (t === 'attendance') loadEmployees()
+              }}
               className={`px-6 py-[9px] rounded-full text-[13px] font-semibold cursor-pointer capitalize transition-all duration-200 ${
                 tab === t ? 'bg-orange text-white' : 'bg-white text-[#555] hover:text-orange'
               }`}
@@ -326,7 +373,7 @@ export default function Admin() {
                 boxShadow: tab === t ? '0 2px 12px rgba(255,125,0,0.28)' : '0 1px 4px rgba(0,0,0,0.04)',
               }}
             >
-              {t} {t === 'jobs' ? `(${jobs.length})` : `(${applications.length})`}
+              {t} {t === 'jobs' ? `(${jobs.length})` : t === 'applications' ? `(${applications.length})` : ''}
             </button>
           ))}
         </div>
@@ -425,7 +472,7 @@ export default function Admin() {
                   <button onClick={scheduleInterviews} disabled={schedulingInterviews} className="rounded-xl bg-orange px-5 py-2.5 text-[13px] font-bold text-white shadow-[0_4px_18px_rgba(255,125,0,0.28)] disabled:opacity-60">{schedulingInterviews ? 'Scheduling interviews...' : 'Confirm & email candidates'}</button>
                   <button onClick={() => { setSelectedInterviewIds([]); setInterviewAssignments({}); setInterviewError('') }} className="px-3 py-2.5 text-[12px] font-semibold text-[#777]">Clear</button>
                 </div>
-                <div className="mt-4 grid gap-3 text-[12px] text-[#66584c] sm:grid-cols-2">{selectedInterviewIds.map((id, index) => {
+                <div className="mt-4 grid gap-3 text-[12px] text-[#66584c] sm:grid-cols-2">{selectedInterviewIds.map(id => {
                   const candidate = applications.find(application => application._id === id)
                   return <div key={id} className="rounded-lg bg-white p-3" style={{ border: '1px solid rgba(0,0,0,0.06)' }}>
                     <p className="font-bold text-[#3f352b]">{candidate ? `${candidate.firstName} ${candidate.lastName}` : 'Candidate'}</p>
@@ -566,6 +613,36 @@ export default function Admin() {
                 {applications.length === 0 && <p className="text-center text-[#ccc] py-16 text-[14px]">No applications received yet.</p>}
               </div>
             )}
+          </div>
+        )}
+
+        {tab === 'attendance' && (
+          <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
+            <div className="rounded-2xl bg-white p-6 h-fit" style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+              <h2 className="text-[18px] font-bold text-[#111]">Employee Attendance</h2>
+              <p className="mt-1 text-[12.5px] leading-5 text-[#887b6e]">Select an employee, then click a working day to mark present, absent, or clear it.</p>
+              <label className="mt-5 block text-[11.5px] font-bold text-[#76695d]">EMPLOYEE</label>
+              <select value={selectedEmployeeId} onChange={event => { setSelectedEmployeeId(event.target.value); loadAttendance(event.target.value) }} className="mt-2 w-full rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-3 text-[13px] outline-none focus:ring-2 focus:ring-orange/20">
+                <option value="">Select employee</option>
+                {employees.filter(employee => employee.isActive).map(employee => <option key={employee._id} value={employee._id}>{employee.name}</option>)}
+              </select>
+              <form onSubmit={addEmployee} className="mt-7 border-t border-black/5 pt-5">
+                <h3 className="text-[13px] font-bold text-[#444]">Add employee</h3>
+                <input required value={employeeName} onChange={event => setEmployeeName(event.target.value)} placeholder="Full name" className="mt-3 w-full rounded-xl border border-black/10 px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-orange/20" />
+                <input required type="email" value={employeeEmail} onChange={event => setEmployeeEmail(event.target.value)} placeholder="Email address" className="mt-2 w-full rounded-xl border border-black/10 px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-orange/20" />
+                <button className="mt-3 w-full rounded-xl bg-orange py-2.5 text-[13px] font-bold text-white">Add employee</button>
+              </form>
+              {attendanceError && <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-[12px] text-red-600">{attendanceError}</p>}
+            </div>
+            <div>
+              {selectedEmployeeId ? <>
+                <div className="mb-4 flex items-center justify-between gap-3">
+                  <div><h2 className="text-[18px] font-bold text-[#111]">{employees.find(employee => employee._id === selectedEmployeeId)?.name || 'Attendance calendar'}</h2><p className="mt-1 text-[12px] text-[#887b6e]">Starts from 1 September 2026. Thursdays and listed holidays are automatic.</p></div>
+                  {savingAttendance && <span className="text-[12px] font-semibold text-orange">Saving…</span>}
+                </div>
+                <AttendanceCalendar attendance={attendance} editable onChange={changeAttendance} />
+              </> : <div className="flex min-h-[360px] items-center justify-center rounded-2xl bg-white text-[14px] text-[#aaa]" style={{ border: '1px solid rgba(0,0,0,0.07)' }}>Select or add an employee to manage attendance.</div>}
+            </div>
           </div>
         )}
       </div>
