@@ -20,7 +20,7 @@ const socialLinks = [
 
 export default function Footer() {
   return (
-    <footer className="bg-[var(--color-surface)] border-t border-[#d7cfc6]">
+    <footer className="site-footer bg-[var(--color-surface)] border-t border-[#d7cfc6]">
       <div className="max-w-[1440px] mx-auto px-6">
 
         {/* Main footer content */}

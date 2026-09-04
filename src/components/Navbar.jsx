@@ -77,6 +77,7 @@ const companyItems = [
   { label: 'Blogs', path: '/blogs', desc: 'Insights from our team' },
   { label: 'News', path: '/news', desc: 'Latest announcements' },
   { label: 'FAQ', path: '/faq', desc: 'Answers to common robotics questions' },
+  { label: 'Employee & Intern Policies', path: '/employee-policies', desc: 'Working expectations and workplace policies' },
 ]
 
 export default function Navbar() {
@@ -113,7 +114,7 @@ export default function Navbar() {
   }, [mobileOpen])
 
   return (
-    <div className="fixed top-3 left-0 right-0 z-[100] flex justify-center px-4 pointer-events-none sm:top-4 sm:px-6">
+    <div className="site-navbar fixed top-3 left-0 right-0 z-[100] flex justify-center px-4 pointer-events-none sm:top-4 sm:px-6">
       <motion.nav
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}

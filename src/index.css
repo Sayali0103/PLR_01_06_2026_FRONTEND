@@ -61,3 +61,91 @@ html, body {
 *::-webkit-scrollbar-thumb:hover {
   background: #FF7D00;
 }
+
+@media print {
+  @page {
+    margin: 14mm 13mm;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+  }
+
+  .site-navbar,
+  .site-footer,
+  .policy-print-button {
+    display: none !important;
+  }
+
+  .employee-policy-page {
+    min-height: auto !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  .employee-policy-page > section {
+    max-width: none !important;
+  }
+
+  .employee-policy-page header {
+    padding-bottom: 16px !important;
+  }
+
+  .employee-policy-page h1 {
+    max-width: 620px !important;
+    margin-top: 12px !important;
+    font-size: 28px !important;
+    letter-spacing: 0 !important;
+  }
+
+  .employee-policy-page header p {
+    margin-top: 10px !important;
+    font-size: 11px !important;
+    line-height: 1.55 !important;
+  }
+
+  .employee-policy-page header .mt-6 {
+    margin-top: 12px !important;
+  }
+
+  .employee-policy-page header .mt-6 > div {
+    font-size: 9px !important;
+    line-height: 1.4 !important;
+  }
+
+  .employee-policy-page .mt-8 {
+    margin-top: 16px !important;
+  }
+
+  .employee-policy-page section.rounded-\[18px\] {
+    break-inside: avoid;
+    margin-bottom: 12px !important;
+    padding: 16px !important;
+    border: 1px solid #d7d1ca !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .employee-policy-page section.rounded-\[18px\] h2 {
+    font-size: 14px !important;
+  }
+
+  .employee-policy-page section.rounded-\[18px\] ol {
+    margin-top: 9px !important;
+    padding-left: 18px !important;
+    font-size: 10px !important;
+    line-height: 1.5 !important;
+  }
+
+  .employee-policy-page section.rounded-\[18px\] li {
+    padding-left: 2px !important;
+  }
+
+  .employee-policy-page > section > .mt-7 {
+    margin-top: 12px !important;
+    padding: 10px 12px !important;
+    font-size: 9px !important;
+    line-height: 1.45 !important;
+  }
+}
