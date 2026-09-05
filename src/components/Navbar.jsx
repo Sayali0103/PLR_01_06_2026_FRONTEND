@@ -77,7 +77,6 @@ const companyItems = [
   { label: 'Blogs', path: '/blogs', desc: 'Insights from our team' },
   { label: 'News', path: '/news', desc: 'Latest announcements' },
   { label: 'FAQ', path: '/faq', desc: 'Answers to common robotics questions' },
-  { label: 'Employee & Intern Policies', path: '/employee-policies', desc: 'Working expectations and workplace policies' },
 ]
 
 export default function Navbar() {
