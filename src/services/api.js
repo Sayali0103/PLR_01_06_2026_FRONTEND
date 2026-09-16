@@ -27,3 +27,9 @@ export const adminCreateEmployee = (employee, password) => request('/employees',
 export const adminFetchAttendance = (id, password) => request(`/employees/${id}/admin-attendance`, { headers: { 'x-admin-password': password } })
 export const adminSaveAttendance = (id, date, status, password) => request(`/employees/${id}/attendance/${date}`, { method: 'PUT', headers: adminHeaders(password), body: JSON.stringify({ status }) })
 export const adminClearAttendance = (id, date, password) => request(`/employees/${id}/attendance/${date}`, { method: 'DELETE', headers: { 'x-admin-password': password } })
+
+export const sendChatMessage = message => request('/chat', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ message }),
+})

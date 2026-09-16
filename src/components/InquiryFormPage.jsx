@@ -26,7 +26,7 @@ function FormField({ field, value, onChange }) {
   )
 }
 
-export default function InquiryFormPage({ eyebrow, title, accentTitle, description, endpoint, fields, successMessage, helperLink }) {
+export default function InquiryFormPage({ eyebrow, title, accentTitle, description, endpoint, fields, successMessage, helperLink, headingSize = 'clamp(40px, 5vw, 66px)' }) {
   const emptyForm = Object.fromEntries([...fields.map(field => [field.name, '']), ['website', '']])
   const [form, setForm] = useState(emptyForm)
   const [state, setState] = useState({ submitting: false, error: '', success: false })
@@ -56,7 +56,7 @@ export default function InquiryFormPage({ eyebrow, title, accentTitle, descripti
             <div className="w-8 h-[2px] bg-[#FF7D00] rounded-full" />
             <span className="text-[11px] font-semibold tracking-[2.5px] uppercase text-[#FF7D00]">{eyebrow}</span>
           </div>
-          <h1 className="font-bold text-[#1a1208] leading-[1.04] mb-6" style={{ fontSize: 'clamp(40px, 5vw, 66px)', letterSpacing: '-2px' }}>
+          <h1 className="font-bold text-[#1a1208] leading-[1.08] mb-6" style={{ fontSize: headingSize, letterSpacing: '-1.6px' }}>
             {title}<br />
             <span className="text-[#FF7D00]">{accentTitle}</span>
           </h1>

@@ -18,6 +18,7 @@ import BookDemo from './pages/BookDemo'
 import FAQ from './pages/FAQ'
 import InternshipTerms from './pages/InternshipTerms'
 import Seo from './components/Seo'
+import Chatbot from './components/Chatbot'
 
 function ScrollToHash() {
   const { hash, pathname, key } = useLocation()
@@ -40,6 +41,11 @@ function ScrollToHash() {
 function SiteNavbar() {
   const { pathname } = useLocation()
   return ['/admin', '/employee'].includes(pathname) ? null : <Navbar />
+}
+
+function SiteChatbot() {
+  const { pathname } = useLocation()
+  return ['/admin', '/employee'].includes(pathname) ? null : <Chatbot />
 }
 
 function NotFound() {
@@ -82,6 +88,7 @@ export default function App() {
         <Route path="*"                          element={<NotFound />} />
       </Routes>
       <Footer />
+      <SiteChatbot />
     </BrowserRouter>
   )
 }
