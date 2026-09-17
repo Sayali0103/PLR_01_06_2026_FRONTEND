@@ -21,10 +21,22 @@
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "P. L. Robotics",
-      "description": "P. L. Robotics is a Pune based industrial robotics company building next-generation cobots and automation solutions for Indian manufacturing.",
-      "url": "https://plrobotics.in/"
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://plrobotics.in/#website",
+          "name": "P. L. Robotics",
+          "url": "https://plrobotics.in/",
+          "description": "P. L. Robotics is a Pune based industrial robotics company building next-generation cobots and automation solutions for Indian manufacturing."
+        },
+        {
+          "@type": "Organization",
+          "@id": "https://plrobotics.in/#organization",
+          "name": "P. L. Robotics",
+          "url": "https://plrobotics.in/",
+          "logo": "https://plrobotics.in/favicon-96x96.png"
+        }
+      ]
     }
   </script>
 </head>
