@@ -36,6 +36,14 @@ function formatScheduledInterview(interview) {
   return `${dateStr}, ${start}–${end} IST`
 }
 
+function getInterviewRoleKey(jobTitle = '') {
+  const normalized = String(jobTitle).toLowerCase()
+  if (normalized.includes('robotics')) return 'robotics'
+  if (normalized.includes('mechanical')) return 'mechanical'
+  if (normalized.includes('electronics') || normalized.includes('electronic')) return 'electronics'
+  return normalized || 'other'
+}
+
 export default function Admin() {
   const [password, setPassword] = useState('')
   const [authed, setAuthed] = useState(false)
@@ -257,10 +265,21 @@ export default function Admin() {
         delete remaining[id]
         return remaining
       })
-    } else if (selectedInterviewIds.length < 10) {
-      setSelectedInterviewIds(current => [...current, id])
+      setInterviewError('')
+    } else {
+      const candidate = applications.find(application => application._id === id)
+      const roleKey = getInterviewRoleKey(candidate?.jobTitle)
+      const selectedForRole = selectedInterviewIds.filter(candidateId => {
+        const selectedCandidate = applications.find(application => application._id === candidateId)
+        return getInterviewRoleKey(selectedCandidate?.jobTitle) === roleKey
+      }).length
+      if (selectedForRole < 10) {
+        setSelectedInterviewIds(current => [...current, id])
+        setInterviewError('')
+      } else {
+        setInterviewError(`You can select up to 10 ${roleKey} candidates per day.`)
+      }
     }
-    setInterviewError('')
   }
 
   const scheduleInterviews = async () => {
@@ -454,7 +473,7 @@ export default function Admin() {
             <div className="mb-5 flex items-start justify-between gap-5 flex-wrap">
               <div>
                 <h2 className="font-bold text-[18px] text-[#111] tracking-tight">Applications Received</h2>
-                <p className="mt-1 text-[12.5px] text-[#999]">Select up to 10 candidates, then choose a Thursday or Sunday date for the fixed 3:00–5:00 PM IST interview slot.</p>
+                <p className="mt-1 text-[12.5px] text-[#999]">Select up to 10 candidates for each role, then choose a Thursday or Sunday date for the fixed 3:00–5:00 PM IST interview slot.</p>
               </div>
               {selectedInterviewIds.length > 0 && <span className="rounded-full bg-orange/10 px-4 py-2 text-[12px] font-bold text-orange" style={{ border: '1px solid rgba(255,125,0,0.2)' }}>{selectedInterviewIds.length} candidate{selectedInterviewIds.length === 1 ? '' : 's'} selected</span>}
             </div>
@@ -492,13 +511,16 @@ export default function Admin() {
                     <p className="mt-2 text-[11px] text-[#8b7a69]">Hold Ctrl/Cmd to select multiple interviewers. Electronics candidates require both Pratik and Shantanu.</p>
                   </div>
                 })}</div>
-                {/* Slots remaining */}
+                {/* Slots remaining per role */}
                 {interviewDate && (() => {
                   const dayStart = new Date(`${interviewDate}T00:00:00+05:30`)
                   const dayEnd = new Date(`${interviewDate}T23:59:59.999+05:30`)
-                  const existingCount = applications.filter(a => a.interview?.startAt && a.interview?.status === 'scheduled' && new Date(a.interview.startAt) >= dayStart && new Date(a.interview.startAt) <= dayEnd).length
-                  const remaining = Math.max(0, 10 - existingCount)
-                  return <p className="mt-3 text-[12px] font-semibold text-[#555]">Slots remaining for {interviewDate}: <span className="font-bold">{remaining}</span></p>
+                  const roles = ['robotics', 'mechanical', 'electronics']
+                  const remainingByRole = roles.map(role => {
+                    const existingCount = applications.filter(a => a.interview?.startAt && a.interview?.status === 'scheduled' && getInterviewRoleKey(a.jobTitle) === role && new Date(a.interview.startAt) >= dayStart && new Date(a.interview.startAt) <= dayEnd).length
+                    return `${role[0].toUpperCase()}${role.slice(1)}: ${Math.max(0, 10 - existingCount)}`
+                  })
+                  return <p className="mt-3 text-[12px] font-semibold text-[#555]">Slots remaining for {interviewDate} (per role): <span className="font-bold">{remainingByRole.join(' · ')}</span></p>
                 })()}
                 <p className="mt-3 text-[11.5px] leading-[1.6] text-[#8b7a69]">Choose any future date and start time; interviews can be 1 or 2 hours long. Each selected candidate gets the shared interview Meet link and a PL Robotics email.</p>
                 {interviewError && <p className="mt-3 text-[12.5px] font-semibold text-red-600">{interviewError}</p>}
