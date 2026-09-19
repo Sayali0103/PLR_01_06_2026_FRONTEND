@@ -17,6 +17,7 @@ import Contact from './pages/Contact'
 import BookDemo from './pages/BookDemo'
 import FAQ from './pages/FAQ'
 import InternshipTerms from './pages/InternshipTerms'
+import EmployeePolicies from './pages/EmployeePolicies'
 import Seo from './components/Seo'
 import Chatbot from './components/Chatbot'
 
@@ -77,8 +78,9 @@ export default function App() {
         <Route path="/blogs/plr-automation-expo-2026" element={<BlogAutomationExpo />} />
         <Route path="/news"                      element={<News />} />
         <Route path="/faq"                       element={<FAQ />} />
-        <Route path="/employee-policies"           element={<InternshipTerms />} />
-        <Route path="/internship-terms"            element={<Navigate to="/employee-policies" replace />} />
+        <Route path="/employee-policies"           element={<EmployeePolicies />} />
+        <Route path="/intern-policies"             element={<InternshipTerms />} />
+        <Route path="/internship-terms"            element={<Navigate to="/intern-policies" replace />} />
         <Route path="/faqs"                      element={<Navigate to="/faq" replace />} />
         <Route path="/careers"                   element={<Careers />} />
         <Route path="/contact"                   element={<Contact />} />
