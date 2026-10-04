@@ -32,76 +32,76 @@ export async function submitApplication(formData) {
 }
 
 // Admin calls
-export async function adminFetchJobs(password) {
-  const res = await fetch(`${API}/jobs/all`, { headers: { 'x-admin-password': password } })
+export async function adminFetchJobs(password, role = 'admin') {
+  const res = await fetch(`${API}/jobs/all`, { headers: { 'x-admin-password': password, 'x-admin-role': role } })
   if (!res.ok) throw new Error('Unauthorized')
   return res.json()
 }
 
-export async function adminCreateJob(job, password) {
+export async function adminCreateJob(job, password, role = 'admin') {
   const res = await fetch(`${API}/jobs`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-admin-password': password },
+    headers: { 'Content-Type': 'application/json', 'x-admin-password': password, 'x-admin-role': role },
     body: JSON.stringify(job),
   })
   if (!res.ok) throw new Error('Failed to create job')
   return res.json()
 }
 
-export async function adminUpdateJob(id, job, password) {
+export async function adminUpdateJob(id, job, password, role = 'admin') {
   const res = await fetch(`${API}/jobs/${id}`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json', 'x-admin-password': password },
+    headers: { 'Content-Type': 'application/json', 'x-admin-password': password, 'x-admin-role': role },
     body: JSON.stringify(job),
   })
   if (!res.ok) throw new Error('Failed to update job')
   return res.json()
 }
 
-export async function adminDeleteJob(id, password) {
+export async function adminDeleteJob(id, password, role = 'admin') {
   const res = await fetch(`${API}/jobs/${id}`, {
     method: 'DELETE',
-    headers: { 'x-admin-password': password },
+    headers: { 'x-admin-password': password, 'x-admin-role': role },
   })
   if (!res.ok) throw new Error('Failed to delete job')
   return res.json()
 }
 
-export async function adminFetchApplications(password) {
-  const res = await fetch(`${API}/applications`, { headers: { 'x-admin-password': password } })
+export async function adminFetchApplications(password, role = 'admin') {
+  const res = await fetch(`${API}/applications`, { headers: { 'x-admin-password': password, 'x-admin-role': role } })
   if (!res.ok) throw new Error('Unauthorized')
   return res.json()
 }
 
-export async function adminUpdateAppStatus(id, status, password) {
+export async function adminUpdateAppStatus(id, status, password, role = 'admin') {
   const res = await fetch(`${API}/applications/${id}/status`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', 'x-admin-password': password },
+    headers: { 'Content-Type': 'application/json', 'x-admin-password': password, 'x-admin-role': role },
     body: JSON.stringify({ status }),
   })
   if (!res.ok) throw new Error('Failed to update status')
   return res.json()
 }
 
-export async function adminDeleteApplication(id, password) {
+export async function adminDeleteApplication(id, password, role = 'admin') {
   const res = await fetch(`${API}/applications/${id}`, {
     method: 'DELETE',
-    headers: { 'x-admin-password': password },
+    headers: { 'x-admin-password': password, 'x-admin-role': role },
   })
   if (!res.ok) throw new Error('Failed to delete')
   return res.json()
 }
 
-export async function adminFetchInterviewers(password) {
-  const res = await fetch(`${API}/applications/interviewers`, { headers: { 'x-admin-password': password } })
+export async function adminFetchInterviewers(password, role = 'admin') {
+  const res = await fetch(`${API}/applications/interviewers`, { headers: { 'x-admin-password': password, 'x-admin-role': role } })
   if (!res.ok) throw new Error('Unable to load interviewers')
   return res.json()
 }
 
-export async function adminScheduleInterviews(applicationIds, date, assignments, password) {
+export async function adminScheduleInterviews(applicationIds, date, assignments, password, role = 'admin') {
   const res = await fetch(`${API}/applications/schedule-interviews`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-admin-password': password },
+    headers: { 'Content-Type': 'application/json', 'x-admin-password': password, 'x-admin-role': role },
     body: JSON.stringify({ applicationIds, date, assignments }),
   })
   const data = await res.json()
@@ -109,10 +109,10 @@ export async function adminScheduleInterviews(applicationIds, date, assignments,
   return data
 }
 
-export async function adminEditInterview(id, date, interviewerEmails, password) {
+export async function adminEditInterview(id, date, interviewerEmails, password, role = 'admin') {
   const res = await fetch(`${API}/applications/${id}/edit-interview`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', 'x-admin-password': password },
+    headers: { 'Content-Type': 'application/json', 'x-admin-password': password, 'x-admin-role': role },
     body: JSON.stringify({ date, interviewerEmails }),
   })
   const data = await res.json()
@@ -120,10 +120,10 @@ export async function adminEditInterview(id, date, interviewerEmails, password) 
   return data
 }
 
-export async function adminCancelInterview(id, password) {
+export async function adminCancelInterview(id, password, role = 'admin') {
   const res = await fetch(`${API}/applications/${id}/cancel-interview`, {
     method: 'POST',
-    headers: { 'x-admin-password': password },
+    headers: { 'x-admin-password': password, 'x-admin-role': role },
   })
   const data = await res.json()
   if (!res.ok) throw new Error(data.error || 'Unable to cancel interview')

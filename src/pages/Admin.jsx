@@ -46,6 +46,7 @@ function getInterviewRoleKey(jobTitle = '') {
 
 export default function Admin() {
   const [password, setPassword] = useState('')
+  const [role, setRole] = useState('admin')
   const [authed, setAuthed] = useState(false)
   const [authError, setAuthError] = useState('')
   const [tab, setTab] = useState('jobs')
@@ -84,11 +85,12 @@ export default function Admin() {
     e.preventDefault()
     setAuthError('')
     try {
-      await adminFetchJobs(password)
+      await adminFetchJobs(password, role)
       setAuthed(true)
       loadJobs()
+      loadApps()
       loadInterviewers()
-      loadEmployees()
+      if (role === 'admin') loadEmployees()
     } catch {
       setAuthError('Incorrect password.')
     }
@@ -96,14 +98,14 @@ export default function Admin() {
 
   const loadJobs = async () => {
     setLoadingJobs(true)
-    try { setJobs(await adminFetchJobs(password)) }
+    try { setJobs(await adminFetchJobs(password, role)) }
     catch { /* handled */ }
     finally { setLoadingJobs(false) }
   }
 
   const loadApps = async () => {
     setLoadingApps(true)
-    try { setApplications(await adminFetchApplications(password)) }
+    try { setApplications(await adminFetchApplications(password, role)) }
     catch { /* handled */ }
     finally { setLoadingApps(false) }
   }
@@ -149,9 +151,9 @@ export default function Admin() {
     }
     try {
       if (editingJob) {
-        await adminUpdateJob(editingJob._id, payload, password)
+        await adminUpdateJob(editingJob._id, payload, password, role)
       } else {
-        await adminCreateJob(payload, password)
+        await adminCreateJob(payload, password, role)
       }
       setShowForm(false)
       loadJobs()
@@ -164,28 +166,28 @@ export default function Admin() {
 
   const deleteJob = async id => {
     if (!confirm('Delete this job posting?')) return
-    await adminDeleteJob(id, password)
+    await adminDeleteJob(id, password, role)
     loadJobs()
   }
 
   const toggleActive = async job => {
-    await adminUpdateJob(job._id, { isActive: !job.isActive }, password)
+    await adminUpdateJob(job._id, { isActive: !job.isActive }, password, role)
     loadJobs()
   }
 
   const updateStatus = async (id, status) => {
-    await adminUpdateAppStatus(id, status, password)
+    await adminUpdateAppStatus(id, status, password, role)
     loadApps()
   }
 
   const deleteApp = async id => {
     if (!confirm('Delete this application?')) return
-    await adminDeleteApplication(id, password)
+    await adminDeleteApplication(id, password, role)
     loadApps()
   }
 
   const loadInterviewers = async () => {
-    try { setInterviewers(await adminFetchInterviewers(password)) }
+    try { setInterviewers(await adminFetchInterviewers(password, role)) }
     catch { setInterviewError('Unable to load the interviewer list.') }
   }
 
@@ -247,7 +249,7 @@ export default function Admin() {
     setEditing(true)
     setEditError('')
     try {
-      await adminEditInterview(editingApp._id, editDate, editInterviewerEmails, password)
+      await adminEditInterview(editingApp._id, editDate, editInterviewerEmails, password, role)
       loadApps()
       closeEdit()
     } catch (err) {
@@ -298,7 +300,7 @@ export default function Admin() {
     setSchedulingInterviews(true)
     setInterviewError('')
     try {
-      const result = await adminScheduleInterviews(selectedInterviewIds, interviewDate, assignments, password)
+      const result = await adminScheduleInterviews(selectedInterviewIds, interviewDate, assignments, password, role)
       setSelectedInterviewIds([])
       setInterviewAssignments({})
       setInterviewDate('')
@@ -324,17 +326,26 @@ export default function Admin() {
         >
           <img src="/logo/PLRFinalLogo.png" alt="PLR" className="h-9 mb-8 object-contain" />
           <h1 className="font-bold text-[22px] text-[#111] mb-1 tracking-tight">Admin Dashboard</h1>
-          <p className="text-[13.5px] text-[#aaa] mb-8">Enter your admin password to continue.</p>
+          <p className="text-[13.5px] text-[#aaa] mb-8">Choose your role and enter your password to continue.</p>
           <form onSubmit={login} className="space-y-4">
             {authError && (
               <div className="text-[13px] text-red-500 bg-red-50 px-4 py-3 rounded-xl" style={{ border: '1px solid rgba(220,0,0,0.12)' }}>
                 {authError}
               </div>
             )}
+            <select
+              value={role}
+              onChange={e => setRole(e.target.value)}
+              className="w-full px-4 py-[11px] text-[14px] bg-[#f9f6f1] rounded-xl outline-none focus:ring-2 focus:ring-orange/20"
+              style={{ border: '1px solid rgba(0,0,0,0.09)' }}
+            >
+              <option value="hr">HR</option>
+              <option value="admin">Admin</option>
+            </select>
             <input
               type="password" value={password}
               onChange={e => setPassword(e.target.value)}
-              placeholder="Admin password"
+              placeholder={`${role === 'hr' ? 'HR' : 'Admin'} password`}
               className="w-full px-4 py-[11px] text-[14px] bg-[#f9f6f1] rounded-xl outline-none focus:ring-2 focus:ring-orange/20"
               style={{ border: '1px solid rgba(0,0,0,0.09)' }}
             />
@@ -359,8 +370,8 @@ export default function Admin() {
         {/* Top bar */}
         <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
           <div>
-            <h1 className="font-bold text-[26px] text-[#111] tracking-tight">Admin Dashboard</h1>
-            <p className="text-[13px] text-[#aaa] mt-1">Manage jobs, applications, and employee attendance</p>
+            <h1 className="font-bold text-[26px] text-[#111] tracking-tight">{role === 'hr' ? 'HR Dashboard' : 'Admin Dashboard'}</h1>
+            <p className="text-[13px] text-[#aaa] mt-1">{role === 'hr' ? 'Manage jobs and applications' : 'Manage jobs, applications, and employee attendance'}</p>
           </div>
           <button
             onClick={() => { setAuthed(false); setPassword('') }}
@@ -376,7 +387,7 @@ export default function Admin() {
 
         {/* Tabs */}
         <div className="flex items-center gap-2 mb-8">
-          {['jobs', 'applications', 'attendance'].map(t => (
+          {(role === 'admin' ? ['jobs', 'applications', 'attendance'] : ['jobs', 'applications']).map(t => (
             <button
               key={t}
               onClick={() => {
@@ -605,7 +616,7 @@ export default function Admin() {
                             <button onClick={() => openEditInterview(app)} className="text-[12px] font-semibold text-[#555] hover:text-orange px-3 py-[8px] rounded-lg transition-colors duration-200 cursor-pointer" style={{ border: '1px solid rgba(0,0,0,0.08)' }}>
                               Edit Interview
                             </button>
-                            <button onClick={async () => { if (!confirm('Cancel this interview?')) return; try { await adminCancelInterview(app._id, password); loadApps() } catch (err) { alert(err.message) } }} className="text-[12px] font-semibold text-[#aaa] hover:text-red-500 px-3 py-[8px] rounded-lg transition-colors duration-200 cursor-pointer" style={{ border: '1px solid rgba(0,0,0,0.08)' }}>
+                            <button onClick={async () => { if (!confirm('Cancel this interview?')) return; try { await adminCancelInterview(app._id, password, role); loadApps() } catch (err) { alert(err.message) } }} className="text-[12px] font-semibold text-[#aaa] hover:text-red-500 px-3 py-[8px] rounded-lg transition-colors duration-200 cursor-pointer" style={{ border: '1px solid rgba(0,0,0,0.08)' }}>
                               Cancel Interview
                             </button>
                           </>
