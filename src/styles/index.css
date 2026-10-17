@@ -7,10 +7,6 @@
 @import "@fontsource/barlow-condensed/800.css";
 @import "@fontsource/barlow-condensed/900.css";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
@@ -43,6 +39,7 @@ button, input, textarea, select { font: inherit; }
 button { cursor: pointer; border: none; }
 img, video { display: block; max-width: 100%; }
 section { width: 100%; }
+
 
 :where(h1, h2, h3, h4, h5, h6) {
   line-height: 1.1;
