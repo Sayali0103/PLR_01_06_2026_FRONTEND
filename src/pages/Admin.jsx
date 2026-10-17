@@ -4,10 +4,16 @@ import {
   adminFetchJobs, adminCreateJob, adminUpdateJob, adminDeleteJob,
   adminFetchApplications, adminUpdateAppStatus, adminDeleteApplication, adminFetchInterviewers, adminScheduleInterviews,
   adminEditInterview, adminCancelInterview,
+  adminSendInterviewRoundEmail,
 } from '../hooks/useJobs'
 import AttendanceCalendar from '../components/AttendanceCalendar'
 import { adminClearAttendance, adminCreateEmployee, adminFetchAttendance, adminFetchEmployees, adminSaveAttendance } from '../services/api'
 
+const INTERVIEW_ROLES = ['Robotics Engineer', 'Mechanical Engineer', 'Electronics Engineer', 'Technical Sales Engineer', 'UI Developer', 'Human Resources']
+const MEET_LINKS = { 'Robotics Engineer': 'https://meet.google.com/vck-cqkr-yvd', 'Mechanical Engineer': 'https://meet.google.com/mcq-zjio-qez', 'Electronics Engineer': 'https://meet.google.com/pts-pxon-knm' }
+const OFFICE_ADDRESS = 'Office No: 401, Pooja Complex,\nTelco Road, near Quality Circle,\nMIDC Bhosari, PCMC,\nMaharashtra - 411026'
+const MAPS_LINK = 'https://maps.app.goo.gl/7PzDa7FfWS9jmVLF6'
+const DEFAULT_INSTRUCTIONS = 'Please bring your laptop for the interview and any technical discussion.\nPlease carry 2–3 copies of your updated resume along with passport-size photographs.\nPlease have your previous work, relevant projects, and relevant design files ready to present and discuss.\nBe prepared to explain your project contributions, design decisions, tools used, and technical approach.\nKindly be punctual and report at the scheduled time.'
 const EMPTY_JOB = {
   title: '', dept: '', location: 'Pune, India', positionType: 'Full time',
   overview: '', responsibilities: '', requiredSkills: '', educationRequirements: '', additionalSkills: '',
@@ -79,6 +85,12 @@ export default function Admin() {
   const [employeeEmail, setEmployeeEmail] = useState('')
   const [attendanceError, setAttendanceError] = useState('')
   const [savingAttendance, setSavingAttendance] = useState(false)
+  const [candidateEmailForm, setCandidateEmailForm] = useState({ role: INTERVIEW_ROLES[0], date: '', time: '11:00', mode: 'online', meetingLink: MEET_LINKS[INTERVIEW_ROLES[0]], address: OFFICE_ADDRESS, mapsLink: MAPS_LINK, details: '', instructions: DEFAULT_INSTRUCTIONS })
+  const [selectedEmailCandidates, setSelectedEmailCandidates] = useState([])
+  const [pastedCandidates, setPastedCandidates] = useState('')
+  const [sendingCandidateEmail, setSendingCandidateEmail] = useState(false)
+  const [candidateEmailMessage, setCandidateEmailMessage] = useState(null)
+  const [emailSentPopup, setEmailSentPopup] = useState(null)
 
   // Login
   const login = async e => {
@@ -110,7 +122,7 @@ export default function Admin() {
     finally { setLoadingApps(false) }
   }
 
-  // Helpers — convert textarea lines to/from arrays
+  // Helpers: convert textarea lines to/from arrays
   const toArr = str => str.split('\n').map(s => s.trim()).filter(Boolean)
   const toStr = arr => (arr || []).join('\n')
 
@@ -226,6 +238,33 @@ export default function Admin() {
     finally { setSavingAttendance(false) }
   }
 
+  const sendCandidateInterviewEmail = async event => {
+    event.preventDefault()
+    const imported = pastedCandidates.split(/\r?\n/).map(line => line.split(/[\t,;]/).map(value => value.trim())).filter(parts => parts.length >= 2 && parts[0] && parts[1] && parts[1].includes('@')).map(([name, email]) => ({ name, email }))
+    const candidates = [...selectedEmailCandidates, ...imported].filter((candidate, index, list) => list.findIndex(other => other.email.toLowerCase() === candidate.email.toLowerCase()) === index)
+    if (!candidates.length) {
+      setCandidateEmailMessage({ type: 'error', text: 'Select candidates or paste a list of names and email addresses.' })
+      return
+    }
+    setSendingCandidateEmail(true)
+    setCandidateEmailMessage(null)
+    try {
+      const result = await adminSendInterviewRoundEmail({ ...candidateEmailForm, candidates }, password, role)
+      setCandidateEmailMessage({ type: result.failed ? 'error' : 'success', text: `Sent ${result.sent} of ${candidates.length} interview emails.${result.failed ? ` ${result.failed} failed: ${result.results.filter(item => !item.sent).map(item => `${item.email} (${item.error})`).join('; ')}` : ''}` })
+      if (result.sent > 0) setEmailSentPopup({ sent: result.sent, total: candidates.length, failed: result.failed })
+    } catch (error) {
+      setCandidateEmailMessage({ type: 'error', text: error.message })
+    } finally {
+      setSendingCandidateEmail(false)
+    }
+  }
+
+  const emailRecipients = [...selectedEmailCandidates, ...pastedCandidates.split(/\r?\n/).map(line => line.split(/[\t,;]/).map(value => value.trim())).filter(parts => parts.length >= 2 && parts[0] && parts[1]?.includes('@')).map(([name, email]) => ({ name, email }))].filter((candidate, index, list) => list.findIndex(other => other.email.toLowerCase() === candidate.email.toLowerCase()) === index)
+  const previewCandidate = emailRecipients[0] || { name: 'Candidate Name', email: 'candidate@example.com' }
+  const previewDate = candidateEmailForm.date ? new Date(`${candidateEmailForm.date}T00:00:00+05:30`).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'full' }) : 'Selected interview date'
+  const previewTime = candidateEmailForm.time ? new Date(`2000-01-01T${candidateEmailForm.time}:00+05:30`).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: 'numeric', minute: '2-digit' }) : 'Selected time'
+  const emailPreviewHtml = `<!doctype html><html><body style="margin:0;padding:20px;background:#f4efe8;font-family:Arial,sans-serif;color:#1a1208"><div style="max-width:620px;margin:auto;background:white;border:1px solid #eadfd3;border-radius:18px;overflow:hidden"><header style="background:#fff8f0;padding:26px;border-bottom:1px solid #eadfd3"><small style="color:#FF7D00;letter-spacing:2px;font-weight:bold">INTERVIEW SCHEDULED</small><h1 style="font-size:24px">P. L. Robotics ${candidateEmailForm.mode === 'online' ? 'Online' : 'Offline'} Interview Round</h1></header><main style="padding:26px"><p>Dear ${previewCandidate.name},</p><p>Congratulations on being shortlisted for an <b>${candidateEmailForm.mode === 'online' ? 'online' : 'offline'}</b> interview for the <b>${candidateEmailForm.role}</b> role.</p><p>We are pleased to invite you to an interview and discussion. The details are as follows:</p><section style="padding:20px;background:#fffaf4;border:1px solid #eadfd3;border-radius:14px"><h2>Interview Schedule</h2><table width="100%">${[['Role', candidateEmailForm.role], ['Date', previewDate], ['Reporting Time', `${previewTime} IST`], ['Mode', candidateEmailForm.mode === 'online' ? 'Online' : 'Offline (In-person)'], ...(candidateEmailForm.mode === 'online' ? [['Meeting Link', candidateEmailForm.meetingLink || 'Add a meeting link']] : [['Venue', 'View Google Maps Location'], ['Office Address', candidateEmailForm.address]])].map(([label, value]) => `<tr><td style="padding:10px 0;color:#6f6256">${label}</td><td style="padding:10px 0;font-weight:bold">${value}</td></tr>`).join('')}</table>${candidateEmailForm.mode === 'offline' ? `<p><a href="${candidateEmailForm.mapsLink}" style="color:#FF7D00">${candidateEmailForm.mapsLink}</a></p>` : ''}${candidateEmailForm.details ? `<p>${candidateEmailForm.details.replace(/\n/g, '<br>')}</p>` : ''}</section><h2>Important Information</h2><ul>${candidateEmailForm.instructions.split('\n').filter(Boolean).map(item => `<li style="margin:8px 0">${item}</li>`).join('')}</ul><p>For any further assistance, please contact: <b>9834596021</b></p><p>We look forward to meeting you.</p></main><footer style="padding:20px;background:#fffaf4;border-top:1px solid #eadfd3;color:#6f6256">Regards,<br><b style="color:#1a1208">P. L. Robotics Talent Acquisition Team</b></footer></div></body></html>`
+
   // Open edit modal for a single application
   const openEditInterview = app => {
     setEditingApp(app)
@@ -313,7 +352,7 @@ export default function Admin() {
     }
   }
 
-  // ── LOGIN SCREEN ──
+  // -- LOGIN SCREEN --
   if (!authed) {
     return (
       <div className="min-h-screen bg-cream flex items-center justify-center px-6">
@@ -362,10 +401,10 @@ export default function Admin() {
     )
   }
 
-  // ── MAIN DASHBOARD ──
+  // -- MAIN DASHBOARD --
   return (
     <div className="min-h-screen bg-cream">
-      <div className="max-w-[1200px] mx-auto px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
+      <div className={`${role === 'hr' && tab === 'interview email' ? 'max-w-[1720px]' : 'max-w-[1200px]'} mx-auto px-5 py-8 sm:px-8 lg:px-10 lg:py-10`}>
 
         {/* Top bar */}
         <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
@@ -387,7 +426,7 @@ export default function Admin() {
 
         {/* Tabs */}
         <div className="flex items-center gap-2 mb-8">
-          {(role === 'admin' ? ['jobs', 'applications', 'attendance'] : ['jobs', 'applications']).map(t => (
+          {(role === 'admin' ? ['jobs', 'applications', 'attendance'] : ['jobs', 'applications', 'interview email']).map(t => (
             <button
               key={t}
               onClick={() => {
@@ -408,7 +447,7 @@ export default function Admin() {
           ))}
         </div>
 
-        {/* ── JOBS TAB ── */}
+        {/* -- JOBS TAB -- */}
         {tab === 'jobs' && (
           <div>
             <div className="flex items-center justify-between mb-5">
@@ -478,7 +517,7 @@ export default function Admin() {
           </div>
         )}
 
-        {/* ── APPLICATIONS TAB ── */}
+        {/* -- APPLICATIONS TAB -- */}
         {tab === 'applications' && (
           <div>
             <div className="mb-5 flex items-start justify-between gap-5 flex-wrap">
@@ -671,17 +710,57 @@ export default function Admin() {
               {selectedEmployeeId ? <>
                 <div className="mb-4 flex items-center justify-between gap-3">
                   <div><h2 className="text-[18px] font-bold text-[#111]">{employees.find(employee => employee._id === selectedEmployeeId)?.name || 'Attendance calendar'}</h2><p className="mt-1 text-[12px] text-[#887b6e]">Starts from 1 September 2026. Thursdays and listed holidays are automatic.</p></div>
-                  {savingAttendance && <span className="text-[12px] font-semibold text-orange">Saving…</span>}
+                  {savingAttendance && <span className="text-[12px] font-semibold text-orange">Saving...</span>}
                 </div>
                 <AttendanceCalendar attendance={attendance} editable onChange={changeAttendance} />
               </> : <div className="flex min-h-[360px] items-center justify-center rounded-2xl bg-white text-[14px] text-[#aaa]" style={{ border: '1px solid rgba(0,0,0,0.07)' }}>Select or add an employee to manage attendance.</div>}
             </div>
           </div>
         )}
-      </div>
 
-      {/* ── JOB FORM MODAL ── */}
-      {/* ── EDIT INTERVIEW MODAL ── */}
+        {tab === 'interview email' && role === 'hr' && (
+          <div>
+            <h2 className="text-[20px] font-bold text-[#111]">Interview invitation</h2>
+            <p className="mt-1 text-[13px] text-[#887b6e]">Schedule an interview, select candidates, and preview the invitation before sending.</p>
+            {candidateEmailMessage && <p role="status" className={`mt-4 rounded-xl px-4 py-3 text-[13px] ${candidateEmailMessage.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'}`}>{candidateEmailMessage.text}</p>}
+            <form onSubmit={sendCandidateInterviewEmail} className="mt-5 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(420px,0.9fr)]">
+              <div className="space-y-4 rounded-2xl bg-white p-5 sm:p-6" style={{ border: '1px solid rgba(0,0,0,0.07)' }}>
+                <section><h3 className="font-bold">Recipients</h3><p className="mt-1 text-[12px] text-[#887b6e]">Select applicants or paste rows as Name, email. Duplicate addresses are removed.</p>
+                  <div className="mt-3 max-h-48 space-y-1 overflow-auto rounded-xl border border-black/10 p-2">
+                    {applications.map(app => { const name = [app.firstName, app.middleName, app.lastName].filter(Boolean).join(' ') || app.name || ''; const email = app.email || ''; if (!name || !email) return null; const checked = selectedEmailCandidates.some(candidate => candidate.email.toLowerCase() === email.toLowerCase()); return <label key={app._id || email} className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-[12px] hover:bg-[#fff8f0]"><input type="checkbox" checked={checked} onChange={() => setSelectedEmailCandidates(current => checked ? current.filter(candidate => candidate.email.toLowerCase() !== email.toLowerCase()) : [...current, { name, email }])} /><span className="min-w-0 flex-1 truncate">{name}</span><span className="max-w-[48%] truncate text-[#887b6e]">{email}</span></label> })}
+                    {!applications.length && <p className="p-2 text-[12px] text-[#887b6e]">No applications loaded.</p>}
+                  </div>
+                  <textarea value={pastedCandidates} onChange={event => setPastedCandidates(event.target.value)} rows={3} placeholder={'Paste spreadsheet rows:\nCandidate Name, candidate@email.com'} className="mt-3 w-full rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-2.5 text-[12px]" />
+                  <p className="mt-1 text-[11px] text-[#887b6e]">{emailRecipients.length} unique recipient(s) ready</p>
+                </section>
+                <section><h3 className="mb-3 font-bold">Schedule</h3><div className="grid gap-3 sm:grid-cols-2">
+                  <label className="text-[12px] font-semibold">Role<select value={candidateEmailForm.role} onChange={event => setCandidateEmailForm(form => ({ ...form, role: event.target.value, meetingLink: MEET_LINKS[event.target.value] || '' }))} className="mt-1 w-full rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-2.5 font-normal">{INTERVIEW_ROLES.map(item => <option key={item}>{item}</option>)}</select></label>
+                  <label className="text-[12px] font-semibold">Mode<select value={candidateEmailForm.mode} onChange={event => setCandidateEmailForm(form => ({ ...form, mode: event.target.value }))} className="mt-1 w-full rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-2.5 font-normal"><option value="online">Online</option><option value="offline">Offline</option></select></label>
+                  <label className="text-[12px] font-semibold">Date<input required type="date" value={candidateEmailForm.date} onChange={event => setCandidateEmailForm(form => ({ ...form, date: event.target.value }))} className="mt-1 w-full rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-2.5 font-normal" /></label>
+                  <label className="text-[12px] font-semibold">Reporting time<input required type="time" value={candidateEmailForm.time} onChange={event => setCandidateEmailForm(form => ({ ...form, time: event.target.value }))} className="mt-1 w-full rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-2.5 font-normal" /></label>
+                </div></section>
+                {candidateEmailForm.mode === 'online' ? <label className="block text-[12px] font-semibold">Google Meet link<input required type="url" value={candidateEmailForm.meetingLink} onChange={event => setCandidateEmailForm(form => ({ ...form, meetingLink: event.target.value }))} placeholder="Paste a meeting link" className="mt-1 w-full rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-2.5 font-normal" />{MEET_LINKS[candidateEmailForm.role] && <span className="mt-1 block text-[11px] font-normal text-[#887b6e]">Saved role link filled in; you can replace it.</span>}</label> : <div className="space-y-3"><label className="block text-[12px] font-semibold">Office address<textarea required rows={3} value={candidateEmailForm.address} onChange={event => setCandidateEmailForm(form => ({ ...form, address: event.target.value }))} className="mt-1 w-full rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-2.5 font-normal" /></label><label className="block text-[12px] font-semibold">Google Maps location link<input required type="url" value={candidateEmailForm.mapsLink} onChange={event => setCandidateEmailForm(form => ({ ...form, mapsLink: event.target.value }))} className="mt-1 w-full rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-2.5 font-normal" /></label></div>}
+                <label className="block text-[12px] font-semibold">Additional instructions<textarea rows={2} maxLength={2000} value={candidateEmailForm.details} onChange={event => setCandidateEmailForm(form => ({ ...form, details: event.target.value }))} placeholder="Optional details" className="mt-1 w-full rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-2.5 font-normal" /></label>
+                <label className="block text-[12px] font-semibold">Important information<textarea rows={5} maxLength={5000} value={candidateEmailForm.instructions} onChange={event => setCandidateEmailForm(form => ({ ...form, instructions: event.target.value }))} className="mt-1 w-full rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-2.5 font-normal" /></label>
+                <button disabled={sendingCandidateEmail || !emailRecipients.length} className="w-full rounded-xl bg-orange px-5 py-3 text-[13px] font-bold text-white disabled:opacity-50">{sendingCandidateEmail ? 'Sending emails...' : `Send to ${emailRecipients.length} candidate${emailRecipients.length === 1 ? '' : 's'}`}</button>
+              </div>
+              <aside className="lg:sticky lg:top-4"><div className="mb-2 flex items-center justify-between"><h3 className="font-bold">Email preview</h3><span className="text-[11px] text-[#887b6e]">For {previewCandidate.name}</span></div><iframe title="Interview email preview" sandbox="" srcDoc={emailPreviewHtml} className="h-[850px] w-full rounded-2xl bg-[#f4efe8] shadow-sm" style={{ border: '1px solid rgba(0,0,0,0.1)' }} /></aside>
+            </form>
+          </div>
+        )}
+      </div>
+      <AnimatePresence>
+        {emailSentPopup && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[500] flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm" onClick={() => setEmailSentPopup(null)}>
+          <motion.div initial={{ opacity: 0, y: 18, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.98 }} transition={{ duration: 0.2 }} role="dialog" aria-modal="true" aria-labelledby="email-sent-title" className="w-full max-w-[420px] rounded-2xl bg-white p-7 text-center shadow-2xl" onClick={event => event.stopPropagation()}>
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-green-50 text-2xl font-bold text-green-600">OK</div>
+            <h2 id="email-sent-title" className="mt-4 text-[20px] font-bold text-[#1a1208]">{emailSentPopup.failed ? 'Emails sent with some failures' : 'Emails sent successfully'}</h2>
+            <p className="mt-2 text-[14px] leading-6 text-[#6f6256]">Sent {emailSentPopup.sent} of {emailSentPopup.total} interview emails.{emailSentPopup.failed ? ` ${emailSentPopup.failed} failed; see the status message on the form for details.` : ''}</p>
+            <button type="button" onClick={() => setEmailSentPopup(null)} className="mt-6 w-full rounded-xl bg-orange px-5 py-3 text-[13px] font-bold text-white">Done</button>
+          </motion.div>
+        </motion.div>}
+      </AnimatePresence>
+      {/* -- JOB FORM MODAL -- */}
+      {/* -- EDIT INTERVIEW MODAL -- */}
       <AnimatePresence>
         {editingApp && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[300] flex items-center justify-center px-4" style={{ background: 'rgba(10,6,2,0.72)', backdropFilter: 'blur(6px)' }} onClick={closeEdit}>

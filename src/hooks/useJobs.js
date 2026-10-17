@@ -129,3 +129,14 @@ export async function adminCancelInterview(id, password, role = 'admin') {
   if (!res.ok) throw new Error(data.error || 'Unable to cancel interview')
   return data
 }
+
+export async function adminSendInterviewRoundEmail(candidate, password, role = 'hr') {
+  const res = await fetch(`${API}/applications/send-interview-round-email`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-password': password, 'x-admin-role': role },
+    body: JSON.stringify(candidate),
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.error || 'Unable to send interview email')
+  return data
+}
