@@ -7,6 +7,10 @@
 @import "@fontsource/barlow-condensed/800.css";
 @import "@fontsource/barlow-condensed/900.css";
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
