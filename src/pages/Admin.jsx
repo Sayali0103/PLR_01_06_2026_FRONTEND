@@ -7,7 +7,7 @@ import {
   adminSendInterviewRoundEmail,
 } from '../hooks/useJobs'
 import AttendanceCalendar from '../components/AttendanceCalendar'
-import { adminClearAttendance, adminCreateEmployee, adminFetchAttendance, adminFetchEmployees, adminSaveAttendance } from '../services/api'
+import { adminClearAttendance, adminCreateEmployee, adminDeleteEmployee, adminFetchAttendance, adminFetchEmployees, adminSaveAttendance } from '../services/api'
 
 const INTERVIEW_ROLES = ['Robotics Engineer', 'Mechanical Engineer', 'Electronics Engineer', 'Technical Sales Engineer', 'UI Developer', 'Human Resources']
 const MEET_LINKS = { 'Robotics Engineer': 'https://meet.google.com/vck-cqkr-yvd', 'Mechanical Engineer': 'https://meet.google.com/mcq-zjio-qez', 'Electronics Engineer': 'https://meet.google.com/pts-pxon-knm' }
@@ -223,6 +223,18 @@ export default function Admin() {
       setSelectedEmployeeId(employee._id)
       setEmployeeName('')
       setEmployeeEmail('')
+    } catch (err) { setAttendanceError(err.message) }
+  }
+
+  const removeEmployee = async () => {
+    const employee = employees.find(item => item._id === selectedEmployeeId)
+    if (!employee || !confirm(`Remove ${employee.name} from the employee list? Their attendance history will be retained.`)) return
+    setAttendanceError('')
+    try {
+      await adminDeleteEmployee(employee._id, password, role)
+      setEmployees(current => current.filter(item => item._id !== employee._id))
+      setSelectedEmployeeId('')
+      setAttendance([])
     } catch (err) { setAttendanceError(err.message) }
   }
 
@@ -704,6 +716,7 @@ export default function Admin() {
                 <input required type="email" value={employeeEmail} onChange={event => setEmployeeEmail(event.target.value)} placeholder="Email address" className="mt-2 w-full rounded-xl border border-black/10 px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-orange/20" />
                 <button className="mt-3 w-full rounded-xl bg-orange py-2.5 text-[13px] font-bold text-white">Add employee</button>
               </form>}
+              {role === 'hr' && selectedEmployeeId && <button type="button" onClick={removeEmployee} className="mt-3 w-full rounded-xl border border-red-200 py-2.5 text-[13px] font-bold text-red-600 hover:bg-red-50">Remove selected employee</button>}
               {attendanceError && <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-[12px] text-red-600">{attendanceError}</p>}
             </div>
             <div>

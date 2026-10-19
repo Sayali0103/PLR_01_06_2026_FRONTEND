@@ -16,7 +16,10 @@ const dateKey = (year, month, day) => `${year}-${pad(month + 1)}-${pad(day)}`
 const isThursday = (year, month, day) => new Date(year, month, day).getDay() === 4
 
 export default function AttendanceCalendar({ attendance = [], editable = false, onChange }) {
-  const [view, setView] = useState({ year: 2026, month: 8 })
+  const [view, setView] = useState(() => {
+    const now = new Date()
+    return { year: now.getFullYear(), month: now.getMonth() }
+  })
   const records = useMemo(() => Object.fromEntries(attendance.map(item => [item.date, item.status])), [attendance])
   const { year, month } = view
   const firstDay = new Date(year, month, 1).getDay()
@@ -53,7 +56,7 @@ export default function AttendanceCalendar({ attendance = [], editable = false, 
         className={`relative aspect-square rounded-xl text-[13px] font-bold transition-all ${color} ${editable && !holidayName && !beforeStart ? 'cursor-pointer hover:scale-105 hover:shadow-md' : 'cursor-default'} ${status || holidayName ? 'text-white' : 'text-[#756859]'}`}
       >
         {day}
-        {holidayName && <span className="absolute bottom-1 left-1 right-1 truncate text-[8px] font-medium leading-none">{HOLIDAYS[key] ? 'Holiday' : 'Thu'}</span>}
+        {(holidayName || status) && <span className="absolute bottom-1 left-1 right-1 truncate text-[8px] font-medium leading-none">{holidayName ? 'Holiday' : status === 'present' ? 'Present' : 'Absent'}</span>}
       </button>
     )
   })
