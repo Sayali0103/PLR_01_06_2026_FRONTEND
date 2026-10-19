@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   adminFetchJobs, adminCreateJob, adminUpdateJob, adminDeleteJob,
@@ -7,7 +8,7 @@ import {
   adminSendInterviewRoundEmail,
 } from '../hooks/useJobs'
 import AttendanceCalendar from '../components/AttendanceCalendar'
-import { adminClearAttendance, adminCreateEmployee, adminDeleteEmployee, adminFetchAttendance, adminFetchEmployees, adminSaveAttendance } from '../services/api'
+import { adminClearAttendance, adminCreateEmployee, adminDeleteEmployee, adminFetchAttendance, adminFetchEmployees, adminFetchLeaveRequests, adminSaveAttendance, adminSetEmployeePortal, adminUpdateLeaveRequest, employeeLogin } from '../services/api'
 
 const INTERVIEW_ROLES = ['Robotics Engineer', 'Mechanical Engineer', 'Electronics Engineer', 'Technical Sales Engineer', 'UI Developer', 'Human Resources']
 const MEET_LINKS = { 'Robotics Engineer': 'https://meet.google.com/vck-cqkr-yvd', 'Mechanical Engineer': 'https://meet.google.com/mcq-zjio-qez', 'Electronics Engineer': 'https://meet.google.com/pts-pxon-knm' }
@@ -51,8 +52,11 @@ function getInterviewRoleKey(jobTitle = '') {
 }
 
 export default function Admin() {
+  const navigate = useNavigate()
   const [password, setPassword] = useState('')
   const [role, setRole] = useState('admin')
+  const canManageEmployees = ['hr', 'admin'].includes(role)
+  const [employeeLoginName, setEmployeeLoginName] = useState('')
   const [authed, setAuthed] = useState(false)
   const [authError, setAuthError] = useState('')
   const [tab, setTab] = useState('jobs')
@@ -83,6 +87,11 @@ export default function Admin() {
   const [attendance, setAttendance] = useState([])
   const [employeeName, setEmployeeName] = useState('')
   const [employeeEmail, setEmployeeEmail] = useState('')
+  const [employeePassword, setEmployeePassword] = useState('')
+  const [portalPassword, setPortalPassword] = useState('')
+  const [portalMessage, setPortalMessage] = useState('')
+  const [leaveRequests, setLeaveRequests] = useState([])
+  const [leaveError, setLeaveError] = useState('')
   const [attendanceError, setAttendanceError] = useState('')
   const [savingAttendance, setSavingAttendance] = useState(false)
   const [candidateEmailForm, setCandidateEmailForm] = useState({ role: INTERVIEW_ROLES[0], date: '', time: '11:00', mode: 'online', meetingLink: MEET_LINKS[INTERVIEW_ROLES[0]], address: OFFICE_ADDRESS, mapsLink: MAPS_LINK, details: '', instructions: DEFAULT_INSTRUCTIONS })
@@ -97,6 +106,12 @@ export default function Admin() {
     e.preventDefault()
     setAuthError('')
     try {
+      if (role === 'employee') {
+        const result = await employeeLogin({ name: employeeLoginName, password })
+        sessionStorage.setItem('plr_employee_token', result.token)
+        navigate('/employee')
+        return
+      }
       await adminFetchJobs(password, role)
       setAuthed(true)
       loadJobs()
@@ -208,6 +223,18 @@ export default function Admin() {
     catch { setAttendanceError('Unable to load employees.') }
   }
 
+  const loadLeaveRequests = async () => {
+    try { setLeaveRequests(await adminFetchLeaveRequests(password, role)); setLeaveError('') }
+    catch (err) { setLeaveError(err.message) }
+  }
+
+  const updateLeaveRequest = async (id, status) => {
+    try {
+      const updated = await adminUpdateLeaveRequest(id, status, password, role)
+      setLeaveRequests(current => current.map(item => item._id === updated._id ? updated : item))
+    } catch (err) { setLeaveError(err.message) }
+  }
+
   const loadAttendance = async employeeId => {
     if (!employeeId) { setAttendance([]); return }
     try { setAttendance(await adminFetchAttendance(employeeId, password, role)); setAttendanceError('') }
@@ -218,11 +245,24 @@ export default function Admin() {
     event.preventDefault()
     setAttendanceError('')
     try {
-      const employee = await adminCreateEmployee({ name: employeeName, email: employeeEmail }, password, role)
+      const employee = await adminCreateEmployee({ name: employeeName, email: employeeEmail, password: employeePassword }, password, role)
       setEmployees(current => [...current, employee].sort((a, b) => a.name.localeCompare(b.name)))
       setSelectedEmployeeId(employee._id)
       setEmployeeName('')
       setEmployeeEmail('')
+      setEmployeePassword('')
+    } catch (err) { setAttendanceError(err.message) }
+  }
+
+  const enableEmployeePortal = async () => {
+    if (!selectedEmployeeId) return
+    setAttendanceError('')
+    setPortalMessage('')
+    try {
+      const updatedEmployee = await adminSetEmployeePortal(selectedEmployeeId, portalPassword, password, role)
+      setEmployees(current => current.map(employee => employee._id === updatedEmployee._id ? updatedEmployee : employee))
+      setPortalPassword('')
+      setPortalMessage('Employee dashboard is active. Share the password with the employee securely.')
     } catch (err) { setAttendanceError(err.message) }
   }
 
@@ -376,8 +416,8 @@ export default function Admin() {
           style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 8px 50px rgba(0,0,0,0.08)' }}
         >
           <img src="/logo/PLRFinalLogo.png" alt="PLR" className="h-9 mb-8 object-contain" />
-          <h1 className="font-bold text-[22px] text-[#111] mb-1 tracking-tight">Admin Dashboard</h1>
-          <p className="text-[13.5px] text-[#aaa] mb-8">Choose your role and enter your password to continue.</p>
+          <h1 className="font-bold text-[22px] text-[#111] mb-1 tracking-tight">{role === 'employee' ? 'Employee sign in' : 'Admin Dashboard'}</h1>
+          <p className="text-[13.5px] text-[#aaa] mb-8">{role === 'employee' ? 'Enter your employee name and password to open your dashboard.' : 'Choose your role and enter your password to continue.'}</p>
           <form onSubmit={login} className="space-y-4">
             {authError && (
               <div className="text-[13px] text-red-500 bg-red-50 px-4 py-3 rounded-xl" style={{ border: '1px solid rgba(220,0,0,0.12)' }}>
@@ -390,13 +430,23 @@ export default function Admin() {
               className="w-full px-4 py-[11px] text-[14px] bg-[#f9f6f1] rounded-xl outline-none focus:ring-2 focus:ring-orange/20"
               style={{ border: '1px solid rgba(0,0,0,0.09)' }}
             >
+              <option value="employee">Employee</option>
               <option value="hr">HR</option>
               <option value="admin">Admin</option>
             </select>
+            {role === 'employee' && <input
+              required value={employeeLoginName}
+              onChange={e => setEmployeeLoginName(e.target.value)}
+              placeholder="Employee full name"
+              autoComplete="username"
+              className="w-full px-4 py-[11px] text-[14px] bg-[#f9f6f1] rounded-xl outline-none focus:ring-2 focus:ring-orange/20"
+              style={{ border: '1px solid rgba(0,0,0,0.09)' }}
+            />}
             <input
-              type="password" value={password}
+              required type="password" value={password}
               onChange={e => setPassword(e.target.value)}
-              placeholder={`${role === 'hr' ? 'HR' : 'Admin'} password`}
+              autoComplete="current-password"
+              placeholder={`${role === 'hr' ? 'HR' : role === 'employee' ? 'Employee' : 'Admin'} password`}
               className="w-full px-4 py-[11px] text-[14px] bg-[#f9f6f1] rounded-xl outline-none focus:ring-2 focus:ring-orange/20"
               style={{ border: '1px solid rgba(0,0,0,0.09)' }}
             />
@@ -422,7 +472,7 @@ export default function Admin() {
         <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
           <div>
             <h1 className="font-bold text-[26px] text-[#111] tracking-tight">{role === 'hr' ? 'HR Dashboard' : 'Admin Dashboard'}</h1>
-            <p className="text-[13px] text-[#aaa] mt-1">{role === 'hr' ? 'Manage jobs, applications, interviews, and attendance' : 'Manage jobs and applications; view employee attendance'}</p>
+            <p className="text-[13px] text-[#aaa] mt-1">{role === 'hr' ? 'Manage jobs, applications, interviews, attendance, and leave requests' : 'Manage jobs, applications, employee dashboards, and attendance'}</p>
           </div>
           <button
             onClick={() => { setAuthed(false); setPassword('') }}
@@ -438,13 +488,14 @@ export default function Admin() {
 
         {/* Tabs */}
         <div className="flex items-center gap-2 mb-8">
-          {(role === 'admin' ? ['jobs', 'applications', 'attendance'] : ['jobs', 'applications', 'attendance', 'interview email']).map(t => (
+          {(role === 'admin' ? ['jobs', 'applications', 'attendance'] : ['jobs', 'applications', 'attendance', 'leave requests', 'interview email']).map(t => (
             <button
               key={t}
               onClick={() => {
                 setTab(t)
                 if (t === 'applications') loadApps()
                 if (t === 'attendance') loadEmployees()
+                if (t === 'leave requests') loadLeaveRequests()
               }}
               className={`px-6 py-[9px] rounded-full text-[13px] font-semibold cursor-pointer capitalize transition-all duration-200 ${
                 tab === t ? 'bg-orange text-white' : 'bg-white text-[#555] hover:text-orange'
@@ -708,16 +759,23 @@ export default function Admin() {
               <label className="mt-5 block text-[11.5px] font-bold text-[#76695d]">EMPLOYEE</label>
               <select value={selectedEmployeeId} onChange={event => { setSelectedEmployeeId(event.target.value); loadAttendance(event.target.value) }} className="mt-2 w-full rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-3 text-[13px] outline-none focus:ring-2 focus:ring-orange/20">
                 <option value="">Select employee</option>
-                {employees.filter(employee => employee.isActive).map(employee => <option key={employee._id} value={employee._id}>{employee.name}</option>)}
+                {employees.filter(employee => canManageEmployees || employee.isActive).map(employee => <option key={employee._id} value={employee._id}>{employee.name}{canManageEmployees && (!employee.isActive ? ' (Removed)' : !employee.portalEnabled ? ' (Portal not set up)' : '')}</option>)}
               </select>
-              {role === 'hr' && <form onSubmit={addEmployee} className="mt-7 border-t border-black/5 pt-5">
-                <h3 className="text-[13px] font-bold text-[#444]">Add employee</h3>
+              {canManageEmployees && <form onSubmit={addEmployee} className="mt-7 border-t border-black/5 pt-5">
+                <h3 className="text-[13px] font-bold text-[#444]">Add employee dashboard</h3>
                 <input required value={employeeName} onChange={event => setEmployeeName(event.target.value)} placeholder="Full name" className="mt-3 w-full rounded-xl border border-black/10 px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-orange/20" />
                 <input required type="email" value={employeeEmail} onChange={event => setEmployeeEmail(event.target.value)} placeholder="Email address" className="mt-2 w-full rounded-xl border border-black/10 px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-orange/20" />
-                <button className="mt-3 w-full rounded-xl bg-orange py-2.5 text-[13px] font-bold text-white">Add employee</button>
+                <input required minLength={8} type="password" autoComplete="new-password" value={employeePassword} onChange={event => setEmployeePassword(event.target.value)} placeholder="Initial password (8+ characters)" className="mt-2 w-full rounded-xl border border-black/10 px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-orange/20" />
+                <button className="mt-3 w-full rounded-xl bg-orange py-2.5 text-[13px] font-bold text-white">Add employee dashboard</button>
               </form>}
-              {role === 'hr' && selectedEmployeeId && <button type="button" onClick={removeEmployee} className="mt-3 w-full rounded-xl border border-red-200 py-2.5 text-[13px] font-bold text-red-600 hover:bg-red-50">Remove selected employee</button>}
+              {canManageEmployees && selectedEmployeeId && <div className="mt-5 border-t border-black/5 pt-5">
+                <h3 className="text-[13px] font-bold text-[#444]">{employees.find(item => item._id === selectedEmployeeId)?.portalEnabled ? 'Reset dashboard password' : 'Enable employee dashboard'}</h3>
+                <input minLength={8} type="password" autoComplete="new-password" value={portalPassword} onChange={event => setPortalPassword(event.target.value)} placeholder="New password (8+ characters)" className="mt-3 w-full rounded-xl border border-black/10 px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-orange/20" />
+                <button type="button" disabled={portalPassword.length < 8} onClick={enableEmployeePortal} className="mt-2 w-full rounded-xl border border-orange/30 py-2.5 text-[13px] font-bold text-orange disabled:opacity-40">{employees.find(item => item._id === selectedEmployeeId)?.isActive ? 'Set dashboard password' : 'Restore dashboard access'}</button>
+                {employees.find(item => item._id === selectedEmployeeId)?.isActive && <button type="button" onClick={removeEmployee} className="mt-2 w-full rounded-xl border border-red-200 py-2.5 text-[13px] font-bold text-red-600 hover:bg-red-50">Remove employee dashboard</button>}
+              </div>}
               {attendanceError && <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-[12px] text-red-600">{attendanceError}</p>}
+              {portalMessage && <p role="status" className="mt-4 rounded-lg bg-green-50 px-3 py-2 text-[12px] text-green-700">{portalMessage}</p>}
             </div>
             <div>
               {selectedEmployeeId ? <>
@@ -727,6 +785,33 @@ export default function Admin() {
                 </div>
                 <AttendanceCalendar attendance={attendance} editable={role === 'hr'} onChange={changeAttendance} />
               </> : <div className="flex min-h-[360px] items-center justify-center rounded-2xl bg-white text-[14px] text-[#aaa]" style={{ border: '1px solid rgba(0,0,0,0.07)' }}>{role === 'hr' ? 'Select or add an employee to manage attendance.' : 'Select an employee to view attendance.'}</div>}
+            </div>
+          </div>
+        )}
+
+        {tab === 'leave requests' && role === 'hr' && (
+          <div>
+            <h2 className="text-[20px] font-bold text-[#111]">Employee leave requests</h2>
+            <p className="mt-1 text-[13px] text-[#887b6e]">Review requests submitted from employee dashboards.</p>
+            {leaveError && <p role="alert" className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-[13px] text-red-600">{leaveError}</p>}
+            <div className="mt-5 space-y-3">
+              {leaveRequests.map(request => <article key={request._id} className="rounded-2xl bg-white p-5" style={{ border: '1px solid rgba(0,0,0,0.07)' }}>
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div>
+                    <h3 className="text-[15px] font-bold text-[#17100a]">{request.employeeId?.name || 'Former employee'} <span className="font-normal text-[#887b6e]">· {request.employeeId?.email || ''}</span></h3>
+                    <p className="mt-1 text-[13px] font-semibold text-[#55483c]">{request.startDate === request.endDate ? request.startDate : `${request.startDate} – ${request.endDate}`}</p>
+                    <p className="mt-2 whitespace-pre-wrap text-[13px] leading-5 text-[#74685c]">{request.reason}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`rounded-full px-3 py-1.5 text-[10px] font-bold uppercase ${request.status === 'approved' ? 'bg-green-100 text-green-700' : request.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>{request.status}</span>
+                    {request.status === 'pending' && <>
+                      <button onClick={() => updateLeaveRequest(request._id, 'approved')} className="rounded-lg bg-green-600 px-3 py-2 text-[11px] font-bold text-white">Approve</button>
+                      <button onClick={() => updateLeaveRequest(request._id, 'rejected')} className="rounded-lg border border-red-200 px-3 py-2 text-[11px] font-bold text-red-600">Reject</button>
+                    </>}
+                  </div>
+                </div>
+              </article>)}
+              {leaveRequests.length === 0 && !leaveError && <div className="rounded-2xl bg-white px-6 py-16 text-center text-[14px] text-[#887b6e]" style={{ border: '1px solid rgba(0,0,0,0.07)' }}>No leave requests have been submitted.</div>}
             </div>
           </div>
         )}

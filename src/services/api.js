@@ -20,11 +20,15 @@ async function request(path, options = {}) {
 
 const adminHeaders = (password, role = 'admin') => ({ 'Content-Type': 'application/json', 'x-admin-password': password, 'x-admin-role': role })
 
-export const fetchPublicEmployees = () => request('/employees/public')
-export const fetchEmployeeAttendance = id => request(`/employees/${id}/attendance`)
+export const employeeLogin = credentials => request('/employees/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(credentials) })
+export const employeeFetchDashboard = token => request('/employees/me', { headers: { Authorization: `Bearer ${token}` } })
+export const employeeApplyForLeave = (payload, token) => request('/employees/me/leaves', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) })
 export const adminFetchEmployees = (password, role = 'admin') => request('/employees', { headers: { 'x-admin-password': password, 'x-admin-role': role } })
 export const adminCreateEmployee = (employee, password, role = 'hr') => request('/employees', { method: 'POST', headers: adminHeaders(password, role), body: JSON.stringify(employee) })
 export const adminDeleteEmployee = (id, password, role = 'hr') => request(`/employees/${id}`, { method: 'DELETE', headers: adminHeaders(password, role) })
+export const adminSetEmployeePortal = (id, newPassword, password, role = 'hr') => request(`/employees/${id}/portal`, { method: 'PUT', headers: adminHeaders(password, role), body: JSON.stringify({ password: newPassword }) })
+export const adminFetchLeaveRequests = (password, role = 'hr') => request('/employees/leave-requests', { headers: { 'x-admin-password': password, 'x-admin-role': role } })
+export const adminUpdateLeaveRequest = (id, status, password, role = 'hr') => request(`/employees/leave-requests/${id}`, { method: 'PUT', headers: adminHeaders(password, role), body: JSON.stringify({ status }) })
 export const adminFetchAttendance = (id, password, role = 'admin') => request(`/employees/${id}/admin-attendance`, { headers: { 'x-admin-password': password, 'x-admin-role': role } })
 export const adminSaveAttendance = (id, date, status, password, role = 'hr') => request(`/employees/${id}/attendance/${date}`, { method: 'PUT', headers: adminHeaders(password, role), body: JSON.stringify({ status }) })
 export const adminClearAttendance = (id, date, password) => request(`/employees/${id}/attendance/${date}`, { method: 'DELETE', headers: adminHeaders(password, 'hr') })
