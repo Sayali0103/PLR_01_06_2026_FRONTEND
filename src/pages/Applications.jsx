@@ -8,7 +8,7 @@ export const applications = [
     slug: 'cnc-machine-automation',
     title: 'CNC Machine Automation',
     short: 'Automate the loading and unloading of CNC machines to improve productivity and keep production running smoothly.',
-    image: '/photos/Application%20Images/cnc.png',
+    image: '/photos/Application%20Images/cnc.jpeg',
     benefits: ['Faster machine operation', 'Reduced manual work', 'Improved production efficiency'],
   },
   {
