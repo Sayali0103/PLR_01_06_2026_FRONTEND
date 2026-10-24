@@ -15,7 +15,9 @@ export const applications = [
     slug: 'assembly-automation',
     title: 'Assembly Automation',
     short: 'Automate assembly tasks with accurate and consistent part placement for a wide range of products.',
-    image: '/photos/Application%20Images/assembly.png',
+    // The file named assembly.png depicts CNC machine tending; use the
+    // application-neutral gripper image for the assembly card instead.
+    image: '/photos/Application%20Images/customautomation.png',
     benefits: ['Consistent assembly quality', 'Reliable production process', 'Flexible for different products'],
   },
   {
