@@ -17,7 +17,7 @@ export const applications = [
     short: 'Automate assembly tasks with accurate and consistent part placement for a wide range of products.',
     // The file named assembly.png depicts CNC machine tending; use the
     // application-neutral gripper image for the assembly card instead.
-    image: '/photos/Application%20Images/customautomation.png',
+    image: '/photos/Application%20Images/assembly.png',
     benefits: ['Consistent assembly quality', 'Reliable production process', 'Flexible for different products'],
   },
   {
@@ -47,6 +47,13 @@ export const applications = [
     short: 'Automate the loading and unloading of press machines for efficient and reliable production.',
     image: '/photos/Application%20Images/pressmachinetending.png',
     benefits: ['Improved productivity', 'Safe material handling', 'Consistent operation'],
+  },
+  {
+    slug: 'press-metal',
+    title: 'Press Metal Application',
+    short: 'Automate press metal handling to improve production efficiency and ensure consistent part processing.',
+    image: '/photos/Application%20Images/pressmetal.jpeg',
+    benefits: ['Efficient metal handling', 'Consistent part processing', 'Improved workplace safety'],
   },
   {
     slug: 'packaging-automation',
