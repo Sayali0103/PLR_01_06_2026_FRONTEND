@@ -8,7 +8,7 @@ import {
   adminSendInterviewRoundEmail,
 } from '../hooks/useJobs'
 import AttendanceCalendar from '../components/AttendanceCalendar'
-import { adminClearAttendance, adminCreateEmployee, adminDeleteEmployee, adminFetchAttendance, adminFetchEmployees, adminFetchLeaveRequests, adminSaveAttendance, adminSetEmployeePortal, adminUpdateLeaveRequest, employeeLogin } from '../services/api'
+import { adminClearAttendance, adminCreateEmployee, adminDeleteEmployee, adminFetchAttendance, adminFetchEmployees, adminFetchLeaveRequests, adminFetchSalarySlips, adminSaveAttendance, adminSetEmployeePortal, adminUpdateLeaveRequest, adminUploadSalarySlip, employeeLogin } from '../services/api'
 
 const INTERVIEW_ROLES = ['Robotics Engineer', 'Mechanical Engineer', 'Electronics Engineer', 'Technical Sales Engineer', 'UI Developer', 'Human Resources']
 const MEET_LINKS = { 'Robotics Engineer': 'https://meet.google.com/vck-cqkr-yvd', 'Mechanical Engineer': 'https://meet.google.com/mcq-zjio-qez', 'Electronics Engineer': 'https://meet.google.com/pts-pxon-knm' }
@@ -94,6 +94,12 @@ export default function Admin() {
   const [leaveError, setLeaveError] = useState('')
   const [attendanceError, setAttendanceError] = useState('')
   const [savingAttendance, setSavingAttendance] = useState(false)
+  const [salarySlips, setSalarySlips] = useState([])
+  const [salaryEmployeeId, setSalaryEmployeeId] = useState('')
+  const [salaryMonth, setSalaryMonth] = useState(() => { const now = new Date(); return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}` })
+  const [salaryFile, setSalaryFile] = useState(null)
+  const [salaryBusy, setSalaryBusy] = useState(false)
+  const [salaryMessage, setSalaryMessage] = useState('')
   const [candidateEmailForm, setCandidateEmailForm] = useState({ role: INTERVIEW_ROLES[0], date: '', time: '11:00', mode: 'online', meetingLink: MEET_LINKS[INTERVIEW_ROLES[0]], address: OFFICE_ADDRESS, mapsLink: MAPS_LINK, details: '', instructions: DEFAULT_INSTRUCTIONS })
   const [selectedEmailCandidates, setSelectedEmailCandidates] = useState([])
   const [pastedCandidates, setPastedCandidates] = useState('')
@@ -239,6 +245,28 @@ export default function Admin() {
     if (!employeeId) { setAttendance([]); return }
     try { setAttendance(await adminFetchAttendance(employeeId, password, role)); setAttendanceError('') }
     catch (err) { setAttendanceError(err.message) }
+  }
+
+  const loadSalarySlips = async employeeId => {
+    if (!employeeId) { setSalarySlips([]); return }
+    try { setSalarySlips(await adminFetchSalarySlips(employeeId, password)); setSalaryMessage('') }
+    catch (err) { setSalaryMessage(err.message) }
+  }
+
+  const uploadSalarySlip = async event => {
+    event.preventDefault()
+    if (!salaryEmployeeId || !salaryFile) return
+    setSalaryBusy(true)
+    setSalaryMessage('')
+    try {
+      const form = event.currentTarget
+      await adminUploadSalarySlip(salaryEmployeeId, salaryMonth, salaryFile, password)
+      setSalaryFile(null)
+      form.querySelector('input[type="file"]').value = ''
+      await loadSalarySlips(salaryEmployeeId)
+      setSalaryMessage('Salary slip uploaded. The employee can now download it from their dashboard.')
+    } catch (err) { setSalaryMessage(err.message) }
+    finally { setSalaryBusy(false) }
   }
 
   const addEmployee = async event => {
@@ -488,13 +516,14 @@ export default function Admin() {
 
         {/* Tabs */}
         <div className="flex items-center gap-2 mb-8">
-          {(role === 'admin' ? ['jobs', 'applications', 'attendance'] : ['jobs', 'applications', 'attendance', 'leave requests', 'interview email']).map(t => (
+          {(role === 'admin' ? ['jobs', 'applications', 'attendance'] : ['jobs', 'applications', 'attendance', 'salary slips', 'leave requests', 'interview email']).map(t => (
             <button
               key={t}
               onClick={() => {
                 setTab(t)
                 if (t === 'applications') loadApps()
                 if (t === 'attendance') loadEmployees()
+                if (t === 'salary slips') loadEmployees()
                 if (t === 'leave requests') loadLeaveRequests()
               }}
               className={`px-6 py-[9px] rounded-full text-[13px] font-semibold cursor-pointer capitalize transition-all duration-200 ${
@@ -755,7 +784,7 @@ export default function Admin() {
           <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
             <div className="rounded-2xl bg-white p-6 h-fit" style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
               <h2 className="text-[18px] font-bold text-[#111]">Employee Attendance</h2>
-              <p className="mt-1 text-[12.5px] leading-5 text-[#887b6e]">{role === 'hr' ? 'Select an employee, then click a working day to mark present, absent, or clear it.' : 'Select an employee to view their attendance record.'}</p>
+              <p className="mt-1 text-[12.5px] leading-5 text-[#887b6e]">{role === 'hr' ? 'Select an employee, then click any date to update their attendance.' : 'Select an employee to view their attendance record.'}</p>
               <label className="mt-5 block text-[11.5px] font-bold text-[#76695d]">EMPLOYEE</label>
               <select value={selectedEmployeeId} onChange={event => { setSelectedEmployeeId(event.target.value); loadAttendance(event.target.value) }} className="mt-2 w-full rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-3 text-[13px] outline-none focus:ring-2 focus:ring-orange/20">
                 <option value="">Select employee</option>
@@ -780,12 +809,42 @@ export default function Admin() {
             <div>
               {selectedEmployeeId ? <>
                 <div className="mb-4 flex items-center justify-between gap-3">
-                  <div><h2 className="text-[18px] font-bold text-[#111]">{employees.find(employee => employee._id === selectedEmployeeId)?.name || 'Attendance calendar'}</h2><p className="mt-1 text-[12px] text-[#887b6e]">Starts from 1 September 2026. Thursdays and listed holidays are automatic.</p></div>
+                  <div><h2 className="text-[18px] font-bold text-[#111]">{employees.find(employee => employee._id === selectedEmployeeId)?.name || 'Attendance calendar'}</h2><p className="mt-1 text-[12px] text-[#887b6e]">Attendance records from 1 September 2026 onward.</p></div>
                   {savingAttendance && <span className="text-[12px] font-semibold text-orange">Saving...</span>}
                 </div>
                 <AttendanceCalendar attendance={attendance} editable={role === 'hr'} onChange={changeAttendance} />
               </> : <div className="flex min-h-[360px] items-center justify-center rounded-2xl bg-white text-[14px] text-[#aaa]" style={{ border: '1px solid rgba(0,0,0,0.07)' }}>{role === 'hr' ? 'Select or add an employee to manage attendance.' : 'Select an employee to view attendance.'}</div>}
             </div>
+          </div>
+        )}
+
+        {tab === 'salary slips' && role === 'hr' && (
+          <div className="grid items-start gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
+            <section className="rounded-2xl bg-white p-6" style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+              <h2 className="text-[18px] font-bold text-[#111]">Upload salary slip</h2>
+              <p className="mt-1 text-[12.5px] leading-5 text-[#887b6e]">Choose an active employee, the pay month, and their PDF salary slip.</p>
+              <label className="mt-5 block text-[11.5px] font-bold text-[#76695d]">EMPLOYEE</label>
+              <select value={salaryEmployeeId} onChange={event => { setSalaryEmployeeId(event.target.value); loadSalarySlips(event.target.value); setSalaryFile(null) }} className="mt-2 w-full rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-3 text-[13px] outline-none focus:ring-2 focus:ring-orange/20">
+                <option value="">Select employee</option>
+                {employees.filter(employee => employee.isActive).map(employee => <option key={employee._id} value={employee._id}>{employee.name}</option>)}
+              </select>
+              <form onSubmit={uploadSalarySlip} className="mt-5 space-y-3">
+                <label className="block text-[11.5px] font-bold text-[#76695d]">PAY MONTH<input required type="month" value={salaryMonth} onChange={event => setSalaryMonth(event.target.value)} className="mt-2 w-full rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-3 text-[13px] font-normal" /></label>
+                <label className="block text-[11.5px] font-bold text-[#76695d]">SALARY SLIP (PDF)<input required type="file" accept="application/pdf,.pdf" onChange={event => setSalaryFile(event.target.files?.[0] || null)} className="mt-2 block w-full rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-3 text-[12px] font-normal file:mr-3 file:rounded-lg file:border-0 file:bg-orange file:px-3 file:py-2 file:font-bold file:text-white" /></label>
+                <p className="text-[11px] text-[#887b6e]">PDF only, up to 10 MB. Uploading the same employee and month replaces the previous slip.</p>
+                <button disabled={!salaryEmployeeId || !salaryFile || salaryBusy} className="w-full rounded-xl bg-orange py-3 text-[13px] font-bold text-white disabled:opacity-50">{salaryBusy ? 'Uploading…' : 'Upload salary slip'}</button>
+              </form>
+              {salaryMessage && <p role="status" className={`mt-4 rounded-lg px-3 py-2 text-[12px] ${salaryMessage.includes('uploaded') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'}`}>{salaryMessage}</p>}
+            </section>
+            <section className="rounded-2xl bg-white p-6" style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+              <h2 className="text-[18px] font-bold text-[#111]">Uploaded salary slips</h2>
+              <p className="mt-1 text-[12px] text-[#887b6e]">{employees.find(employee => employee._id === salaryEmployeeId)?.name || 'Select an employee to see their slips.'}</p>
+              <div className="mt-5 space-y-2">
+                {salarySlips.map(slip => <div key={slip._id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-[#faf7f2] px-4 py-3"><div><p className="text-[13px] font-bold text-[#332a22]">{new Date(`${slip.month}-01T00:00:00`).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}</p><p className="mt-0.5 text-[11px] text-[#887b6e]">{slip.originalName}</p></div><span className="rounded-full bg-green-100 px-2.5 py-1 text-[10px] font-bold uppercase text-green-700">Available to employee</span></div>)}
+                {salaryEmployeeId && salarySlips.length === 0 && <p className="rounded-xl bg-[#faf7f2] px-4 py-8 text-center text-[13px] text-[#887b6e]">No salary slips uploaded for this employee yet.</p>}
+                {!salaryEmployeeId && <p className="rounded-xl bg-[#faf7f2] px-4 py-8 text-center text-[13px] text-[#887b6e]">Select an employee to view uploaded slips.</p>}
+              </div>
+            </section>
           </div>
         )}
 

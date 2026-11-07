@@ -4,6 +4,7 @@ import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import Home from './pages/Home'
 import Careers from './pages/Careers'
+import CareerJob from './pages/CareerJob'
 import About from './pages/About'
 import Blogs from './pages/Blogs'
 import BlogAutomationExpo from './pages/BlogAutomationExpo'
@@ -82,6 +83,7 @@ export default function App() {
         <Route path="/intern-policies"             element={<InternshipTerms />} />
         <Route path="/internship-terms"            element={<Navigate to="/intern-policies" replace />} />
         <Route path="/faqs"                      element={<Navigate to="/faq" replace />} />
+        <Route path="/careers/:identifier"       element={<CareerJob />} />
         <Route path="/careers"                   element={<Careers />} />
         <Route path="/contact"                   element={<Contact />} />
         <Route path="/book-demo"                 element={<BookDemo />} />

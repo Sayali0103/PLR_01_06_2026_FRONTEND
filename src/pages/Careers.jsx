@@ -1,7 +1,7 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useJobs } from '../hooks/useJobs'
-import JobDetailModal from '../components/JobDetailModal'
 import ApplyModal from '../components/ApplyModal'
 
 const fadeUp = {
@@ -22,11 +22,11 @@ function getJobSortRank(title = '') {
 }
 
 export default function Careers() {
+  const navigate = useNavigate()
   const { jobs, loading, error } = useJobs()
 
   const departments = ['All', ...new Set(jobs.map(j => j.dept))]
   const [activeDept, setActiveDept] = useState('All')
-  const [selectedJob, setSelectedJob] = useState(null)  // detail modal
   const [applyJob, setApplyJob] = useState(null)         // apply modal
 
   const sortedJobs = [...jobs].sort((a, b) => {
@@ -222,7 +222,7 @@ export default function Careers() {
                     <motion.button
                       whileHover={{ scale: 1.04, borderColor: 'rgba(255,125,0,0.35)', color: '#FF7D00' }}
                       whileTap={{ scale: 0.96 }}
-                      onClick={() => setSelectedJob(job)}
+                      onClick={() => navigate(`/careers/${job.title.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}-${job._id}`)}
                       className="inline-flex w-full items-center justify-center gap-2 text-[#555] text-[13px] font-semibold px-6 py-[11px] rounded-xl whitespace-nowrap cursor-pointer transition-all duration-200 bg-white"
                       style={{ border: '1px solid rgba(0,0,0,0.1)' }}
                     >
@@ -243,13 +243,6 @@ export default function Careers() {
       </section>
       
       {/* Modals */}
-      {selectedJob && (
-        <JobDetailModal
-          job={selectedJob}
-          onClose={() => setSelectedJob(null)}
-          onApply={(job) => { setSelectedJob(null); setApplyJob(job) }}
-        />
-      )}
       {applyJob && (
         <ApplyModal
           job={applyJob}

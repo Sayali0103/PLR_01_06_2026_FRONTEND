@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import AttendanceCalendar from '../components/AttendanceCalendar'
-import { employeeApplyForLeave, employeeFetchDashboard, employeeLogin } from '../services/api'
+import { employeeApplyForLeave, employeeDownloadSalarySlip, employeeFetchDashboard, employeeLogin } from '../services/api'
 
 const TOKEN_KEY = 'plr_employee_token'
 const EMPTY_LEAVE = { startDate: '', endDate: '', reason: '' }
@@ -20,6 +20,8 @@ export default function Employee() {
   const [loading, setLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [notice, setNotice] = useState('')
+  const [downloadingSlipId, setDownloadingSlipId] = useState('')
+  const [salaryError, setSalaryError] = useState('')
 
   useEffect(() => {
     if (!token) return
@@ -66,6 +68,14 @@ export default function Employee() {
     finally { setSubmitting(false) }
   }
 
+  const downloadSlip = async slip => {
+    setDownloadingSlipId(slip._id)
+    setSalaryError('')
+    try { await employeeDownloadSalarySlip(slip._id, token) }
+    catch (err) { setSalaryError(err.message) }
+    finally { setDownloadingSlipId('') }
+  }
+
   if (!dashboard) return (
     <main className="min-h-screen bg-[#faf7f2] px-5 pb-16 pt-28 sm:px-8">
       <div className="mx-auto max-w-[440px] rounded-3xl bg-white p-7 sm:p-9" style={panelStyle}>
@@ -99,11 +109,23 @@ export default function Employee() {
         </header>
 
         <section className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {[['Present days', present, 'text-[#168044]'], ['Absent days', absent, 'text-[#bd3333]'], ['Holiday schedule', 'Thursdays + listed dates', 'text-[#ad7510]']].map(([label, value, color]) => <div key={label} className="rounded-2xl bg-white p-4 sm:p-5" style={panelStyle}><p className="text-[11px] font-bold uppercase tracking-wide text-[#a09589]">{label}</p><p className={`mt-2 text-[16px] font-bold ${color}`}>{value}</p></div>)}
+          {[['Present days', present, 'text-[#168044]'], ['Absent days', absent, 'text-[#bd3333]']].map(([label, value, color]) => <div key={label} className="rounded-2xl bg-white p-4 sm:p-5" style={panelStyle}><p className="text-[11px] font-bold uppercase tracking-wide text-[#a09589]">{label}</p><p className={`mt-2 text-[16px] font-bold ${color}`}>{value}</p></div>)}
         </section>
         <section className="mt-6 rounded-2xl bg-white p-4 sm:p-6" style={panelStyle}>
           <div className="mb-4"><h2 className="text-[18px] font-bold text-[#17100a]">My attendance</h2><p className="mt-1 text-[12px] text-[#887b6e]">Attendance records from 1 September 2026 onward.</p></div>
           <AttendanceCalendar attendance={attendance} />
+        </section>
+
+        <section className="mt-6 rounded-2xl bg-white p-5 sm:p-6" style={panelStyle}>
+          <h2 className="text-[18px] font-bold text-[#17100a]">My salary slips</h2>
+          <p className="mt-1 text-[12px] text-[#887b6e]">Salary slips shared by HR are private to your account.</p>
+          {salaryError && <p role="alert" className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-[13px] text-red-600">{salaryError}</p>}
+          <div className="mt-4 space-y-2">
+            {dashboard.salarySlips?.length ? dashboard.salarySlips.map(slip => <article key={slip._id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-[#faf7f2] px-4 py-3">
+              <div><p className="text-[13px] font-bold text-[#332a22]">{new Date(`${slip.month}-01T00:00:00`).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}</p><p className="mt-0.5 text-[11px] text-[#887b6e]">{slip.originalName}</p></div>
+              <button type="button" onClick={() => downloadSlip(slip)} disabled={Boolean(downloadingSlipId)} className="rounded-lg bg-orange px-4 py-2 text-[12px] font-bold text-white disabled:opacity-60">{downloadingSlipId === slip._id ? 'Downloading…' : 'Download PDF'}</button>
+            </article>) : <p className="rounded-xl bg-[#faf7f2] px-4 py-8 text-center text-[13px] text-[#887b6e]">No salary slips have been shared with you yet.</p>}
+          </div>
         </section>
 
         <section className="mt-6 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">

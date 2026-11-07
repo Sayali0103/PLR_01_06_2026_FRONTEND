@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { matchPath, useLocation } from 'react-router-dom'
 import { applications } from '../pages/Applications'
+import { API_URL } from '../services/api'
 
 const SITE_URL = 'https://plrobotics.in'
 const DEFAULT_DESCRIPTION = 'P. L. Robotics is a Pune based industrial robotics company building next-generation cobots and automation solutions for Indian manufacturing.'
@@ -89,26 +90,49 @@ export default function Seo() {
   const { pathname } = useLocation()
 
   useEffect(() => {
-    const metadata = getMetadata(pathname)
-    const canonicalUrl = `${SITE_URL}${metadata.canonicalPath === '/' ? '/' : metadata.canonicalPath}`
-
-    document.title = metadata.title
-    setMeta('meta[name="description"]', { name: 'description', content: metadata.description })
-    setMeta('meta[name="robots"]', {
-      name: 'robots',
-      content: metadata.indexable ? 'index, follow' : 'noindex, nofollow',
-    })
-    setMeta('meta[property="og:title"]', { property: 'og:title', content: metadata.title })
-    setMeta('meta[property="og:description"]', { property: 'og:description', content: metadata.description })
-    setMeta('meta[property="og:url"]', { property: 'og:url', content: canonicalUrl })
-
-    let canonical = document.head.querySelector('link[rel="canonical"]')
-    if (!canonical) {
-      canonical = document.createElement('link')
-      canonical.setAttribute('rel', 'canonical')
-      document.head.appendChild(canonical)
+    let cancelled = false
+    const applyMetadata = metadata => {
+      const canonicalUrl = `${SITE_URL}${metadata.canonicalPath === '/' ? '/' : metadata.canonicalPath}`
+      document.title = metadata.title
+      setMeta('meta[name="description"]', { name: 'description', content: metadata.description })
+      setMeta('meta[name="robots"]', { name: 'robots', content: metadata.indexable ? 'index, follow' : 'noindex, nofollow' })
+      setMeta('meta[property="og:title"]', { property: 'og:title', content: metadata.title })
+      setMeta('meta[property="og:description"]', { property: 'og:description', content: metadata.description })
+      setMeta('meta[property="og:url"]', { property: 'og:url', content: canonicalUrl })
+      let canonical = document.head.querySelector('link[rel="canonical"]')
+      if (!canonical) {
+        canonical = document.createElement('link')
+        canonical.setAttribute('rel', 'canonical')
+        document.head.appendChild(canonical)
+      }
+      canonical.setAttribute('href', canonicalUrl)
     }
-    canonical.setAttribute('href', canonicalUrl)
+
+    const jobMatch = matchPath('/careers/:identifier', pathname)
+    const jobId = jobMatch?.params.identifier.match(/([a-f\d]{24})$/i)?.[1]
+    if (jobMatch && jobId) {
+      applyMetadata({
+        title: 'Open Position | Careers | P. L. Robotics',
+        description: 'View this open career opportunity at P. L. Robotics.',
+        canonicalPath: pathname,
+        indexable: false,
+      })
+      fetch(`${API_URL}/jobs/${jobId}`)
+        .then(response => response.ok ? response.json() : null)
+        .then(job => {
+          if (!cancelled && job?.isActive) applyMetadata({
+            title: `${job.title} | Careers | P. L. Robotics`,
+            description: job.overview,
+            canonicalPath: pathname,
+            indexable: true,
+          })
+        })
+        .catch(() => {})
+    } else {
+      applyMetadata(getMetadata(pathname))
+    }
+
+    return () => { cancelled = true }
   }, [pathname])
 
   return null
