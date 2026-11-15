@@ -134,8 +134,14 @@ export default function Admin() {
       loadApps()
       loadInterviewers()
       loadEmployees()
-    } catch {
-      setAuthError('Incorrect password.')
+    } catch (err) {
+      if (err?.status === 401) {
+        setAuthError(role === 'employee' ? 'Invalid employee name or password.' : 'Incorrect password.')
+      } else if (err instanceof TypeError) {
+        setAuthError('Could not reach the sign-in service. Please try again later.')
+      } else {
+        setAuthError(err instanceof Error ? `Sign-in failed: ${err.message}` : 'Sign-in failed. Please try again.')
+      }
     }
   }
 

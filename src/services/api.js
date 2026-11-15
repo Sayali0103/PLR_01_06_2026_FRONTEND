@@ -13,8 +13,17 @@ export async function submitWebsiteForm(path, payload) {
 
 async function request(path, options = {}) {
   const response = await fetch(`${API_URL}${path}`, options)
-  const data = await response.json()
-  if (!response.ok) throw new Error(data.error || 'Request failed')
+  let data
+  try {
+    data = await response.json()
+  } catch {
+    data = null
+  }
+  if (!response.ok) {
+    const error = new Error(data?.error || `Request failed (${response.status})`)
+    error.status = response.status
+    throw error
+  }
   return data
 }
 
