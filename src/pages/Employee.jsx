@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import AttendanceCalendar from '../components/AttendanceCalendar'
-import { employeeApplyForLeave, employeeDownloadSalarySlip, employeeFetchDashboard, employeeLogin } from '../services/api'
+import { employeeApplyForLeave, employeeDownloadSalarySlip, employeeFetchDashboard, employeeLogin, employeeLogout, employeeUpdateTask } from '../services/api'
 
 const TOKEN_KEY = 'plr_employee_token'
 const EMPTY_LEAVE = { startDate: '', endDate: '', reason: '' }
@@ -14,6 +14,7 @@ export default function Employee() {
   const [token, setToken] = useState(() => sessionStorage.getItem(TOKEN_KEY) || '')
   const [name, setName] = useState('')
   const [password, setPassword] = useState('')
+  const [workMode, setWorkMode] = useState('office')
   const [dashboard, setDashboard] = useState(null)
   const [leave, setLeave] = useState(EMPTY_LEAVE)
   const [error, setError] = useState('')
@@ -22,6 +23,8 @@ export default function Employee() {
   const [notice, setNotice] = useState('')
   const [downloadingSlipId, setDownloadingSlipId] = useState('')
   const [salaryError, setSalaryError] = useState('')
+  const [taskError, setTaskError] = useState('')
+  const [updatingTaskId, setUpdatingTaskId] = useState('')
 
   useEffect(() => {
     if (!token) return
@@ -37,7 +40,7 @@ export default function Employee() {
     setError('')
     setLoading(true)
     try {
-      const result = await employeeLogin({ name, password })
+      const result = await employeeLogin({ name, password, workMode })
       sessionStorage.setItem(TOKEN_KEY, result.token)
       setDashboard(await employeeFetchDashboard(result.token))
       setToken(result.token)
@@ -46,12 +49,25 @@ export default function Employee() {
     finally { setLoading(false) }
   }
 
-  const signOut = () => {
+  const signOut = async () => {
+    setError('')
+    try { await employeeLogout(token) }
+    catch (err) { setError(err.message); return }
     sessionStorage.removeItem(TOKEN_KEY)
     setToken('')
     setDashboard(null)
     setLeave(EMPTY_LEAVE)
     setNotice('')
+  }
+
+  const updateTask = async task => {
+    setUpdatingTaskId(task._id)
+    setTaskError('')
+    try {
+      await employeeUpdateTask(task._id, { status: task.status, updateNote: task.updateNote || '' }, token)
+      setDashboard(await employeeFetchDashboard(token))
+    } catch (err) { setTaskError(err.message) }
+    finally { setUpdatingTaskId('') }
   }
 
   const submitLeave = async event => {
@@ -89,6 +105,9 @@ export default function Employee() {
           <label className="block text-[12px] font-bold text-[#76695d]">PASSWORD
             <input required type="password" autoComplete="current-password" value={password} onChange={event => setPassword(event.target.value)} className="mt-2 w-full rounded-xl border border-black/10 bg-[#faf7f2] px-4 py-3 text-[14px] font-normal outline-none focus:ring-2 focus:ring-orange/20" placeholder="Your password" />
           </label>
+          <label className="block text-[12px] font-bold text-[#76695d]">WORK LOCATION
+            <select value={workMode} onChange={event => setWorkMode(event.target.value)} className="mt-2 w-full rounded-xl border border-black/10 bg-[#faf7f2] px-4 py-3 text-[14px] font-normal outline-none focus:ring-2 focus:ring-orange/20"><option value="office">Office</option><option value="wfh">Work from home (WFH)</option></select>
+          </label>
           {error && <p role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-[13px] text-red-600">{error}</p>}
           <button disabled={loading} className="w-full rounded-xl bg-orange py-3 text-[14px] font-bold text-white disabled:opacity-60">{loading ? 'Signing in…' : 'Sign in'}</button>
           <p className="text-center text-[12px] text-[#887b6e]">Need access? Contact HR to activate your employee dashboard.</p>
@@ -97,16 +116,19 @@ export default function Employee() {
     </main>
   )
 
-  const { employee, attendance, leaveRequests } = dashboard
+  const { employee, attendance, leaveRequests, tasks = [] } = dashboard
   const present = attendance.filter(item => item.status === 'present').length
   const absent = attendance.filter(item => item.status === 'absent').length
+  const todayKey = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
+  const todayAttendance = attendance.find(item => item.date === todayKey)
   return (
     <main className="min-h-screen bg-[#faf7f2] px-5 pb-16 pt-24 sm:px-8">
       <div className="mx-auto max-w-[1000px]">
         <header className="flex flex-wrap items-start justify-between gap-4">
-          <div><p className="text-[12px] font-bold uppercase tracking-[0.18em] text-orange">PLR Robotics · Employee portal</p><h1 className="mt-2 text-3xl font-bold tracking-tight text-[#17100a]">Welcome, {employee.name}</h1><p className="mt-1 text-[14px] text-[#74685c]">Your attendance and leave requests in one place.</p></div>
+          <div><p className="text-[12px] font-bold uppercase tracking-[0.18em] text-orange">PLR Robotics · Employee portal</p><h1 className="mt-2 text-3xl font-bold tracking-tight text-[#17100a]">Welcome, {employee.name}</h1><p className="mt-1 text-[14px] text-[#74685c]">Your attendance and leave requests in one place.</p>{todayAttendance && <p className="mt-2 text-[12px] font-semibold text-[#65594d]">Today · {todayAttendance.workMode === 'wfh' || todayAttendance.status === 'wfh' ? 'WFH' : 'Office'} · Login {todayAttendance.loginAt ? new Date(todayAttendance.loginAt).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' }) : '—'} · Logout {todayAttendance.logoutAt ? new Date(todayAttendance.logoutAt).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' }) : 'Active'}</p>}</div>
           <button onClick={signOut} className="rounded-xl border border-black/10 bg-white px-4 py-2.5 text-[13px] font-bold text-[#63584d]">Sign out</button>
         </header>
+        {error && <p role="alert" className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-[13px] text-red-600">{error}</p>}
 
         <section className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3">
           {[['Present days', present, 'text-[#168044]'], ['Absent days', absent, 'text-[#bd3333]']].map(([label, value, color]) => <div key={label} className="rounded-2xl bg-white p-4 sm:p-5" style={panelStyle}><p className="text-[11px] font-bold uppercase tracking-wide text-[#a09589]">{label}</p><p className={`mt-2 text-[16px] font-bold ${color}`}>{value}</p></div>)}
@@ -114,6 +136,21 @@ export default function Employee() {
         <section className="mt-6 rounded-2xl bg-white p-4 sm:p-6" style={panelStyle}>
           <div className="mb-4"><h2 className="text-[18px] font-bold text-[#17100a]">My attendance</h2><p className="mt-1 text-[12px] text-[#887b6e]">Attendance records from 1 September 2026 onward.</p></div>
           <AttendanceCalendar attendance={attendance} />
+        </section>
+
+        <section className="mt-6 rounded-2xl bg-white p-5 sm:p-6" style={panelStyle}>
+          <div><h2 className="text-[18px] font-bold text-[#17100a]">My tasks</h2><p className="mt-1 text-[12px] text-[#887b6e]">Update the status and leave a progress note for admin and HR.</p></div>
+          {taskError && <p role="alert" className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-[13px] text-red-600">{taskError}</p>}
+          <div className="mt-4 space-y-3">{tasks.map(task => <article key={task._id} className="rounded-xl bg-[#faf7f2] p-4">
+            <div className="flex flex-wrap items-start justify-between gap-3"><div><h3 className="text-[14px] font-bold text-[#332a22]">{task.title}</h3>{task.dueDate && <p className="mt-1 text-[11px] text-[#887b6e]">Due {task.dueDate}</p>}</div><span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase ${task.status === 'completed' ? 'bg-green-100 text-green-700' : task.status === 'in_progress' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'}`}>{task.status.replace('_', ' ')}</span></div>
+            {task.description && <p className="mt-3 whitespace-pre-wrap text-[12px] leading-5 text-[#65594d]">{task.description}</p>}
+            <div className="mt-4 grid gap-3 sm:grid-cols-[180px_minmax(0,1fr)_auto]">
+              <label className="text-[10px] font-bold text-[#76695d]">STATUS<select value={task.status} onChange={event => setDashboard(current => ({ ...current, tasks: current.tasks.map(item => item._id === task._id ? { ...item, status: event.target.value } : item) }))} className="mt-1 block w-full rounded-lg border border-black/10 bg-white px-2.5 py-2 text-[12px] font-normal"><option value="assigned">Assigned</option><option value="in_progress">In progress</option><option value="completed">Completed</option></select></label>
+              <label className="text-[10px] font-bold text-[#76695d]">PROGRESS UPDATE<textarea maxLength={1000} rows={2} value={task.updateNote || ''} onChange={event => setDashboard(current => ({ ...current, tasks: current.tasks.map(item => item._id === task._id ? { ...item, updateNote: event.target.value } : item) }))} placeholder="Share your progress or blockers" className="mt-1 block w-full resize-y rounded-lg border border-black/10 bg-white px-3 py-2 text-[12px] font-normal" /></label>
+              <button type="button" onClick={() => updateTask(task)} disabled={updatingTaskId === task._id} className="self-end rounded-lg bg-orange px-4 py-2 text-[12px] font-bold text-white disabled:opacity-50">{updatingTaskId === task._id ? 'Saving…' : 'Update task'}</button>
+            </div>
+            {task.employeeUpdatedAt && <p className="mt-2 text-[10px] text-[#887b6e]">Last updated {new Date(task.employeeUpdatedAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}</p>}
+          </article>)}{!tasks.length && <p className="rounded-xl bg-[#faf7f2] px-4 py-8 text-center text-[13px] text-[#887b6e]">No tasks assigned yet.</p>}</div>
         </section>
 
         <section className="mt-6 rounded-2xl bg-white p-5 sm:p-6" style={panelStyle}>

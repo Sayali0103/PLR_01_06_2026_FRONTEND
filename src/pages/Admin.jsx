@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -8,7 +8,7 @@ import {
   adminSendInterviewRoundEmail,
 } from '../hooks/useJobs'
 import AttendanceCalendar from '../components/AttendanceCalendar'
-import { adminClearAttendance, adminCreateEmployee, adminDeleteEmployee, adminFetchAttendance, adminFetchEmployees, adminFetchLeaveRequests, adminFetchSalarySlips, adminSaveAttendance, adminSetEmployeePortal, adminUpdateLeaveRequest, adminUploadSalarySlip, employeeLogin } from '../services/api'
+import { adminAssignTask, adminClearAttendance, adminCreateEmployee, adminDeleteEmployee, adminFetchAttendance, adminFetchAttendanceSummary, adminFetchEmployees, adminFetchLeaveRequests, adminFetchSalarySlips, adminFetchTasks, adminSaveAttendance, adminSetEmployeePortal, adminUpdateLeaveRequest, adminUploadSalarySlip, employeeLogin } from '../services/api'
 
 const INTERVIEW_ROLES = ['Robotics Engineer', 'Mechanical Engineer', 'Electronics Engineer', 'Technical Sales Engineer', 'UI Developer', 'Human Resources']
 const MEET_LINKS = { 'Robotics Engineer': 'https://meet.google.com/vck-cqkr-yvd', 'Mechanical Engineer': 'https://meet.google.com/mcq-zjio-qez', 'Electronics Engineer': 'https://meet.google.com/pts-pxon-knm' }
@@ -94,6 +94,16 @@ export default function Admin() {
   const [leaveError, setLeaveError] = useState('')
   const [attendanceError, setAttendanceError] = useState('')
   const [savingAttendance, setSavingAttendance] = useState(false)
+  const [attendanceSummary, setAttendanceSummary] = useState([])
+  const [summaryMonth, setSummaryMonth] = useState(() => { const now = new Date(); return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}` })
+  const [summaryError, setSummaryError] = useState('')
+  const [tasks, setTasks] = useState([])
+  const [taskError, setTaskError] = useState('')
+  const [taskTitle, setTaskTitle] = useState('')
+  const [taskDescription, setTaskDescription] = useState('')
+  const [taskDueDate, setTaskDueDate] = useState('')
+  const [taskEmployeeId, setTaskEmployeeId] = useState('')
+  const [taskBusy, setTaskBusy] = useState(false)
   const [salarySlips, setSalarySlips] = useState([])
   const [salaryEmployeeId, setSalaryEmployeeId] = useState('')
   const [salaryMonth, setSalaryMonth] = useState(() => { const now = new Date(); return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}` })
@@ -229,6 +239,50 @@ export default function Admin() {
     catch { setAttendanceError('Unable to load employees.') }
   }
 
+  const loadAttendanceSummary = async month => {
+    try {
+      const result = await adminFetchAttendanceSummary(month, password, role)
+      setAttendanceSummary(result.employees)
+      setSummaryError('')
+    } catch (err) { setSummaryError(err.message) }
+  }
+
+  const loadTasks = async () => {
+    try { setTasks(await adminFetchTasks(password, role)); setTaskError('') }
+    catch (err) { setTaskError(err.message) }
+  }
+
+  useEffect(() => {
+    if (!authed || tab !== 'tasks') return undefined
+    let active = true
+    const refresh = async () => {
+      try {
+        const latestTasks = await adminFetchTasks(password, role)
+        if (active) { setTasks(latestTasks); setTaskError('') }
+      } catch (err) {
+        if (active) setTaskError(err.message)
+      }
+    }
+    refresh()
+    const timer = window.setInterval(refresh, 20000)
+    return () => { active = false; window.clearInterval(timer) }
+  }, [authed, tab, password, role])
+
+  const assignTask = async event => {
+    event.preventDefault()
+    if (!taskEmployeeId) return
+    setTaskBusy(true)
+    setTaskError('')
+    try {
+      await adminAssignTask({ employeeId: taskEmployeeId, title: taskTitle, description: taskDescription, dueDate: taskDueDate }, password, role)
+      setTaskTitle('')
+      setTaskDescription('')
+      setTaskDueDate('')
+      await loadTasks()
+    } catch (err) { setTaskError(err.message) }
+    finally { setTaskBusy(false) }
+  }
+
   const loadLeaveRequests = async () => {
     try { setLeaveRequests(await adminFetchLeaveRequests(password, role)); setLeaveError('') }
     catch (err) { setLeaveError(err.message) }
@@ -249,7 +303,7 @@ export default function Admin() {
 
   const loadSalarySlips = async employeeId => {
     if (!employeeId) { setSalarySlips([]); return }
-    try { setSalarySlips(await adminFetchSalarySlips(employeeId, password)); setSalaryMessage('') }
+    try { setSalarySlips(await adminFetchSalarySlips(employeeId, password, role)); setSalaryMessage('') }
     catch (err) { setSalaryMessage(err.message) }
   }
 
@@ -260,7 +314,7 @@ export default function Admin() {
     setSalaryMessage('')
     try {
       const form = event.currentTarget
-      await adminUploadSalarySlip(salaryEmployeeId, salaryMonth, salaryFile, password)
+      await adminUploadSalarySlip(salaryEmployeeId, salaryMonth, salaryFile, password, role)
       setSalaryFile(null)
       form.querySelector('input[type="file"]').value = ''
       await loadSalarySlips(salaryEmployeeId)
@@ -312,7 +366,7 @@ export default function Admin() {
     setAttendanceError('')
     try {
       if (status) await adminSaveAttendance(selectedEmployeeId, date, status, password, role)
-      else await adminClearAttendance(selectedEmployeeId, date, password)
+      else await adminClearAttendance(selectedEmployeeId, date, password, role)
       await loadAttendance(selectedEmployeeId)
     } catch (err) { setAttendanceError(err.message) }
     finally { setSavingAttendance(false) }
@@ -494,13 +548,13 @@ export default function Admin() {
   // -- MAIN DASHBOARD --
   return (
     <div className="min-h-screen bg-cream">
-      <div className={`${role === 'hr' && tab === 'interview email' ? 'max-w-[1720px]' : 'max-w-[1200px]'} mx-auto px-5 py-8 sm:px-8 lg:px-10 lg:py-10`}>
+      <div className={`${tab === 'interview email' ? 'max-w-[1720px]' : 'max-w-[1200px]'} mx-auto px-5 py-8 sm:px-8 lg:px-10 lg:py-10`}>
 
         {/* Top bar */}
         <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
           <div>
             <h1 className="font-bold text-[26px] text-[#111] tracking-tight">{role === 'hr' ? 'HR Dashboard' : 'Admin Dashboard'}</h1>
-            <p className="text-[13px] text-[#aaa] mt-1">{role === 'hr' ? 'Manage jobs, applications, interviews, attendance, and leave requests' : 'Manage jobs, applications, employee dashboards, and attendance'}</p>
+            <p className="text-[13px] text-[#aaa] mt-1">Manage jobs, applications, interviews, employee attendance, leave, and tasks</p>
           </div>
           <button
             onClick={() => { setAuthed(false); setPassword('') }}
@@ -516,15 +570,16 @@ export default function Admin() {
 
         {/* Tabs */}
         <div className="flex items-center gap-2 mb-8">
-          {(role === 'admin' ? ['jobs', 'applications', 'attendance'] : ['jobs', 'applications', 'attendance', 'salary slips', 'leave requests', 'interview email']).map(t => (
+          {['jobs', 'applications', 'attendance', 'salary slips', 'leave requests', 'tasks', 'interview email'].map(t => (
             <button
               key={t}
               onClick={() => {
                 setTab(t)
                 if (t === 'applications') loadApps()
-                if (t === 'attendance') loadEmployees()
+                if (t === 'attendance') { loadEmployees(); loadAttendanceSummary(summaryMonth) }
                 if (t === 'salary slips') loadEmployees()
                 if (t === 'leave requests') loadLeaveRequests()
+                if (t === 'tasks') { loadEmployees(); loadTasks() }
               }}
               className={`px-6 py-[9px] rounded-full text-[13px] font-semibold cursor-pointer capitalize transition-all duration-200 ${
                 tab === t ? 'bg-orange text-white' : 'bg-white text-[#555] hover:text-orange'
@@ -781,10 +836,32 @@ export default function Admin() {
         )}
 
         {tab === 'attendance' && (
-          <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
+          <div>
+            <section className="mb-6 rounded-2xl bg-white p-5 sm:p-6" style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+              <div className="flex flex-wrap items-end justify-between gap-4">
+                <div><h2 className="text-[18px] font-bold text-[#111]">Monthly attendance summary</h2><p className="mt-1 text-[12px] text-[#887b6e]">Working days include present, WFH, and half days counted as 0.5. Leave includes approved leave not overridden by an attendance entry.</p></div>
+                <label className="text-[11px] font-bold text-[#76695d]">MONTH<input type="month" value={summaryMonth} onChange={event => { setSummaryMonth(event.target.value); if (event.target.value) loadAttendanceSummary(event.target.value) }} className="mt-1 block rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-2 text-[13px] font-normal" /></label>
+              </div>
+              {summaryError && <p role="alert" className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-[12px] text-red-600">{summaryError}</p>}
+              <div className="mt-4 overflow-x-auto">
+                <table className="w-full min-w-[700px] text-left text-[12px]">
+                  <thead><tr className="border-b border-black/5 text-[10px] uppercase tracking-wide text-[#a09589]"><th className="px-3 py-3">Employee</th><th className="px-3 py-3">Working</th><th className="px-3 py-3">Leave</th><th className="px-3 py-3">Absent</th><th className="px-3 py-3">Login / logout · WFH</th></tr></thead>
+                  <tbody>{attendanceSummary.map(summary => {
+                    const sessions = summary.attendance.filter(record => record.loginAt || record.logoutAt)
+                    return <tr key={summary.employee._id} className="border-b border-black/5 align-top last:border-0">
+                      <td className="px-3 py-3"><span className="font-bold text-[#332a22]">{summary.employee.name}</span>{!summary.employee.isActive && <span className="ml-2 text-[10px] text-[#aaa]">Inactive</span>}<span className="mt-0.5 block text-[10px] text-[#887b6e]">{summary.employee.email}</span></td>
+                      <td className="px-3 py-3 font-bold text-green-700">{summary.working}</td><td className="px-3 py-3 font-bold text-amber-700">{summary.leave}</td><td className="px-3 py-3 font-bold text-red-600">{summary.absent}</td>
+                      <td className="px-3 py-3 text-[#65594d]">{sessions.length ? sessions.map(record => <div key={record.date} className="mb-1 last:mb-0"><span className="font-semibold">{record.date}</span> · {record.loginAt ? new Date(record.loginAt).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' }) : '—'}–{record.logoutAt ? new Date(record.logoutAt).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' }) : 'active'}{record.workMode === 'wfh' || record.status === 'wfh' ? ' · WFH' : ''}</div>) : <span className="text-[#aaa]">No sessions recorded</span>}</td>
+                    </tr>
+                  })}</tbody>
+                </table>
+                {!attendanceSummary.length && !summaryError && <p className="py-7 text-center text-[12px] text-[#887b6e]">No employees found.</p>}
+              </div>
+            </section>
+            <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
             <div className="rounded-2xl bg-white p-6 h-fit" style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
               <h2 className="text-[18px] font-bold text-[#111]">Employee Attendance</h2>
-              <p className="mt-1 text-[12.5px] leading-5 text-[#887b6e]">{role === 'hr' ? 'Select an employee, then click any date to update their attendance.' : 'Select an employee to view their attendance record.'}</p>
+              <p className="mt-1 text-[12.5px] leading-5 text-[#887b6e]">Select an employee, then click any date to update their attendance.</p>
               <label className="mt-5 block text-[11.5px] font-bold text-[#76695d]">EMPLOYEE</label>
               <select value={selectedEmployeeId} onChange={event => { setSelectedEmployeeId(event.target.value); loadAttendance(event.target.value) }} className="mt-2 w-full rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-3 text-[13px] outline-none focus:ring-2 focus:ring-orange/20">
                 <option value="">Select employee</option>
@@ -812,13 +889,14 @@ export default function Admin() {
                   <div><h2 className="text-[18px] font-bold text-[#111]">{employees.find(employee => employee._id === selectedEmployeeId)?.name || 'Attendance calendar'}</h2><p className="mt-1 text-[12px] text-[#887b6e]">Attendance records from 1 September 2026 onward.</p></div>
                   {savingAttendance && <span className="text-[12px] font-semibold text-orange">Saving...</span>}
                 </div>
-                <AttendanceCalendar attendance={attendance} editable={role === 'hr'} onChange={changeAttendance} />
-              </> : <div className="flex min-h-[360px] items-center justify-center rounded-2xl bg-white text-[14px] text-[#aaa]" style={{ border: '1px solid rgba(0,0,0,0.07)' }}>{role === 'hr' ? 'Select or add an employee to manage attendance.' : 'Select an employee to view attendance.'}</div>}
+                <AttendanceCalendar attendance={attendance} editable onChange={changeAttendance} />
+              </> : <div className="flex min-h-[360px] items-center justify-center rounded-2xl bg-white text-[14px] text-[#aaa]" style={{ border: '1px solid rgba(0,0,0,0.07)' }}>Select or add an employee to manage attendance.</div>}
             </div>
+          </div>
           </div>
         )}
 
-        {tab === 'salary slips' && role === 'hr' && (
+        {tab === 'salary slips' && (
           <div className="grid items-start gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
             <section className="rounded-2xl bg-white p-6" style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
               <h2 className="text-[18px] font-bold text-[#111]">Upload salary slip</h2>
@@ -848,7 +926,7 @@ export default function Admin() {
           </div>
         )}
 
-        {tab === 'leave requests' && role === 'hr' && (
+        {tab === 'leave requests' && (
           <div>
             <h2 className="text-[20px] font-bold text-[#111]">Employee leave requests</h2>
             <p className="mt-1 text-[13px] text-[#887b6e]">Review requests submitted from employee dashboards.</p>
@@ -875,7 +953,34 @@ export default function Admin() {
           </div>
         )}
 
-        {tab === 'interview email' && role === 'hr' && (
+        {tab === 'tasks' && (
+          <div className="grid items-start gap-6 lg:grid-cols-[340px_minmax(0,1fr)]">
+            <section className="rounded-2xl bg-white p-5 sm:p-6" style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+              <h2 className="text-[18px] font-bold text-[#111]">Assign a task</h2>
+              <p className="mt-1 text-[12px] text-[#887b6e]">Assigned tasks appear in the employee portal.</p>
+              <form onSubmit={assignTask} className="mt-5 space-y-3">
+                <label className="block text-[11px] font-bold text-[#76695d]">EMPLOYEE<select required value={taskEmployeeId} onChange={event => setTaskEmployeeId(event.target.value)} className="mt-1.5 w-full rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-2.5 text-[13px] font-normal"><option value="">Select employee</option>{employees.filter(employee => employee.isActive).map(employee => <option key={employee._id} value={employee._id}>{employee.name}</option>)}</select></label>
+                <label className="block text-[11px] font-bold text-[#76695d]">TASK TITLE<input required maxLength={160} value={taskTitle} onChange={event => setTaskTitle(event.target.value)} className="mt-1.5 w-full rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-2.5 text-[13px] font-normal" placeholder="Task title" /></label>
+                <label className="block text-[11px] font-bold text-[#76695d]">DESCRIPTION<textarea maxLength={2000} rows={4} value={taskDescription} onChange={event => setTaskDescription(event.target.value)} className="mt-1.5 w-full resize-y rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-2.5 text-[13px] font-normal" placeholder="Task details and expected outcome" /></label>
+                <label className="block text-[11px] font-bold text-[#76695d]">DUE DATE<input type="date" value={taskDueDate} onChange={event => setTaskDueDate(event.target.value)} className="mt-1.5 w-full rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-2.5 text-[13px] font-normal" /></label>
+                {taskError && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-[12px] text-red-600">{taskError}</p>}
+                <button disabled={taskBusy || !taskEmployeeId} className="w-full rounded-xl bg-orange py-3 text-[13px] font-bold text-white disabled:opacity-50">{taskBusy ? 'Assigning…' : 'Assign task'}</button>
+              </form>
+            </section>
+            <section className="rounded-2xl bg-white p-5 sm:p-6" style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+              <div className="flex items-center justify-between gap-3"><div><h2 className="text-[18px] font-bold text-[#111]">Task progress</h2><p className="mt-1 text-[12px] text-[#887b6e]">Refreshes automatically every 20 seconds.</p></div><button type="button" onClick={loadTasks} className="rounded-lg border border-black/10 px-3 py-2 text-[11px] font-bold text-[#65594d]">Refresh</button></div>
+              {taskError && <p role="alert" className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-[12px] text-red-600">{taskError}</p>}
+              <div className="mt-4 space-y-3">{tasks.map(task => <article key={task._id} className="rounded-xl bg-[#faf7f2] p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3"><div><h3 className="text-[14px] font-bold text-[#332a22]">{task.title}</h3><p className="mt-1 text-[11px] text-[#887b6e]">{task.employeeId?.name || 'Former employee'}{task.dueDate ? ` · Due ${task.dueDate}` : ''}</p></div><span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase ${task.status === 'completed' ? 'bg-green-100 text-green-700' : task.status === 'in_progress' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'}`}>{task.status.replace('_', ' ')}</span></div>
+                {task.description && <p className="mt-3 whitespace-pre-wrap text-[12px] leading-5 text-[#65594d]">{task.description}</p>}
+                {task.updateNote && <div className="mt-3 rounded-lg border border-black/5 bg-white px-3 py-2"><p className="text-[10px] font-bold uppercase text-[#a09589]">Employee update</p><p className="mt-1 whitespace-pre-wrap text-[12px] leading-5 text-[#55483c]">{task.updateNote}</p></div>}
+                {task.employeeUpdatedAt && <p className="mt-2 text-[10px] text-[#887b6e]">Updated {new Date(task.employeeUpdatedAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}</p>}
+              </article>)}{!tasks.length && !taskError && <p className="rounded-xl bg-[#faf7f2] px-4 py-10 text-center text-[13px] text-[#887b6e]">No tasks assigned yet.</p>}</div>
+            </section>
+          </div>
+        )}
+
+        {tab === 'interview email' && (
           <div>
             <h2 className="text-[20px] font-bold text-[#111]">Interview invitation</h2>
             <p className="mt-1 text-[13px] text-[#887b6e]">Schedule an interview, select candidates, and preview the invitation before sending.</p>
