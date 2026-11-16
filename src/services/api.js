@@ -32,6 +32,7 @@ const adminHeaders = (password, role = 'admin') => ({ 'Content-Type': 'applicati
 export const employeeLogin = credentials => request('/employees/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(credentials) })
 export const employeeFetchDashboard = token => request('/employees/me', { headers: { Authorization: `Bearer ${token}` } })
 export const employeeLogout = token => request('/employees/me/logout', { method: 'POST', headers: { Authorization: `Bearer ${token}` } })
+export const employeeChangePassword = (payload, token) => request('/employees/me/password', { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) })
 export const employeeApplyForLeave = (payload, token) => request('/employees/me/leaves', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) })
 export const employeeUpdateTask = (id, payload, token) => request(`/employees/me/tasks/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) })
 export const adminFetchEmployees = (password, role = 'admin') => request('/employees', { headers: { 'x-admin-password': password, 'x-admin-role': role } })
@@ -44,10 +45,13 @@ export const adminFetchAttendance = (id, password, role = 'admin') => request(`/
 export const adminSaveAttendance = (id, date, status, password, role = 'hr') => request(`/employees/${id}/attendance/${date}`, { method: 'PUT', headers: adminHeaders(password, role), body: JSON.stringify({ status }) })
 export const adminClearAttendance = (id, date, password, role = 'hr') => request(`/employees/${id}/attendance/${date}`, { method: 'DELETE', headers: adminHeaders(password, role) })
 export const adminFetchAttendanceSummary = (month, password, role = 'admin') => request(`/employees/attendance-summary?month=${encodeURIComponent(month)}`, { headers: { 'x-admin-password': password, 'x-admin-role': role } })
+export const adminChangePassword = (newPassword, currentPassword, role = 'admin') => request('/employees/admin-password', { method: 'PUT', headers: adminHeaders(currentPassword, role), body: JSON.stringify({ newPassword }) })
 export const adminFetchTasks = (password, role = 'admin') => request('/employees/tasks', { headers: { 'x-admin-password': password, 'x-admin-role': role } })
 export const adminAssignTask = (payload, password, role = 'admin') => request('/employees/tasks', { method: 'POST', headers: adminHeaders(password, role), body: JSON.stringify(payload) })
 
 export const adminFetchSalarySlips = (id, password, role = 'hr') => request(`/employees/${id}/salary-slips`, { headers: { 'x-admin-password': password, 'x-admin-role': role } })
+export const adminFetchEmployeeDocuments = (id, password, role = 'hr') => request(`/employees/${id}/documents`, { headers: { 'x-admin-password': password, 'x-admin-role': role } })
+export const adminDownloadEmployeeDocument = (employeeId, document, password, role = 'hr') => downloadFile(`/employees/${employeeId}/documents/${document._id}/file`, { 'x-admin-password': password, 'x-admin-role': role }, document.originalName)
 export const adminUploadSalarySlip = (employeeId, month, file, password, role = 'hr') => {
   const body = new FormData()
   body.append('employeeId', employeeId)
@@ -55,9 +59,16 @@ export const adminUploadSalarySlip = (employeeId, month, file, password, role = 
   body.append('salarySlip', file)
   return request('/employees/salary-slips', { method: 'POST', headers: { 'x-admin-password': password, 'x-admin-role': role }, body })
 }
-export const employeeDownloadSalarySlip = (id, token) => downloadFile(`/employees/me/salary-slips/${id}/file`, { Authorization: `Bearer ${token}` })
+export const adminUploadEmployeeDocument = (employeeId, file, password, role = 'hr') => {
+  const body = new FormData()
+  body.append('employeeId', employeeId)
+  body.append('document', file)
+  return request('/employees/documents', { method: 'POST', headers: { 'x-admin-password': password, 'x-admin-role': role }, body })
+}
+export const employeeDownloadSalarySlip = (id, token) => downloadFile(`/employees/me/salary-slips/${id}/file`, { Authorization: `Bearer ${token}` }, 'salary-slip.pdf')
+export const employeeDownloadDocument = (document, token) => downloadFile(`/employees/me/documents/${document._id}/file`, { Authorization: `Bearer ${token}` }, document.originalName)
 
-async function downloadFile(path, headers) {
+async function downloadFile(path, headers, fileName) {
   const response = await fetch(`${API_URL}${path}`, { headers })
   if (!response.ok) {
     let message = 'Unable to download salary slip'
@@ -68,7 +79,7 @@ async function downloadFile(path, headers) {
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
   link.href = url
-  link.download = 'salary-slip.pdf'
+  link.download = fileName
   link.click()
   URL.revokeObjectURL(url)
 }

@@ -8,7 +8,7 @@ import {
   adminSendInterviewRoundEmail,
 } from '../hooks/useJobs'
 import AttendanceCalendar from '../components/AttendanceCalendar'
-import { adminAssignTask, adminClearAttendance, adminCreateEmployee, adminDeleteEmployee, adminFetchAttendance, adminFetchAttendanceSummary, adminFetchEmployees, adminFetchLeaveRequests, adminFetchSalarySlips, adminFetchTasks, adminSaveAttendance, adminSetEmployeePortal, adminUpdateLeaveRequest, adminUploadSalarySlip, employeeLogin } from '../services/api'
+import { adminAssignTask, adminChangePassword, adminClearAttendance, adminCreateEmployee, adminDeleteEmployee, adminDownloadEmployeeDocument, adminFetchAttendance, adminFetchAttendanceSummary, adminFetchEmployeeDocuments, adminFetchEmployees, adminFetchLeaveRequests, adminFetchSalarySlips, adminFetchTasks, adminSaveAttendance, adminSetEmployeePortal, adminUpdateLeaveRequest, adminUploadEmployeeDocument, adminUploadSalarySlip, employeeLogin } from '../services/api'
 
 const INTERVIEW_ROLES = ['Robotics Engineer', 'Mechanical Engineer', 'Electronics Engineer', 'Technical Sales Engineer', 'UI Developer', 'Human Resources']
 const MEET_LINKS = { 'Robotics Engineer': 'https://meet.google.com/vck-cqkr-yvd', 'Mechanical Engineer': 'https://meet.google.com/mcq-zjio-qez', 'Electronics Engineer': 'https://meet.google.com/pts-pxon-knm' }
@@ -43,6 +43,41 @@ function formatScheduledInterview(interview) {
   return `${dateStr}, ${start}–${end} IST`
 }
 
+function formatMinutes(minutes) {
+  if (minutes === null || minutes === undefined) return '—'
+  return `${Math.floor(minutes / 60)}h ${minutes % 60}m`
+}
+
+function currentIndiaDateKey() {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
+}
+
+function currentIndiaMonthKey() {
+  return currentIndiaDateKey().slice(0, 7)
+}
+
+function attendanceMinutesWorked(record) {
+  if (!record.loginAt) return null
+  const start = new Date(record.loginAt).getTime()
+  const end = record.logoutAt
+    ? new Date(record.logoutAt).getTime()
+    : record.date === currentIndiaDateKey() ? Date.now() : null
+  if (end === null || !Number.isFinite(start) || !Number.isFinite(end) || end < start) return null
+  return Math.floor((end - start) / 60000)
+}
+
+function formatIndiaTime(value) {
+  return value
+    ? new Date(value).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' })
+    : '—'
+}
+
+function formatWorkedTime(record) {
+  const minutes = record.minutesWorked ?? attendanceMinutesWorked(record)
+  const duration = formatMinutes(minutes)
+  return record.loginAt && !record.logoutAt && minutes !== null ? `${duration} · ongoing` : duration
+}
+
 function getInterviewRoleKey(jobTitle = '') {
   const normalized = String(jobTitle).toLowerCase()
   if (normalized.includes('robotics')) return 'robotics'
@@ -60,6 +95,13 @@ export default function Admin() {
   const [authed, setAuthed] = useState(false)
   const [authError, setAuthError] = useState('')
   const [tab, setTab] = useState('jobs')
+  const [showPasswordForm, setShowPasswordForm] = useState(false)
+  const [passwordFormCurrent, setPasswordFormCurrent] = useState('')
+  const [passwordFormNew, setPasswordFormNew] = useState('')
+  const [passwordFormConfirm, setPasswordFormConfirm] = useState('')
+  const [passwordFormError, setPasswordFormError] = useState('')
+  const [passwordFormMessage, setPasswordFormMessage] = useState('')
+  const [passwordFormBusy, setPasswordFormBusy] = useState(false)
 
   const [jobs, setJobs] = useState([])
   const [applications, setApplications] = useState([])
@@ -89,6 +131,18 @@ export default function Admin() {
   const [employeeEmail, setEmployeeEmail] = useState('')
   const [employeePassword, setEmployeePassword] = useState('')
   const [portalPassword, setPortalPassword] = useState('')
+  const [pastEmployeeId, setPastEmployeeId] = useState('')
+  const [pastEmployeePassword, setPastEmployeePassword] = useState('')
+  const [pastAttendance, setPastAttendance] = useState([])
+  const [pastMonth, setPastMonth] = useState(currentIndiaMonthKey)
+  const [pastAttendanceError, setPastAttendanceError] = useState('')
+  const [documentEmployeeId, setDocumentEmployeeId] = useState('')
+  const [employeeDocuments, setEmployeeDocuments] = useState([])
+  const [employeeDocumentFile, setEmployeeDocumentFile] = useState(null)
+  const [employeeDocumentsError, setEmployeeDocumentsError] = useState('')
+  const [employeeDocumentsMessage, setEmployeeDocumentsMessage] = useState('')
+  const [employeeDocumentsBusy, setEmployeeDocumentsBusy] = useState(false)
+  const [downloadingDocumentId, setDownloadingDocumentId] = useState('')
   const [portalMessage, setPortalMessage] = useState('')
   const [leaveRequests, setLeaveRequests] = useState([])
   const [leaveError, setLeaveError] = useState('')
@@ -116,6 +170,13 @@ export default function Admin() {
   const [sendingCandidateEmail, setSendingCandidateEmail] = useState(false)
   const [candidateEmailMessage, setCandidateEmailMessage] = useState(null)
   const [emailSentPopup, setEmailSentPopup] = useState(null)
+  const activeEmployees = employees.filter(employee => employee.isActive)
+  const pastEmployees = employees.filter(employee => !employee.isActive)
+  const pastMonthRecords = pastAttendance.filter(record => record.date.startsWith(pastMonth))
+  const pastPresentDays = pastMonthRecords.reduce((total, record) => total + (record.status === 'half_day' ? 0.5 : ['present', 'wfh'].includes(record.status) ? 1 : 0), 0)
+  const pastLeaveDays = pastMonthRecords.filter(record => record.status === 'informed_leave').length
+  const pastAbsentDays = pastMonthRecords.filter(record => record.status === 'absent').length
+  const pastTotalMinutes = pastMonthRecords.reduce((total, record) => total + (attendanceMinutesWorked(record) || 0), 0)
 
   // Login
   const login = async e => {
@@ -143,6 +204,26 @@ export default function Admin() {
         setAuthError(err instanceof Error ? `Sign-in failed: ${err.message}` : 'Sign-in failed. Please try again.')
       }
     }
+  }
+
+  const changeAdminPassword = async event => {
+    event.preventDefault()
+    setPasswordFormError('')
+    setPasswordFormMessage('')
+    if (passwordFormNew !== passwordFormConfirm) {
+      setPasswordFormError('New passwords do not match.')
+      return
+    }
+    setPasswordFormBusy(true)
+    try {
+      await adminChangePassword(passwordFormNew, passwordFormCurrent, role)
+      setPassword(passwordFormNew)
+      setPasswordFormCurrent('')
+      setPasswordFormNew('')
+      setPasswordFormConfirm('')
+      setPasswordFormMessage('Your password has been changed.')
+    } catch (err) { setPasswordFormError(err.message) }
+    finally { setPasswordFormBusy(false) }
   }
 
   const loadJobs = async () => {
@@ -307,6 +388,60 @@ export default function Admin() {
     catch (err) { setAttendanceError(err.message) }
   }
 
+  const loadPastAttendance = async employeeId => {
+    if (!employeeId) { setPastAttendance([]); return }
+    setPastAttendance([])
+    setPastAttendanceError('')
+    try {
+      const [records, requests] = await Promise.all([
+        adminFetchAttendance(employeeId, password, role),
+        adminFetchLeaveRequests(password, role),
+      ])
+      const byDate = new Map(records.map(record => [record.date, record]))
+      requests
+        .filter(request => request.status === 'approved' && String(request.employeeId?._id || request.employeeId) === employeeId)
+        .forEach(request => {
+          for (let date = request.startDate; date <= request.endDate; date = new Date(new Date(`${date}T00:00:00Z`).getTime() + 86400000).toISOString().slice(0, 10)) {
+            const existing = byDate.get(date)
+            if (!existing || existing.status === 'absent') byDate.set(date, { date, status: 'informed_leave' })
+          }
+        })
+      setPastAttendance([...byDate.values()].sort((a, b) => a.date.localeCompare(b.date)))
+    } catch (err) { setPastAttendanceError(err.message) }
+  }
+
+  const loadEmployeeDocuments = async employeeId => {
+    setEmployeeDocumentsError('')
+    if (!employeeId) { setEmployeeDocuments([]); return }
+    try { setEmployeeDocuments(await adminFetchEmployeeDocuments(employeeId, password, role)) }
+    catch (err) { setEmployeeDocumentsError(err.message) }
+  }
+
+  const uploadEmployeeDocument = async event => {
+    event.preventDefault()
+    if (!documentEmployeeId || !employeeDocumentFile) return
+    setEmployeeDocumentsBusy(true)
+    setEmployeeDocumentsError('')
+    setEmployeeDocumentsMessage('')
+    try {
+      const form = event.currentTarget
+      await adminUploadEmployeeDocument(documentEmployeeId, employeeDocumentFile, password, role)
+      setEmployeeDocumentFile(null)
+      form.querySelector('input[type="file"]').value = ''
+      await loadEmployeeDocuments(documentEmployeeId)
+      setEmployeeDocumentsMessage('Document uploaded. It is now available on the employee dashboard.')
+    } catch (err) { setEmployeeDocumentsError(err.message) }
+    finally { setEmployeeDocumentsBusy(false) }
+  }
+
+  const downloadEmployeeDocument = async document => {
+    setDownloadingDocumentId(document._id)
+    setEmployeeDocumentsError('')
+    try { await adminDownloadEmployeeDocument(documentEmployeeId, document, password, role) }
+    catch (err) { setEmployeeDocumentsError(err.message) }
+    finally { setDownloadingDocumentId('') }
+  }
+
   const loadSalarySlips = async employeeId => {
     if (!employeeId) { setSalarySlips([]); return }
     try { setSalarySlips(await adminFetchSalarySlips(employeeId, password, role)); setSalaryMessage('') }
@@ -354,13 +489,26 @@ export default function Admin() {
     } catch (err) { setAttendanceError(err.message) }
   }
 
+  const restorePastEmployee = async () => {
+    if (!pastEmployeeId || pastEmployeePassword.length < 8) return
+    setAttendanceError('')
+    try {
+      const updatedEmployee = await adminSetEmployeePortal(pastEmployeeId, pastEmployeePassword, password, role)
+      setEmployees(current => current.map(employee => employee._id === updatedEmployee._id ? updatedEmployee : employee))
+      setPastEmployeePassword('')
+      setPastEmployeeId('')
+      setPastAttendance([])
+      setPortalMessage('Employee dashboard restored.')
+    } catch (err) { setAttendanceError(err.message) }
+  }
+
   const removeEmployee = async () => {
     const employee = employees.find(item => item._id === selectedEmployeeId)
     if (!employee || !confirm(`Remove ${employee.name} from the employee list? Their attendance history will be retained.`)) return
     setAttendanceError('')
     try {
       await adminDeleteEmployee(employee._id, password, role)
-      setEmployees(current => current.filter(item => item._id !== employee._id))
+      setEmployees(current => current.map(item => item._id === employee._id ? { ...item, isActive: false, portalEnabled: false } : item))
       setSelectedEmployeeId('')
       setAttendance([])
     } catch (err) { setAttendanceError(err.message) }
@@ -562,21 +710,36 @@ export default function Admin() {
             <h1 className="font-bold text-[26px] text-[#111] tracking-tight">{role === 'hr' ? 'HR Dashboard' : 'Admin Dashboard'}</h1>
             <p className="text-[13px] text-[#aaa] mt-1">Manage jobs, applications, interviews, employee attendance, leave, and tasks</p>
           </div>
-          <button
-            onClick={() => { setAuthed(false); setPassword('') }}
-            className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-[10px] text-[13px] font-semibold text-[#555] transition-all duration-200 hover:border-red-200 hover:bg-red-50 hover:text-red-500 cursor-pointer"
-            style={{ border: '1px solid rgba(0,0,0,0.1)', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M10 17l5-5-5-5M15 12H3M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
-            </svg>
-            Sign out
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={() => { setShowPasswordForm(value => !value); setPasswordFormError(''); setPasswordFormMessage('') }} className="rounded-xl bg-white px-4 py-[10px] text-[13px] font-semibold text-[#555]" style={{ border: '1px solid rgba(0,0,0,0.1)' }}>Change password</button>
+            <button
+              onClick={() => { setAuthed(false); setPassword('') }}
+              className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-[10px] text-[13px] font-semibold text-[#555] transition-all duration-200 hover:border-red-200 hover:bg-red-50 hover:text-red-500 cursor-pointer"
+              style={{ border: '1px solid rgba(0,0,0,0.1)', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M10 17l5-5-5-5M15 12H3M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+              </svg>
+              Sign out
+            </button>
+          </div>
         </div>
+        {showPasswordForm && <form onSubmit={changeAdminPassword} className="mb-6 rounded-2xl bg-white p-5 sm:p-6" style={{ border: '1px solid rgba(0,0,0,0.07)' }}>
+          <h2 className="text-[16px] font-bold text-[#111]">Change {role === 'hr' ? 'HR' : 'admin'} password</h2>
+          <p className="mt-1 text-[12px] text-[#887b6e]">Enter your current password and choose a new password of at least 8 characters.</p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            <input required type="password" autoComplete="current-password" value={passwordFormCurrent} onChange={event => setPasswordFormCurrent(event.target.value)} placeholder="Current password" className="rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-2.5 text-[13px]" />
+            <input required type="password" minLength={8} autoComplete="new-password" value={passwordFormNew} onChange={event => setPasswordFormNew(event.target.value)} placeholder="New password (8+ characters)" className="rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-2.5 text-[13px]" />
+            <input required type="password" minLength={8} autoComplete="new-password" value={passwordFormConfirm} onChange={event => setPasswordFormConfirm(event.target.value)} placeholder="Confirm new password" className="rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-2.5 text-[13px]" />
+          </div>
+          {passwordFormError && <p role="alert" className="mt-3 rounded-xl bg-red-50 px-4 py-3 text-[13px] text-red-600">{passwordFormError}</p>}
+          {passwordFormMessage && <p role="status" className="mt-3 rounded-xl bg-green-50 px-4 py-3 text-[13px] text-green-700">{passwordFormMessage}</p>}
+          <button disabled={passwordFormBusy || passwordFormNew.length < 8} className="mt-3 rounded-xl bg-orange px-5 py-2.5 text-[13px] font-bold text-white disabled:opacity-60">{passwordFormBusy ? 'Changing…' : 'Save new password'}</button>
+        </form>}
 
         {/* Tabs */}
-        <div className="flex items-center gap-2 mb-8">
-          {['jobs', 'applications', 'attendance', 'salary slips', 'leave requests', 'tasks', 'interview email'].map(t => (
+        <div className="flex flex-wrap items-center gap-2 mb-8">
+          {['jobs', 'applications', 'attendance', 'salary slips', 'leave requests', 'tasks', 'employee documents', 'interview email', 'past employees'].map(t => (
             <button
               key={t}
               onClick={() => {
@@ -586,6 +749,8 @@ export default function Admin() {
                 if (t === 'salary slips') loadEmployees()
                 if (t === 'leave requests') loadLeaveRequests()
                 if (t === 'tasks') { loadEmployees(); loadTasks() }
+                if (t === 'employee documents') loadEmployees()
+                if (t === 'past employees') loadEmployees()
               }}
               className={`px-6 py-[9px] rounded-full text-[13px] font-semibold cursor-pointer capitalize transition-all duration-200 ${
                 tab === t ? 'bg-orange text-white' : 'bg-white text-[#555] hover:text-orange'
@@ -845,19 +1010,20 @@ export default function Admin() {
           <div>
             <section className="mb-6 rounded-2xl bg-white p-5 sm:p-6" style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
               <div className="flex flex-wrap items-end justify-between gap-4">
-                <div><h2 className="text-[18px] font-bold text-[#111]">Monthly attendance summary</h2><p className="mt-1 text-[12px] text-[#887b6e]">Working days include present, WFH, and half days counted as 0.5. Leave includes approved leave not overridden by an attendance entry.</p></div>
+                <div><h2 className="text-[18px] font-bold text-[#111]">Monthly attendance summary</h2><p className="mt-1 text-[12px] text-[#887b6e]">Present includes office, WFH, and half days counted as 0.5. Leave includes approved leave and informed leave not overridden by a present entry.</p></div>
                 <label className="text-[11px] font-bold text-[#76695d]">MONTH<input type="month" value={summaryMonth} onChange={event => { setSummaryMonth(event.target.value); if (event.target.value) loadAttendanceSummary(event.target.value) }} className="mt-1 block rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-2 text-[13px] font-normal" /></label>
               </div>
               {summaryError && <p role="alert" className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-[12px] text-red-600">{summaryError}</p>}
               <div className="mt-4 overflow-x-auto">
-                <table className="w-full min-w-[700px] text-left text-[12px]">
-                  <thead><tr className="border-b border-black/5 text-[10px] uppercase tracking-wide text-[#a09589]"><th className="px-3 py-3">Employee</th><th className="px-3 py-3">Working</th><th className="px-3 py-3">Leave</th><th className="px-3 py-3">Absent</th><th className="px-3 py-3">Login / logout · WFH</th></tr></thead>
+                <table className="w-full min-w-[900px] text-left text-[12px]">
+                  <thead><tr className="border-b border-black/5 text-[10px] uppercase tracking-wide text-[#a09589]"><th className="px-3 py-3">Employee</th><th className="px-3 py-3">Present days</th><th className="px-3 py-3">Leave days</th><th className="px-3 py-3">Absent days</th><th className="px-3 py-3">Hours worked</th><th className="px-3 py-3">Login / logout · WFH</th></tr></thead>
                   <tbody>{attendanceSummary.map(summary => {
                     const sessions = summary.attendance.filter(record => record.loginAt || record.logoutAt)
                     return <tr key={summary.employee._id} className="border-b border-black/5 align-top last:border-0">
-                      <td className="px-3 py-3"><span className="font-bold text-[#332a22]">{summary.employee.name}</span>{!summary.employee.isActive && <span className="ml-2 text-[10px] text-[#aaa]">Inactive</span>}<span className="mt-0.5 block text-[10px] text-[#887b6e]">{summary.employee.email}</span></td>
-                      <td className="px-3 py-3 font-bold text-green-700">{summary.working}</td><td className="px-3 py-3 font-bold text-amber-700">{summary.leave}</td><td className="px-3 py-3 font-bold text-red-600">{summary.absent}</td>
-                      <td className="px-3 py-3 text-[#65594d]">{sessions.length ? sessions.map(record => <div key={record.date} className="mb-1 last:mb-0"><span className="font-semibold">{record.date}</span> · {record.loginAt ? new Date(record.loginAt).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' }) : '—'}–{record.logoutAt ? new Date(record.logoutAt).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' }) : 'active'}{record.workMode === 'wfh' || record.status === 'wfh' ? ' · WFH' : ''}</div>) : <span className="text-[#aaa]">No sessions recorded</span>}</td>
+                      <td className="px-3 py-3"><span className="font-bold text-[#332a22]">{summary.employee.name}</span><span className="mt-0.5 block text-[10px] text-[#887b6e]">{summary.employee.email}</span></td>
+                      <td className="px-3 py-3 font-bold text-green-700">{summary.present}</td><td className="px-3 py-3 font-bold text-amber-700">{summary.leave}</td><td className="px-3 py-3 font-bold text-red-600">{summary.absent}</td>
+                      <td className="px-3 py-3 font-bold text-[#332a22]">{formatMinutes(summary.totalMinutesWorked)}</td>
+                      <td className="px-3 py-3 text-[#65594d]">{sessions.length ? sessions.map(record => <div key={record.date} className="mb-1 last:mb-0"><span className="font-semibold">{record.date}</span> · {record.loginAt ? new Date(record.loginAt).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' }) : '—'}–{record.logoutAt ? new Date(record.logoutAt).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' }) : 'active'} · {formatWorkedTime(record)}{record.workMode === 'wfh' || record.status === 'wfh' ? ' · WFH' : ''}</div>) : <span className="text-[#aaa]">No sessions recorded</span>}</td>
                     </tr>
                   })}</tbody>
                 </table>
@@ -871,7 +1037,7 @@ export default function Admin() {
               <label className="mt-5 block text-[11.5px] font-bold text-[#76695d]">EMPLOYEE</label>
               <select value={selectedEmployeeId} onChange={event => { setSelectedEmployeeId(event.target.value); loadAttendance(event.target.value) }} className="mt-2 w-full rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-3 text-[13px] outline-none focus:ring-2 focus:ring-orange/20">
                 <option value="">Select employee</option>
-                {employees.filter(employee => canManageEmployees || employee.isActive).map(employee => <option key={employee._id} value={employee._id}>{employee.name}{canManageEmployees && (!employee.isActive ? ' (Removed)' : !employee.portalEnabled ? ' (Portal not set up)' : '')}</option>)}
+                {activeEmployees.map(employee => <option key={employee._id} value={employee._id}>{employee.name}{canManageEmployees && !employee.portalEnabled ? ' (Portal not set up)' : ''}</option>)}
               </select>
               {canManageEmployees && <form onSubmit={addEmployee} className="mt-7 border-t border-black/5 pt-5">
                 <h3 className="text-[13px] font-bold text-[#444]">Add employee dashboard</h3>
@@ -880,7 +1046,7 @@ export default function Admin() {
                 <input required minLength={8} type="password" autoComplete="new-password" value={employeePassword} onChange={event => setEmployeePassword(event.target.value)} placeholder="Initial password (8+ characters)" className="mt-2 w-full rounded-xl border border-black/10 px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-orange/20" />
                 <button className="mt-3 w-full rounded-xl bg-orange py-2.5 text-[13px] font-bold text-white">Add employee dashboard</button>
               </form>}
-              {canManageEmployees && selectedEmployeeId && <div className="mt-5 border-t border-black/5 pt-5">
+              {canManageEmployees && selectedEmployeeId && employees.find(item => item._id === selectedEmployeeId)?.isActive && <div className="mt-5 border-t border-black/5 pt-5">
                 <h3 className="text-[13px] font-bold text-[#444]">{employees.find(item => item._id === selectedEmployeeId)?.portalEnabled ? 'Reset dashboard password' : 'Enable employee dashboard'}</h3>
                 <input minLength={8} type="password" autoComplete="new-password" value={portalPassword} onChange={event => setPortalPassword(event.target.value)} placeholder="New password (8+ characters)" className="mt-3 w-full rounded-xl border border-black/10 px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-orange/20" />
                 <button type="button" disabled={portalPassword.length < 8} onClick={enableEmployeePortal} className="mt-2 w-full rounded-xl border border-orange/30 py-2.5 text-[13px] font-bold text-orange disabled:opacity-40">{employees.find(item => item._id === selectedEmployeeId)?.isActive ? 'Set dashboard password' : 'Restore dashboard access'}</button>
@@ -910,7 +1076,7 @@ export default function Admin() {
               <label className="mt-5 block text-[11.5px] font-bold text-[#76695d]">EMPLOYEE</label>
               <select value={salaryEmployeeId} onChange={event => { setSalaryEmployeeId(event.target.value); loadSalarySlips(event.target.value); setSalaryFile(null) }} className="mt-2 w-full rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-3 text-[13px] outline-none focus:ring-2 focus:ring-orange/20">
                 <option value="">Select employee</option>
-                {employees.filter(employee => employee.isActive).map(employee => <option key={employee._id} value={employee._id}>{employee.name}</option>)}
+                {activeEmployees.map(employee => <option key={employee._id} value={employee._id}>{employee.name}</option>)}
               </select>
               <form onSubmit={uploadSalarySlip} className="mt-5 space-y-3">
                 <label className="block text-[11.5px] font-bold text-[#76695d]">PAY MONTH<input required type="month" value={salaryMonth} onChange={event => setSalaryMonth(event.target.value)} className="mt-2 w-full rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-3 text-[13px] font-normal" /></label>
@@ -965,7 +1131,7 @@ export default function Admin() {
               <h2 className="text-[18px] font-bold text-[#111]">Assign a task</h2>
               <p className="mt-1 text-[12px] text-[#887b6e]">Assigned tasks appear in the employee portal.</p>
               <form onSubmit={assignTask} className="mt-5 space-y-3">
-                <label className="block text-[11px] font-bold text-[#76695d]">EMPLOYEE<select required value={taskEmployeeId} onChange={event => setTaskEmployeeId(event.target.value)} className="mt-1.5 w-full rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-2.5 text-[13px] font-normal"><option value="">Select employee</option>{employees.filter(employee => employee.isActive).map(employee => <option key={employee._id} value={employee._id}>{employee.name}</option>)}</select></label>
+                <label className="block text-[11px] font-bold text-[#76695d]">EMPLOYEE<select required value={taskEmployeeId} onChange={event => setTaskEmployeeId(event.target.value)} className="mt-1.5 w-full rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-2.5 text-[13px] font-normal"><option value="">Select employee</option>{activeEmployees.map(employee => <option key={employee._id} value={employee._id}>{employee.name}</option>)}</select></label>
                 <label className="block text-[11px] font-bold text-[#76695d]">TASK TITLE<input required maxLength={160} value={taskTitle} onChange={event => setTaskTitle(event.target.value)} className="mt-1.5 w-full rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-2.5 text-[13px] font-normal" placeholder="Task title" /></label>
                 <label className="block text-[11px] font-bold text-[#76695d]">DESCRIPTION<textarea maxLength={2000} rows={4} value={taskDescription} onChange={event => setTaskDescription(event.target.value)} className="mt-1.5 w-full resize-y rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-2.5 text-[13px] font-normal" placeholder="Task details and expected outcome" /></label>
                 <label className="block text-[11px] font-bold text-[#76695d]">DUE DATE<input type="date" value={taskDueDate} onChange={event => setTaskDueDate(event.target.value)} className="mt-1.5 w-full rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-2.5 text-[13px] font-normal" /></label>
@@ -1014,6 +1180,80 @@ export default function Admin() {
               </div>
               <aside className="lg:sticky lg:top-4"><div className="mb-2 flex items-center justify-between"><h3 className="font-bold">Email preview</h3><span className="text-[11px] text-[#887b6e]">For {previewCandidate.name}</span></div><iframe title="Interview email preview" sandbox="" srcDoc={emailPreviewHtml} className="h-[850px] w-full rounded-2xl bg-[#f4efe8] shadow-sm" style={{ border: '1px solid rgba(0,0,0,0.1)' }} /></aside>
             </form>
+          </div>
+        )}
+
+        {tab === 'past employees' && (
+          <div className="grid items-start gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
+            <section className="rounded-2xl bg-white p-5 sm:p-6" style={{ border: '1px solid rgba(0,0,0,0.07)' }}>
+              <h2 className="text-[18px] font-bold text-[#111]">Past employees / interns</h2>
+              <p className="mt-1 text-[12px] leading-5 text-[#887b6e]">Removed accounts are kept here, separate from active employee lists.</p>
+              <div className="mt-4 max-h-[440px] space-y-2 overflow-y-auto">
+                {pastEmployees.map(employee => <button key={employee._id} type="button" onClick={() => { setPastEmployeeId(employee._id); loadPastAttendance(employee._id) }} className={`w-full rounded-xl px-3 py-3 text-left ${pastEmployeeId === employee._id ? 'bg-orange/10 ring-1 ring-orange/30' : 'bg-[#faf7f2]'}`}>
+                  <span className="block text-[13px] font-bold text-[#332a22]">{employee.name}</span><span className="mt-0.5 block text-[11px] text-[#887b6e]">{employee.email}</span>
+                </button>)}
+                {!pastEmployees.length && <p className="rounded-xl bg-[#faf7f2] px-4 py-8 text-center text-[12px] text-[#887b6e]">No past employees or interns.</p>}
+              </div>
+              {pastEmployeeId && <div className="mt-5 border-t border-black/5 pt-4">
+                <h3 className="text-[13px] font-bold text-[#444]">Restore dashboard access</h3>
+                <input minLength={8} type="password" autoComplete="new-password" value={pastEmployeePassword} onChange={event => setPastEmployeePassword(event.target.value)} placeholder="New password (8+ characters)" className="mt-3 w-full rounded-xl border border-black/10 px-3 py-2.5 text-[12px]" />
+                <button type="button" disabled={pastEmployeePassword.length < 8} onClick={restorePastEmployee} className="mt-2 w-full rounded-xl border border-orange/30 py-2.5 text-[12px] font-bold text-orange disabled:opacity-40">Restore employee dashboard</button>
+              </div>}
+              {pastAttendanceError && <p role="alert" className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-[12px] text-red-600">{pastAttendanceError}</p>}
+              {attendanceError && <p role="alert" className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-[12px] text-red-600">{attendanceError}</p>}
+              {portalMessage && <p role="status" className="mt-3 rounded-lg bg-green-50 px-3 py-2 text-[12px] text-green-700">{portalMessage}</p>}
+            </section>
+            <section className="space-y-5">
+              {pastEmployeeId ? <>
+                <div className="flex flex-wrap items-end justify-between gap-3">
+                  <div><h2 className="text-[18px] font-bold text-[#111]">{pastEmployees.find(employee => employee._id === pastEmployeeId)?.name}</h2><p className="mt-1 text-[12px] text-[#887b6e]">Historical attendance and login details.</p></div>
+                  <label className="text-[11px] font-bold text-[#76695d]">MONTH<input type="month" min="2026-09" value={pastMonth} onChange={event => setPastMonth(event.target.value)} className="mt-1 block rounded-xl border border-black/10 bg-white px-3 py-2 text-[13px] font-normal" /></label>
+                </div>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                  {[['Present days', pastPresentDays, 'text-green-700'], ['Leave days', pastLeaveDays, 'text-amber-700'], ['Absent days', pastAbsentDays, 'text-red-600'], ['Hours worked', formatMinutes(pastTotalMinutes), 'text-[#332a22]']].map(([label, value, color]) => <div key={label} className="rounded-2xl bg-white p-4" style={{ border: '1px solid rgba(0,0,0,0.07)' }}><p className="text-[10px] font-bold uppercase tracking-wide text-[#a09589]">{label}</p><p className={`mt-2 text-[15px] font-bold ${color}`}>{value}</p></div>)}
+                </div>
+                <div className="rounded-2xl bg-white p-4 sm:p-5" style={{ border: '1px solid rgba(0,0,0,0.07)' }}>
+                  <AttendanceCalendar attendance={pastAttendance} />
+                </div>
+                <div className="overflow-x-auto rounded-2xl bg-white p-4 sm:p-5" style={{ border: '1px solid rgba(0,0,0,0.07)' }}>
+                  <h3 className="mb-3 text-[15px] font-bold text-[#111]">{new Date(`${pastMonth}-01T00:00:00`).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })} details</h3>
+                  <table className="w-full min-w-[640px] text-left text-[12px]">
+                    <thead><tr className="border-b border-black/5 text-[10px] uppercase tracking-wide text-[#a09589]"><th className="px-3 py-2">Date</th><th className="px-3 py-2">Status</th><th className="px-3 py-2">Login</th><th className="px-3 py-2">Logout</th><th className="px-3 py-2">Hours worked</th></tr></thead>
+                    <tbody>{pastMonthRecords.map(record => <tr key={record.date} className="border-b border-black/5 last:border-0"><td className="px-3 py-2.5 font-semibold">{record.date}</td><td className="px-3 py-2.5 capitalize">{record.status.replace(/_/g, ' ')}</td><td className="px-3 py-2.5">{formatIndiaTime(record.loginAt)}</td><td className="px-3 py-2.5">{record.logoutAt ? formatIndiaTime(record.logoutAt) : record.loginAt ? 'Active' : '—'}</td><td className="px-3 py-2.5">{formatWorkedTime(record)}</td></tr>)}</tbody>
+                  </table>
+                  {!pastMonthRecords.length && <p className="py-6 text-center text-[12px] text-[#887b6e]">No attendance records for this month.</p>}
+                </div>
+              </> : <div className="flex min-h-[360px] items-center justify-center rounded-2xl bg-white px-6 text-center text-[14px] text-[#887b6e]" style={{ border: '1px solid rgba(0,0,0,0.07)' }}>Select a past employee or intern to see their attendance.</div>}
+            </section>
+          </div>
+        )}
+
+        {tab === 'employee documents' && (
+          <div className="grid items-start gap-6 lg:grid-cols-[340px_minmax(0,1fr)]">
+            <section className="rounded-2xl bg-white p-5 sm:p-6" style={{ border: '1px solid rgba(0,0,0,0.07)' }}>
+              <h2 className="text-[18px] font-bold text-[#111]">Upload employee document</h2>
+              <p className="mt-1 text-[12px] leading-5 text-[#887b6e]">Documents are private to the selected employee and HR/admin.</p>
+              <label className="mt-5 block text-[11px] font-bold text-[#76695d]">EMPLOYEE<select value={documentEmployeeId} onChange={event => { setDocumentEmployeeId(event.target.value); setEmployeeDocumentFile(null); setEmployeeDocuments([]); setEmployeeDocumentsMessage(''); loadEmployeeDocuments(event.target.value) }} className="mt-1.5 w-full rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-3 text-[13px] font-normal"><option value="">Select employee</option>{activeEmployees.map(employee => <option key={employee._id} value={employee._id}>{employee.name}</option>)}</select></label>
+              <form onSubmit={uploadEmployeeDocument} className="mt-4 space-y-3">
+                <label className="block text-[11px] font-bold text-[#76695d]">DOCUMENT<input required type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png" onChange={event => setEmployeeDocumentFile(event.target.files?.[0] || null)} className="mt-1.5 block w-full rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-3 text-[11px] font-normal file:mr-2 file:rounded-lg file:border-0 file:bg-orange file:px-3 file:py-2 file:font-bold file:text-white" /></label>
+                <p className="text-[11px] text-[#887b6e]">PDF, Office files, JPG, JPEG, or PNG · 10 MB maximum.</p>
+                <button disabled={!documentEmployeeId || !employeeDocumentFile || employeeDocumentsBusy} className="w-full rounded-xl bg-orange py-3 text-[13px] font-bold text-white disabled:opacity-50">{employeeDocumentsBusy ? 'Uploading…' : 'Upload document'}</button>
+              </form>
+              {employeeDocumentsError && <p role="alert" className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-[12px] text-red-600">{employeeDocumentsError}</p>}
+              {employeeDocumentsMessage && <p role="status" className="mt-4 rounded-lg bg-green-50 px-3 py-2 text-[12px] text-green-700">{employeeDocumentsMessage}</p>}
+            </section>
+            <section className="rounded-2xl bg-white p-5 sm:p-6" style={{ border: '1px solid rgba(0,0,0,0.07)' }}>
+              <h2 className="text-[18px] font-bold text-[#111]">Shared documents</h2>
+              <p className="mt-1 text-[12px] text-[#887b6e]">{activeEmployees.find(employee => employee._id === documentEmployeeId)?.name || 'Select an employee to view their documents.'}</p>
+              <div className="mt-4 space-y-2">
+                {employeeDocuments.map(document => <article key={document._id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-[#faf7f2] px-4 py-3">
+                  <div><p className="text-[13px] font-bold text-[#332a22]">{document.originalName}</p><p className="mt-0.5 text-[10px] text-[#887b6e]">{(document.size / (1024 * 1024)).toFixed(2)} MB · Uploaded {new Date(document.createdAt).toLocaleDateString('en-IN', { dateStyle: 'medium' })}</p></div>
+                  <button type="button" onClick={() => downloadEmployeeDocument(document)} disabled={Boolean(downloadingDocumentId)} className="rounded-lg border border-orange/30 px-3 py-2 text-[11px] font-bold text-orange disabled:opacity-50">{downloadingDocumentId === document._id ? 'Downloading…' : 'Download'}</button>
+                </article>)}
+                {!documentEmployeeId && <p className="rounded-xl bg-[#faf7f2] px-4 py-8 text-center text-[13px] text-[#887b6e]">Select an employee to view their shared documents.</p>}
+                {documentEmployeeId && employeeDocuments.length === 0 && <p className="rounded-xl bg-[#faf7f2] px-4 py-8 text-center text-[13px] text-[#887b6e]">No documents have been uploaded for this employee.</p>}
+              </div>
+            </section>
           </div>
         )}
       </div>

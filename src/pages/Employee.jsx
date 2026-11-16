@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import AttendanceCalendar from '../components/AttendanceCalendar'
-import { employeeApplyForLeave, employeeDownloadSalarySlip, employeeFetchDashboard, employeeLogin, employeeLogout, employeeUpdateTask } from '../services/api'
+import { employeeApplyForLeave, employeeChangePassword, employeeDownloadDocument, employeeDownloadSalarySlip, employeeFetchDashboard, employeeLogin, employeeLogout, employeeUpdateTask } from '../services/api'
 
 const TOKEN_KEY = 'plr_employee_token'
 const EMPTY_LEAVE = { startDate: '', endDate: '', reason: '' }
@@ -8,6 +8,19 @@ const panelStyle = { border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 2px 12p
 
 function displayDate(date) {
   return new Date(`${date}T00:00:00`).toLocaleDateString('en-IN', { dateStyle: 'medium' })
+}
+
+function currentMonthKey() {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit' }).format(new Date())
+}
+
+function formatWorkedTime(loginAt, logoutAt) {
+  if (!loginAt) return '—'
+  const start = new Date(loginAt).getTime()
+  const end = logoutAt ? new Date(logoutAt).getTime() : Date.now()
+  if (!Number.isFinite(start) || end < start) return '—'
+  const minutes = Math.floor((end - start) / 60000)
+  return `${Math.floor(minutes / 60)}h ${minutes % 60}m${logoutAt ? '' : ' (ongoing)'}`
 }
 
 export default function Employee() {
@@ -22,9 +35,19 @@ export default function Employee() {
   const [submitting, setSubmitting] = useState(false)
   const [notice, setNotice] = useState('')
   const [downloadingSlipId, setDownloadingSlipId] = useState('')
+  const [downloadingDocumentId, setDownloadingDocumentId] = useState('')
+  const [documentError, setDocumentError] = useState('')
+  const [refreshingDocuments, setRefreshingDocuments] = useState(false)
   const [salaryError, setSalaryError] = useState('')
   const [taskError, setTaskError] = useState('')
   const [updatingTaskId, setUpdatingTaskId] = useState('')
+  const [attendanceMonth, setAttendanceMonth] = useState(currentMonthKey)
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [passwordError, setPasswordError] = useState('')
+  const [passwordNotice, setPasswordNotice] = useState('')
+  const [changingPassword, setChangingPassword] = useState(false)
 
   useEffect(() => {
     if (!token) return
@@ -92,6 +115,41 @@ export default function Employee() {
     finally { setDownloadingSlipId('') }
   }
 
+  const downloadDocument = async document => {
+    setDownloadingDocumentId(document._id)
+    setDocumentError('')
+    try { await employeeDownloadDocument(document, token) }
+    catch (err) { setDocumentError(err.message) }
+    finally { setDownloadingDocumentId('') }
+  }
+
+  const refreshDocuments = async () => {
+    setRefreshingDocuments(true)
+    setDocumentError('')
+    try { setDashboard(await employeeFetchDashboard(token)) }
+    catch (err) { setDocumentError(err.message) }
+    finally { setRefreshingDocuments(false) }
+  }
+
+  const changePassword = async event => {
+    event.preventDefault()
+    setPasswordError('')
+    setPasswordNotice('')
+    if (newPassword !== confirmPassword) {
+      setPasswordError('New passwords do not match.')
+      return
+    }
+    setChangingPassword(true)
+    try {
+      await employeeChangePassword({ currentPassword, newPassword }, token)
+      setCurrentPassword('')
+      setNewPassword('')
+      setConfirmPassword('')
+      setPasswordNotice('Your password has been changed.')
+    } catch (err) { setPasswordError(err.message) }
+    finally { setChangingPassword(false) }
+  }
+
   if (!dashboard) return (
     <main className="min-h-screen bg-[#faf7f2] px-5 pb-16 pt-28 sm:px-8">
       <div className="mx-auto max-w-[440px] rounded-3xl bg-white p-7 sm:p-9" style={panelStyle}>
@@ -117,21 +175,38 @@ export default function Employee() {
   )
 
   const { employee, attendance, leaveRequests, tasks = [] } = dashboard
-  const present = attendance.filter(item => item.status === 'present').length
-  const absent = attendance.filter(item => item.status === 'absent').length
+  const monthAttendance = attendance.filter(item => item.date.startsWith(attendanceMonth))
+  const attendanceByDate = new Map(monthAttendance.map(item => [item.date, item]))
+  const monthStart = `${attendanceMonth}-01`
+  const monthEnd = `${attendanceMonth}-${new Date(Number(attendanceMonth.slice(0, 4)), Number(attendanceMonth.slice(5, 7)), 0).getDate().toString().padStart(2, '0')}`
+  const leaveDates = new Set(monthAttendance.filter(item => item.status === 'informed_leave').map(item => item.date))
+  leaveRequests.filter(item => item.status === 'approved' && item.startDate <= monthEnd && item.endDate >= monthStart).forEach(item => {
+    const from = item.startDate < monthStart ? monthStart : item.startDate
+    const through = item.endDate > monthEnd ? monthEnd : item.endDate
+    for (let date = from; date <= through; date = new Date(new Date(`${date}T00:00:00Z`).getTime() + 86400000).toISOString().slice(0, 10)) {
+      const record = attendanceByDate.get(date)
+      if (!record || ['absent', 'informed_leave'].includes(record.status)) leaveDates.add(date)
+    }
+  })
+  const present = monthAttendance.reduce((total, item) => total + (item.status === 'half_day' ? 0.5 : ['present', 'wfh'].includes(item.status) ? 1 : 0), 0)
+  const absent = monthAttendance.filter(item => item.status === 'absent' && !leaveDates.has(item.date)).length
+  const leaveDays = leaveDates.size
   const todayKey = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
   const todayAttendance = attendance.find(item => item.date === todayKey)
   return (
     <main className="min-h-screen bg-[#faf7f2] px-5 pb-16 pt-24 sm:px-8">
       <div className="mx-auto max-w-[1000px]">
         <header className="flex flex-wrap items-start justify-between gap-4">
-          <div><p className="text-[12px] font-bold uppercase tracking-[0.18em] text-orange">PLR Robotics · Employee portal</p><h1 className="mt-2 text-3xl font-bold tracking-tight text-[#17100a]">Welcome, {employee.name}</h1><p className="mt-1 text-[14px] text-[#74685c]">Your attendance and leave requests in one place.</p>{todayAttendance && <p className="mt-2 text-[12px] font-semibold text-[#65594d]">Today · {todayAttendance.workMode === 'wfh' || todayAttendance.status === 'wfh' ? 'WFH' : 'Office'} · Login {todayAttendance.loginAt ? new Date(todayAttendance.loginAt).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' }) : '—'} · Logout {todayAttendance.logoutAt ? new Date(todayAttendance.logoutAt).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' }) : 'Active'}</p>}</div>
+          <div><p className="text-[12px] font-bold uppercase tracking-[0.18em] text-orange">PLR Robotics · Employee portal</p><h1 className="mt-2 text-3xl font-bold tracking-tight text-[#17100a]">Welcome, {employee.name}</h1><p className="mt-1 text-[14px] text-[#74685c]">Your attendance and leave requests in one place.</p>{todayAttendance?.loginAt && <p className="mt-2 text-[12px] font-semibold text-[#65594d]">Today · {todayAttendance.workMode === 'wfh' || todayAttendance.status === 'wfh' ? 'WFH' : 'Office'} · Login {new Date(todayAttendance.loginAt).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' })} · Logout {todayAttendance.logoutAt ? new Date(todayAttendance.logoutAt).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' }) : 'Active'} · Worked {formatWorkedTime(todayAttendance.loginAt, todayAttendance.logoutAt)}</p>}</div>
           <button onClick={signOut} className="rounded-xl border border-black/10 bg-white px-4 py-2.5 text-[13px] font-bold text-[#63584d]">Sign out</button>
         </header>
         {error && <p role="alert" className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-[13px] text-red-600">{error}</p>}
 
-        <section className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {[['Present days', present, 'text-[#168044]'], ['Absent days', absent, 'text-[#bd3333]']].map(([label, value, color]) => <div key={label} className="rounded-2xl bg-white p-4 sm:p-5" style={panelStyle}><p className="text-[11px] font-bold uppercase tracking-wide text-[#a09589]">{label}</p><p className={`mt-2 text-[16px] font-bold ${color}`}>{value}</p></div>)}
+        <section className="mt-7 rounded-2xl bg-white p-4 sm:p-5" style={panelStyle}>
+          <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-[15px] font-bold text-[#17100a]">Monthly attendance</h2><label className="text-[10px] font-bold text-[#76695d]">MONTH<input type="month" min="2026-09" value={attendanceMonth} onChange={event => setAttendanceMonth(event.target.value)} className="ml-2 rounded-lg border border-black/10 bg-[#faf7f2] px-2.5 py-1.5 text-[12px] font-normal" /></label></div>
+          <div className="mt-3 grid grid-cols-3 gap-3">
+            {[['Present days', present, 'text-[#168044]'], ['Absent days', absent, 'text-[#bd3333]'], ['Leave days', leaveDays, 'text-[#a76a14]']].map(([label, value, color]) => <div key={label} className="rounded-xl bg-[#faf7f2] p-3 sm:p-4"><p className="text-[10px] font-bold uppercase tracking-wide text-[#a09589]">{label}</p><p className={`mt-2 text-[16px] font-bold ${color}`}>{value}</p></div>)}
+          </div>
         </section>
         <section className="mt-6 rounded-2xl bg-white p-4 sm:p-6" style={panelStyle}>
           <div className="mb-4"><h2 className="text-[18px] font-bold text-[#17100a]">My attendance</h2><p className="mt-1 text-[12px] text-[#887b6e]">Attendance records from 1 September 2026 onward.</p></div>
@@ -154,6 +229,19 @@ export default function Employee() {
         </section>
 
         <section className="mt-6 rounded-2xl bg-white p-5 sm:p-6" style={panelStyle}>
+          <h2 className="text-[18px] font-bold text-[#17100a]">Change password</h2>
+          <p className="mt-1 text-[12px] text-[#887b6e]">Use your current password to set a new password of at least 8 characters.</p>
+          <form onSubmit={changePassword} className="mt-4 grid gap-3 sm:grid-cols-3">
+            <input required type="password" autoComplete="current-password" minLength={1} value={currentPassword} onChange={event => setCurrentPassword(event.target.value)} placeholder="Current password" className="rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-2.5 text-[13px]" />
+            <input required type="password" autoComplete="new-password" minLength={8} value={newPassword} onChange={event => setNewPassword(event.target.value)} placeholder="New password (8+ characters)" className="rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-2.5 text-[13px]" />
+            <input required type="password" autoComplete="new-password" minLength={8} value={confirmPassword} onChange={event => setConfirmPassword(event.target.value)} placeholder="Confirm new password" className="rounded-xl border border-black/10 bg-[#faf7f2] px-3 py-2.5 text-[13px]" />
+            <div className="sm:col-span-3">{passwordError && <p role="alert" className="mb-2 rounded-xl bg-red-50 px-4 py-3 text-[13px] text-red-600">{passwordError}</p>}{passwordNotice && <p role="status" className="mb-2 rounded-xl bg-green-50 px-4 py-3 text-[13px] text-green-700">{passwordNotice}</p>}
+              <button disabled={changingPassword || newPassword.length < 8} className="rounded-xl bg-orange px-5 py-2.5 text-[13px] font-bold text-white disabled:opacity-60">{changingPassword ? 'Changing…' : 'Change password'}</button>
+            </div>
+          </form>
+        </section>
+
+        <section className="mt-6 rounded-2xl bg-white p-5 sm:p-6" style={panelStyle}>
           <h2 className="text-[18px] font-bold text-[#17100a]">My salary slips</h2>
           <p className="mt-1 text-[12px] text-[#887b6e]">Salary slips shared by HR are private to your account.</p>
           {salaryError && <p role="alert" className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-[13px] text-red-600">{salaryError}</p>}
@@ -162,6 +250,18 @@ export default function Employee() {
               <div><p className="text-[13px] font-bold text-[#332a22]">{new Date(`${slip.month}-01T00:00:00`).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}</p><p className="mt-0.5 text-[11px] text-[#887b6e]">{slip.originalName}</p></div>
               <button type="button" onClick={() => downloadSlip(slip)} disabled={Boolean(downloadingSlipId)} className="rounded-lg bg-orange px-4 py-2 text-[12px] font-bold text-white disabled:opacity-60">{downloadingSlipId === slip._id ? 'Downloading…' : 'Download PDF'}</button>
             </article>) : <p className="rounded-xl bg-[#faf7f2] px-4 py-8 text-center text-[13px] text-[#887b6e]">No salary slips have been shared with you yet.</p>}
+          </div>
+        </section>
+
+        <section className="mt-6 rounded-2xl bg-white p-5 sm:p-6" style={panelStyle}>
+          <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-[18px] font-bold text-[#17100a]">My documents</h2><button type="button" onClick={refreshDocuments} disabled={refreshingDocuments} className="rounded-lg border border-black/10 px-3 py-2 text-[11px] font-bold text-[#65594d] disabled:opacity-50">{refreshingDocuments ? 'Refreshing…' : 'Refresh documents'}</button></div>
+          <p className="mt-1 text-[12px] text-[#887b6e]">Documents shared with you by HR are private to your account.</p>
+          {documentError && <p role="alert" className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-[13px] text-red-600">{documentError}</p>}
+          <div className="mt-4 space-y-2">
+            {dashboard.documents?.length ? dashboard.documents.map(document => <article key={document._id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-[#faf7f2] px-4 py-3">
+              <div><p className="text-[13px] font-bold text-[#332a22]">{document.originalName}</p><p className="mt-0.5 text-[11px] text-[#887b6e]">{(document.size / (1024 * 1024)).toFixed(2)} MB · Shared {new Date(document.createdAt).toLocaleDateString('en-IN', { dateStyle: 'medium' })}</p></div>
+              <button type="button" onClick={() => downloadDocument(document)} disabled={Boolean(downloadingDocumentId)} className="rounded-lg bg-orange px-4 py-2 text-[12px] font-bold text-white disabled:opacity-60">{downloadingDocumentId === document._id ? 'Downloading…' : 'Download'}</button>
+            </article>) : <p className="rounded-xl bg-[#faf7f2] px-4 py-8 text-center text-[13px] text-[#887b6e]">No documents have been shared with you yet.</p>}
           </div>
         </section>
 

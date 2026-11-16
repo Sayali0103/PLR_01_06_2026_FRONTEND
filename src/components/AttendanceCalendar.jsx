@@ -14,6 +14,7 @@ const HOLIDAYS = {
 const STATUS_OPTIONS = [
   { value: 'present', label: 'Present', color: 'bg-[#27a861]' },
   { value: 'absent', label: 'Absent', color: 'bg-[#dc4545]' },
+  { value: 'informed_leave', label: 'Informed leave', color: 'bg-[#d58b23]' },
   { value: 'holiday', label: 'Holiday', color: 'bg-[#e3a51e]' },
   { value: 'half_day', label: 'Half day', color: 'bg-[#8765c5]' },
   { value: 'wfh', label: 'WFH', color: 'bg-[#3886c7]' },
