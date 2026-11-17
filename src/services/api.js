@@ -51,6 +51,7 @@ export const adminAssignTask = (payload, password, role = 'admin') => request('/
 
 export const adminFetchSalarySlips = (id, password, role = 'hr') => request(`/employees/${id}/salary-slips`, { headers: { 'x-admin-password': password, 'x-admin-role': role } })
 export const adminFetchEmployeeDocuments = (id, password, role = 'hr') => request(`/employees/${id}/documents`, { headers: { 'x-admin-password': password, 'x-admin-role': role } })
+export const adminDeleteEmployeeDocument = (employeeId, documentId, password, role = 'hr') => request(`/employees/${employeeId}/documents/${documentId}`, { method: 'DELETE', headers: adminHeaders(password, role) })
 export const adminDownloadEmployeeDocument = (employeeId, document, password, role = 'hr') => downloadFile(`/employees/${employeeId}/documents/${document._id}/file`, { 'x-admin-password': password, 'x-admin-role': role }, document.originalName)
 export const adminUploadSalarySlip = (employeeId, month, file, password, role = 'hr') => {
   const body = new FormData()

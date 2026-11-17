@@ -8,7 +8,7 @@ import {
   adminSendInterviewRoundEmail,
 } from '../hooks/useJobs'
 import AttendanceCalendar from '../components/AttendanceCalendar'
-import { adminAssignTask, adminChangePassword, adminClearAttendance, adminCreateEmployee, adminDeleteEmployee, adminDownloadEmployeeDocument, adminFetchAttendance, adminFetchAttendanceSummary, adminFetchEmployeeDocuments, adminFetchEmployees, adminFetchLeaveRequests, adminFetchSalarySlips, adminFetchTasks, adminSaveAttendance, adminSetEmployeePortal, adminUpdateLeaveRequest, adminUploadEmployeeDocument, adminUploadSalarySlip, employeeLogin } from '../services/api'
+import { adminAssignTask, adminChangePassword, adminClearAttendance, adminCreateEmployee, adminDeleteEmployee, adminDeleteEmployeeDocument, adminDownloadEmployeeDocument, adminFetchAttendance, adminFetchAttendanceSummary, adminFetchEmployeeDocuments, adminFetchEmployees, adminFetchLeaveRequests, adminFetchSalarySlips, adminFetchTasks, adminSaveAttendance, adminSetEmployeePortal, adminUpdateLeaveRequest, adminUploadEmployeeDocument, adminUploadSalarySlip, employeeLogin } from '../services/api'
 
 const INTERVIEW_ROLES = ['Robotics Engineer', 'Mechanical Engineer', 'Electronics Engineer', 'Technical Sales Engineer', 'UI Developer', 'Human Resources']
 const MEET_LINKS = { 'Robotics Engineer': 'https://meet.google.com/vck-cqkr-yvd', 'Mechanical Engineer': 'https://meet.google.com/mcq-zjio-qez', 'Electronics Engineer': 'https://meet.google.com/pts-pxon-knm' }
@@ -440,6 +440,19 @@ export default function Admin() {
     try { await adminDownloadEmployeeDocument(documentEmployeeId, document, password, role) }
     catch (err) { setEmployeeDocumentsError(err.message) }
     finally { setDownloadingDocumentId('') }
+  }
+
+  const removeEmployeeDocument = async document => {
+    if (!window.confirm(`Remove “${document.originalName}” from this employee's documents?`)) return
+    setEmployeeDocumentsError('')
+    setEmployeeDocumentsMessage('')
+    setEmployeeDocumentsBusy(true)
+    try {
+      await adminDeleteEmployeeDocument(documentEmployeeId, document._id, password, role)
+      setEmployeeDocuments(current => current.filter(item => item._id !== document._id))
+      setEmployeeDocumentsMessage('Document removed.')
+    } catch (err) { setEmployeeDocumentsError(err.message) }
+    finally { setEmployeeDocumentsBusy(false) }
   }
 
   const loadSalarySlips = async employeeId => {
@@ -1248,7 +1261,7 @@ export default function Admin() {
               <div className="mt-4 space-y-2">
                 {employeeDocuments.map(document => <article key={document._id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-[#faf7f2] px-4 py-3">
                   <div><p className="text-[13px] font-bold text-[#332a22]">{document.originalName}</p><p className="mt-0.5 text-[10px] text-[#887b6e]">{(document.size / (1024 * 1024)).toFixed(2)} MB · Uploaded {new Date(document.createdAt).toLocaleDateString('en-IN', { dateStyle: 'medium' })}</p></div>
-                  <button type="button" onClick={() => downloadEmployeeDocument(document)} disabled={Boolean(downloadingDocumentId)} className="rounded-lg border border-orange/30 px-3 py-2 text-[11px] font-bold text-orange disabled:opacity-50">{downloadingDocumentId === document._id ? 'Downloading…' : 'Download'}</button>
+                  <div className="flex gap-2"><button type="button" onClick={() => downloadEmployeeDocument(document)} disabled={Boolean(downloadingDocumentId) || employeeDocumentsBusy} className="rounded-lg border border-orange/30 px-3 py-2 text-[11px] font-bold text-orange disabled:opacity-50">{downloadingDocumentId === document._id ? 'Downloading…' : 'Download'}</button><button type="button" onClick={() => removeEmployeeDocument(document)} disabled={employeeDocumentsBusy || Boolean(downloadingDocumentId)} className="rounded-lg border border-red-200 px-3 py-2 text-[11px] font-bold text-red-600 disabled:opacity-50">Remove</button></div>
                 </article>)}
                 {!documentEmployeeId && <p className="rounded-xl bg-[#faf7f2] px-4 py-8 text-center text-[13px] text-[#887b6e]">Select an employee to view their shared documents.</p>}
                 {documentEmployeeId && employeeDocuments.length === 0 && <p className="rounded-xl bg-[#faf7f2] px-4 py-8 text-center text-[13px] text-[#887b6e]">No documents have been uploaded for this employee.</p>}
